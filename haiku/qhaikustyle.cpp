@@ -3483,7 +3483,7 @@ QSize QCleanlooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
         newSize += QSize(0, 4);
         break;
     case CT_MenuBarItem:
-        newSize += QSize(0, 2);
+        newSize += QSize(0, -2);
         break;
     case CT_MenuItem:
         if (const QStyleOptionMenuItem *menuItem = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
