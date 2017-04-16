@@ -1056,26 +1056,30 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
         break;  
     case PE_IndicatorRadioButton:
         painter->save();
-        {
-            painter->setRenderHint(QPainter::SmoothPixmapTransform);
-            QRect checkRect = rect.adjusted(0, 0, 0, 0);
-            if (state & (State_On )) {
-                painter->drawImage(rect, QImage(qt_cleanlooks_radiobutton));
-                painter->drawImage(checkRect, QImage(qt_cleanlooks_radiobutton_checked));
-            }
-            else if (state & State_Sunken) {
-                painter->drawImage(rect, QImage(qt_cleanlooks_radiobutton));
-                QColor bgc = buttonShadow;
-                painter->setRenderHint(QPainter::Antialiasing);
-                painter->setBrush(bgc);
-                painter->setPen(Qt::NoPen);
-                painter->drawEllipse(rect.adjusted(1, 1, -1, -1));                }
-            else {
-                painter->drawImage(rect, QImage(qt_cleanlooks_radiobutton));
-            }
+        if (const QStyleOptionButton *checkbox = qstyleoption_cast<const QStyleOptionButton*>(option)) {
+            
+            rect = rect.adjusted(-2, -2, 1, 1);
+			BRect bRect(0.0f, 0.0f, rect.width() - 1, rect.height() - 1);
+			TemporarySurface surface(bRect);
+			rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
+			uint32 flags = 0;
+
+			if (!(state & State_Enabled))
+				flags |= BControlLook::B_DISABLED;
+			if (checkbox->state & State_On)
+				flags |= BControlLook::B_ACTIVATED;
+			if (checkbox->state & State_HasFocus)
+				flags |= BControlLook::B_FOCUSED;
+			if (checkbox->state & State_Sunken)
+				flags |= BControlLook::B_CLICKED;
+			if (checkbox->state & State_NoChange)
+				flags |= BControlLook::B_DISABLED | BControlLook::B_ACTIVATED;
+
+			be_control_look->DrawRadioButton(surface.view(), bRect, bRect, base, flags);
+			painter->drawImage(rect, surface.image());
         }
         painter->restore();
-    break;
+        break;  
     case PE_IndicatorToolBarHandle:
         painter->save();
         if (option->state & State_Horizontal) {
