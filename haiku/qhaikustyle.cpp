@@ -39,7 +39,7 @@
 **
 ****************************************************************************/
 
-#include "qcleanlooksstyle.h"
+#include "qhaikustyle.h"
 
 #include <qcombobox.h>
 #include <qpushbutton.h>

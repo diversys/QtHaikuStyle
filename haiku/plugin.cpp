@@ -40,14 +40,14 @@
 ****************************************************************************/
 
 #include <QStylePlugin>
-#include "qcleanlooksstyle.h"
+#include "qhaikustyle.h"
 
 QT_BEGIN_NAMESPACE
 
 class QCleanlooksStylePlugin : public QStylePlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QStyleFactoryInterface" FILE "cleanlooks.json")
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QStyleFactoryInterface" FILE "haiku.json")
 
 public:
     QStyle *create(const QString &key);
@@ -55,7 +55,7 @@ public:
 
 QStyle *QCleanlooksStylePlugin::create(const QString &key)
 {
-    if (key == "cleanlooks")
+    if (key == "haiku")
         return new QCleanlooksStyle;
     return 0;
 }
