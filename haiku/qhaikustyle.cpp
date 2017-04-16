@@ -531,6 +531,10 @@ static void qt_haiku_draw_button(QPainter *painter, const QRect &qrect, bool def
 
 		TemporarySurface surface(bRect);
 
+		surface.view()->SetHighColor(base);
+		surface.view()->SetLowColor(base);
+		surface.view()->FillRect(bRect);
+
 		be_control_look->DrawButtonFrame(surface.view(), bRect, bRect, base, background, flags);
 		be_control_look->DrawButtonBackground(surface.view(), bRect, bRect, base, flags);
 
@@ -1036,6 +1040,10 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
 			BRect bRect(0.0f, 0.0f, rect.width() - 1, rect.height() - 1);
 			TemporarySurface surface(bRect);
 			rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
+			surface.view()->SetHighColor(base);
+			surface.view()->SetLowColor(base);
+			surface.view()->FillRect(bRect);
+
 			uint32 flags = 0;
 
 			if (!(state & State_Enabled))
@@ -1062,6 +1070,10 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
 			BRect bRect(0.0f, 0.0f, rect.width() - 1, rect.height() - 1);
 			TemporarySurface surface(bRect);
 			rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
+			surface.view()->SetHighColor(base);
+			surface.view()->SetLowColor(base);
+			surface.view()->FillRect(bRect);
+
 			uint32 flags = 0;
 
 			if (!(state & State_Enabled))
@@ -1334,6 +1346,9 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
 				uint32 flags = 0;            
 		        BRect bRect(0.0f, 0.0f, r.width() - 1, r.height() - 1);
 				TemporarySurface surface(bRect);
+				surface.view()->SetHighColor(base);
+				surface.view()->SetLowColor(base);
+				surface.view()->FillRect(bRect);
 				be_control_look->DrawSplitter(surface.view(), bRect, bRect, base, orient, flags);
 				painter->drawImage(r, surface.image());			    
 			}
@@ -2222,7 +2237,7 @@ QPalette QCleanlooksStyle::standardPalette () const
     palette.setBrush(QPalette::Inactive, QPalette::Highlight, QColor(145, 141, 126));
     palette.setBrush(QPalette::Disabled, QPalette::Highlight, QColor(145, 141, 126));
 
-    QColor backGround(239, 235, 231);
+    QColor backGround(mkQColor(ui_color(B_PANEL_BACKGROUND_COLOR)));
 
     QColor light = backGround.lighter(150);
     QColor base = Qt::white;
