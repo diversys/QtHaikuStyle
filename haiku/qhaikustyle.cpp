@@ -64,6 +64,14 @@
 #include <qlibrary.h>
 #include <qstylefactory.h>
 
+#include <AppKit.h>
+#include <StorageKit.h>
+#include <InterfaceKit.h>
+#include <NodeInfo.h>
+#include <Bitmap.h>
+#include <ControlLook.h>
+#include <View.h>
+
 #include "qstylehelper_p.h"
 #include "qstylecache_p.h"
 
@@ -77,6 +85,51 @@ enum Direction {
     BottomUp,
     FromRight
 };
+
+// Haiku BBitmap surface
+class TemporarySurface
+{
+public:
+	TemporarySurface(const BRect& bounds)
+		: mBitmap(bounds, B_BITMAP_ACCEPTS_VIEWS, B_RGBA32)
+		, mView(bounds, "Qt temporary surface", 0, 0)
+		, mImage(reinterpret_cast<const uchar*>(mBitmap.Bits()),
+			bounds.IntegerWidth() + 1, bounds.IntegerHeight() + 1,
+			mBitmap.BytesPerRow(), QImage::Format_ARGB32)
+	{
+		mBitmap.Lock();
+		mBitmap.AddChild(&mView);
+	}
+
+	~TemporarySurface()
+	{
+		mBitmap.RemoveChild(&mView);
+		mBitmap.Unlock();
+	}
+
+	BView* view()
+	{
+		return &mView;
+	}
+
+	QImage& image()
+	{
+		if(mView.Window())
+			mView.Sync();
+		return mImage;
+	}
+
+private:
+	BBitmap		mBitmap;
+	BView		mView;
+	QImage		mImage;
+};
+
+// convert Haiku rgb_color to QColor
+static QColor mkQColor(rgb_color rgb)
+{
+	return QColor(rgb.red, rgb.green, rgb.blue);
+}
 
 // from windows style
 static const int windowsItemFrame        =  2; // menu item frame width
@@ -453,6 +506,39 @@ static const char * const qt_cleanlooks_checkbox_checked[] = {
     "      %      ",
     "             ",
     "             "};
+    
+static void qt_haiku_draw_button(QPainter *painter, const QRect &qrect, bool def, bool flat, bool pushed, bool focus, bool enabled)
+{
+	QRect rect = qrect;
+	if (be_control_look != NULL) {
+		// TODO: If this button is embedded within a different color background, it would be
+		// nice to tell this function so the frame can be smoothly blended into the background.
+		rgb_color background = ui_color(B_PANEL_BACKGROUND_COLOR);
+		rgb_color base = background;
+		uint32 flags = 0;
+		if (pushed)
+			flags |= BControlLook::B_ACTIVATED;
+		if (focus)
+			flags |= BControlLook::B_FOCUSED;
+		if (def) {
+			flags |= BControlLook::B_DEFAULT_BUTTON;
+			rect = rect.adjusted(-2,-2,2,2);
+		}
+		if (!enabled)
+			flags |= BControlLook::B_DISABLED;
+
+		BRect bRect(0.0f, 0.0f, rect.width() - 1, rect.height() - 1);
+
+		TemporarySurface surface(bRect);
+
+		be_control_look->DrawButtonFrame(surface.view(), bRect, bRect, base, background, flags);
+		be_control_look->DrawButtonBackground(surface.view(), bRect, bRect, base, flags);
+
+		painter->drawImage(rect, surface.image());
+
+		return;
+	}
+}
 
 static void qt_cleanlooks_draw_gradient(QPainter *painter, const QRect &rect, const QColor &gradientStart,
                                         const QColor &gradientStop, Direction direction = TopDown, QBrush bgBrush = QBrush())

@@ -4,6 +4,7 @@ PLUGIN_CLASS_NAME = QCleanlooksStylePlugin
 load(qt_plugin)
 
 QT = core gui widgets
+LIBS += -lbe
 
 HEADERS += qhaikustyle.h
 SOURCES += qhaikustyle.cpp
