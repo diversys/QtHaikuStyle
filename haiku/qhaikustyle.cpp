@@ -3443,7 +3443,7 @@ QSize QCleanlooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
                 newSize.setWidth(80);
             if (!btn->icon.isNull() && btn->iconSize.height() > 16)
                 newSize -= QSize(0, 2);
-            newSize += QSize(0, 1);
+            newSize += QSize(0, 4);
         }
         break;
 #ifndef QT_NO_GROUPBOX
