@@ -2837,20 +2837,6 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
 
             // paint groove
             if (scrollBar->subControls & SC_ScrollBarGroove) {
-                /*painter->setBrush(grooveColor);
-                painter->setPen(Qt::NoPen);
-                if (horizontal) {
-                    painter->drawRect(grooveRect);
-                    painter->setPen(darkOutline);
-                    painter->drawLine(grooveRect.topLeft(), grooveRect.topRight());
-                    painter->drawLine(grooveRect.bottomLeft(), grooveRect.bottomRight());
-                } else {
-                    painter->drawRect(grooveRect);
-                    painter->setPen(darkOutline);
-                    painter->drawLine(grooveRect.topLeft(), grooveRect.bottomLeft());
-                    painter->drawLine(grooveRect.topRight(), grooveRect.bottomRight());
-                }*/
-                	// fill background besides the thumb
                 if (horizontal) {
                 	scrollBarSlider.adjust(2,0,-1,0);
                 	QRect thumbRect = scrollBarSlider;
@@ -2865,12 +2851,11 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
 					surfaceGroove.view()->StrokeRect(surfaceGroove.view()->Bounds());
 					painter->drawImage(grooveRect, surfaceGroove.image());
                 } else {
-                	scrollBarSlider.adjust(0,2,0,-1);
                 	QRect thumbRect = scrollBarSlider;
                 	rgb_color normal = ui_color(B_PANEL_BACKGROUND_COLOR);
                 	BRect bRectGroove(0.0f, 0.0f, grooveRect.width() - 1, grooveRect.height() - 1);
-					BRect upOfThumb(bRectGroove.left, bRectGroove.top, bRectGroove.right, (thumbRect.top() - grooveRect.top()) - 2);
-					BRect downOfThumb(bRectGroove.left, (thumbRect.top() - grooveRect.bottom()) + 1, bRectGroove.right, bRectGroove.bottom);
+					BRect upOfThumb(bRectGroove.left, bRectGroove.top, bRectGroove.right, (thumbRect.top()-grooveRect.top()));
+					BRect downOfThumb(bRectGroove.left, (thumbRect.bottom()-grooveRect.top()), bRectGroove.right, bRectGroove.bottom);
 					TemporarySurface surfaceGroove(bRectGroove);
 					surfaceGroove.view()->SetDrawingMode(B_OP_COPY);
 					be_control_look->DrawScrollBarBackground(surfaceGroove.view(), upOfThumb, downOfThumb, bRectGroove, normal, 0, B_VERTICAL);
@@ -2885,7 +2870,7 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
                 if (horizontal)
                     pixmapRect.adjust(-1, 1, 0, -1);
                 else
-                    pixmapRect.adjust(1, -1, -1, 0);
+                    pixmapRect.adjust(1, 1, -1, -1);
 
                 if (isEnabled) {
  					BRect bRectThumb(0.0f, 0.0f, pixmapRect.width() - 1, pixmapRect.height() - 1);
