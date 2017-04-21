@@ -2847,12 +2847,12 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
             if (scrollBar->subControls & SC_ScrollBarGroove) {
                 if (horizontal) {
                 	scrollBarSlider.adjust(1,0,-1,0);
-                	grooveRect.adjust(-1,0,0,0);
+                	grooveRect.adjust(-1,0,1,0);
                 	QRect thumbRect = scrollBarSlider;
                 	rgb_color normal = ui_color(B_PANEL_BACKGROUND_COLOR);
                 	BRect bRectGroove(0.0f, 0.0f, grooveRect.width() - 1, grooveRect.height() - 1);
 					BRect leftOfThumb(bRectGroove.left, bRectGroove.top, (thumbRect.left() - grooveRect.left()) - 2, bRectGroove.bottom);
-					BRect rightOfThumb((thumbRect.right() - grooveRect.left()) + 1, bRectGroove.top, bRectGroove.right, bRectGroove.bottom);
+					BRect rightOfThumb((thumbRect.right() - grooveRect.left()) + 2, bRectGroove.top, bRectGroove.right, bRectGroove.bottom);
 					TemporarySurface surfaceGroove(bRectGroove);
 					surfaceGroove.view()->SetDrawingMode(B_OP_COPY);
 					be_control_look->DrawScrollBarBackground(surfaceGroove.view(), leftOfThumb, rightOfThumb, bRectGroove, normal, 0, B_HORIZONTAL);
@@ -2860,11 +2860,12 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
 					surfaceGroove.view()->StrokeRect(surfaceGroove.view()->Bounds());
 					painter->drawImage(grooveRect, surfaceGroove.image());
                 } else {
-                	grooveRect.adjust(0,-1,0,0);
+                	scrollBarSlider.adjust(0,1,0,1);
+                	grooveRect.adjust(0,-1,0,1);
                 	QRect thumbRect = scrollBarSlider;
                 	rgb_color normal = ui_color(B_PANEL_BACKGROUND_COLOR);
                 	BRect bRectGroove(0.0f, 0.0f, grooveRect.width() - 1, grooveRect.height() - 1);
-					BRect upOfThumb(bRectGroove.left, bRectGroove.top, bRectGroove.right, (thumbRect.top()-grooveRect.top()));
+					BRect upOfThumb(bRectGroove.left, bRectGroove.top, bRectGroove.right, (thumbRect.top()-grooveRect.top())-2);
 					BRect downOfThumb(bRectGroove.left, (thumbRect.bottom()-grooveRect.top()), bRectGroove.right, bRectGroove.bottom);
 					TemporarySurface surfaceGroove(bRectGroove);
 					surfaceGroove.view()->SetDrawingMode(B_OP_COPY);
@@ -2878,7 +2879,7 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
             if (scrollBar->subControls & SC_ScrollBarSlider) {
                 QRect pixmapRect = scrollBarSlider;
                 if (horizontal)
-                    pixmapRect.adjust(-1, 1, 0, -1);
+                    pixmapRect.adjust(-1, 1, 1, -1);
                 else
                     pixmapRect.adjust(1, -1, -1, -1);
 
@@ -2933,7 +2934,31 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
                     painter->drawRect(scrollBarSubLine.adjusted(0,0,-1,-1));						
 				}				
             }
-            
+            if (scrollBar->subControls & SC_ScrollBarAddLine) {
+				QRect pixmapRect = scrollBarAddLine;;
+                if (horizontal)
+                    pixmapRect.adjust(1, 1, -1, -1);
+                else
+                    pixmapRect.adjust(1, 1, -1, -1);
+
+                if (isEnabled ) {
+					uint32 flags = 0;
+					QRect buttonRect = pixmapRect;
+					rgb_color baseColor = tint_color(ui_color(B_PANEL_BACKGROUND_COLOR), B_LIGHTEN_1_TINT);
+					BRect bRectButton(0.0f, 0.0f, pixmapRect.width() - 1, pixmapRect.height() - 1);
+                	TemporarySurface surfaceButton(bRectButton);
+ 					rgb_color normal = ui_color(B_PANEL_BACKGROUND_COLOR);
+ 					rgb_color thumbColor = ui_color(B_SCROLL_BAR_THUMB_COLOR);
+ 					surfaceButton.view()->SetDrawingMode(B_OP_COPY);
+ 					be_control_look->DrawButtonBackground(surfaceButton.view(), bRectButton, bRectButton,	baseColor, flags, BControlLook::B_ALL_BORDERS, horizontal?B_HORIZONTAL:B_VERTICAL);
+ 					bRectButton.InsetBy(-1, -1);
+ 					surfaceButton.view()->SetDrawingMode(B_OP_ALPHA);
+					be_control_look->DrawArrowShape(surfaceButton.view(), bRectButton, bRectButton,	baseColor,  horizontal?ARROW_RIGHT:ARROW_DOWN, flags, B_DARKEN_MAX_TINT);
+ 					painter->drawImage(pixmapRect, surfaceButton.image());
+                    painter->setPen(mkQColor(tint_color(normal, B_DARKEN_2_TINT)));
+                    painter->drawRect(scrollBarAddLine.adjusted(0,0,-1,-1));						
+				}
+            }
         
 
 
@@ -3302,9 +3327,9 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
 				}
 								
 				if (option->subControls & SC_SliderHandle ) {
-					r=handle.adjusted(1,1,0,0);
+					r=handle.adjusted(7,7,-7,0);
 					bRect = BRect(r.x(), r.y(), r.x()+r.width(), r.y()+r.height());
-					be_control_look->DrawSliderThumb(surface.view(), bRect, bRect, base, flags, orient);
+					be_control_look->DrawSliderTriangle(surface.view(), bRect, bRect, base, flags, orient);
 				}					    
 								
 				painter->drawImage(slider->rect, surface.image());		
