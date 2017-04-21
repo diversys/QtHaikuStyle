@@ -44,7 +44,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class QCleanlooksStylePlugin : public QStylePlugin
+class QHaikuStylePlugin : public QStylePlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QStyleFactoryInterface" FILE "haiku.json")
@@ -53,10 +53,10 @@ public:
     QStyle *create(const QString &key);
 };
 
-QStyle *QCleanlooksStylePlugin::create(const QString &key)
+QStyle *QHaikuStylePlugin::create(const QString &key)
 {
     if (key == "haiku")
-        return new QCleanlooksStyle;
+        return new QHaikuStyle;
     return 0;
 }
 

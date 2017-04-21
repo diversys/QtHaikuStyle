@@ -51,13 +51,13 @@ QT_BEGIN_NAMESPACE
 
 class QProgressBar;
 
-class QCleanlooksStyle : public QProxyStyle
+class QHaikuStyle : public QProxyStyle
 {
     Q_OBJECT
 
 public:
-    QCleanlooksStyle();
-    ~QCleanlooksStyle();
+    QHaikuStyle();
+    ~QHaikuStyle();
 
     QPalette standardPalette () const Q_DECL_OVERRIDE;
     void drawPrimitive(PrimitiveElement elem,

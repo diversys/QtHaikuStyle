@@ -162,7 +162,7 @@ static const char * const dock_widget_close_xpm[] = {
     " +@@@@@@@+ ",
     "           "};
 
-static const char * const qt_cleanlooks_arrow_down_xpm[] = {
+static const char * const qt_haiku_arrow_down_xpm[] = {
     "11 7 2 1",
     " 	c None",
     "x	c #000000",
@@ -174,7 +174,7 @@ static const char * const qt_cleanlooks_arrow_down_xpm[] = {
     "    xxx    ",
     "     x     "};
 
-static const char * const qt_cleanlooks_arrow_up_xpm[] = {
+static const char * const qt_haiku_arrow_up_xpm[] = {
     "11 7 2 1",
     " 	c None",
     "x	c #000000",
@@ -249,7 +249,7 @@ static const char * const qt_titlebar_context_help[] = {
     "    ##    ",
     "    ##    "};
 
-static const char * const qt_cleanlooks_radiobutton[] = {
+static const char * const qt_haiku_radiobutton[] = {
     "13 13 9 1",
     " 	c None",
     ".	c #ABA094",
@@ -274,7 +274,7 @@ static const char * const qt_cleanlooks_radiobutton[] = {
     "  @+#%*%#+@  ",
     "   #@...+#   "};
 
-static const char * const qt_cleanlooks_radiobutton_checked[] = {
+static const char * const qt_haiku_radiobutton_checked[] = {
     "13 13 20 1",
     " 	c None",
     ".	c #A8ABAE",
@@ -471,7 +471,7 @@ static const char * const qt_scrollbar_button_down[] = {
     ".+<<<<<<<<<<<<+.",
     " .++++++++++++. "};
 
-static const char * const qt_cleanlooks_menuitem_checkbox_checked[] = {
+static const char * const qt_haiku_menuitem_checkbox_checked[] = {
     "8 7 6 1",
     " 	g None",
     ".	g #959595",
@@ -487,7 +487,7 @@ static const char * const qt_cleanlooks_menuitem_checkbox_checked[] = {
     "  @#    ",
     "   .    "};
 
-static const char * const qt_cleanlooks_checkbox_checked[] = {
+static const char * const qt_haiku_checkbox_checked[] = {
     "13 13 3 1",
     " 	c None",
     ".	c #272D33",
@@ -575,7 +575,7 @@ static void qt_haiku_draw_gradient(QPainter *painter, const QRect &rect, const Q
         delete gradient;
 }
 
-static void qt_cleanlooks_draw_buttongradient(QPainter *painter, const QRect &rect, const QColor &gradientStart,
+static void qt_haiku_draw_buttongradient(QPainter *painter, const QRect &rect, const QColor &gradientStart,
                                                 const QColor &gradientMid, const QColor &gradientStop, Direction direction = TopDown,
                                                 QBrush bgBrush = QBrush())
 {
@@ -616,7 +616,7 @@ static void qt_cleanlooks_draw_buttongradient(QPainter *painter, const QRect &re
         delete gradient;
 }
 
-static void qt_cleanlooks_draw_mdibutton(QPainter *painter, const QStyleOptionTitleBar *option, const QRect &tmp, bool hover, bool sunken)
+static void qt_haiku_draw_mdibutton(QPainter *painter, const QStyleOptionTitleBar *option, const QRect &tmp, bool hover, bool sunken)
 {
     QColor dark;
     dark.setHsv(option->palette.button().color().hue(),
@@ -678,38 +678,38 @@ static void qt_cleanlooks_draw_mdibutton(QPainter *painter, const QStyleOptionTi
 }
 
 /*!
-    \class QCleanlooksStyle
-    \brief The QCleanlooksStyle class provides a widget style similar to the
+    \class QHaikuStyle
+    \brief The QHaikuStyle class provides a widget style similar to the
     Clearlooks style available in GNOME.
     \since 4.2
 
     \inmodule QtWidgets
 
-    The Cleanlooks style provides a look and feel for widgets
+    The Haiku style provides a look and feel for widgets
     that closely resembles the Clearlooks style, introduced by Richard
     Stellingwerff and Daniel Borgmann.
 
-    \sa {Cleanlooks Style Widget Gallery}, QWindowsXPStyle, QMacStyle, QWindowsStyle,
+    \sa {Haiku Style Widget Gallery}, QWindowsXPStyle, QMacStyle, QWindowsStyle,
         QPlastiqueStyle
 */
 
 /*!
-    Constructs a QCleanlooksStyle object.
+    Constructs a QHaikuStyle object.
 */
-QCleanlooksStyle::QCleanlooksStyle() : QProxyStyle(QStyleFactory::create(QLatin1String("Windows"))), animateStep(0), animateTimer(0)
+QHaikuStyle::QHaikuStyle() : QProxyStyle(QStyleFactory::create(QLatin1String("Windows"))), animateStep(0), animateTimer(0)
 {
     setObjectName(QLatin1String("CleanLooks"));
 }
 
 /*!
-    Destroys the QCleanlooksStyle object.
+    Destroys the QHaikuStyle object.
 */
-QCleanlooksStyle::~QCleanlooksStyle()
+QHaikuStyle::~QHaikuStyle()
 {
 }
 
 /*!
-    \fn void QCleanlooksStyle::drawItemText(QPainter *painter, const QRect &rectangle, int alignment, const QPalette &palette,
+    \fn void QHaikuStyle::drawItemText(QPainter *painter, const QRect &rectangle, int alignment, const QPalette &palette,
                                     bool enabled, const QString& text, QPalette::ColorRole textRole) const
 
     Draws the given \a text in the specified \a rectangle using the
@@ -726,7 +726,7 @@ QCleanlooksStyle::~QCleanlooksStyle()
 
     \sa Qt::Alignment
 */
-void QCleanlooksStyle::drawItemText(QPainter *painter, const QRect &rect, int alignment, const QPalette &pal,
+void QHaikuStyle::drawItemText(QPainter *painter, const QRect &rect, int alignment, const QPalette &pal,
                                     bool enabled, const QString& text, QPalette::ColorRole textRole) const
 {
     if (text.isEmpty())
@@ -757,7 +757,7 @@ static QColor mergedColors(const QColor &colorA, const QColor &colorB, int facto
 /*!
     \reimp
 */
-void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
+void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
                         const QStyleOption *option,
                         QPainter *painter, const QWidget *widget) const
 {
@@ -832,9 +832,9 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
             QRect r = header->rect;
             QImage arrow;
             if (header->sortIndicator & QStyleOptionHeader::SortUp)
-                arrow = QImage(qt_cleanlooks_arrow_up_xpm);
+                arrow = QImage(qt_haiku_arrow_up_xpm);
             else if (header->sortIndicator & QStyleOptionHeader::SortDown)
-                arrow = QImage(qt_cleanlooks_arrow_down_xpm);
+                arrow = QImage(qt_haiku_arrow_down_xpm);
             if (!arrow.isNull()) {
                 r.setSize(arrow.size());
                 r.moveCenter(header->rect.center());
@@ -1036,7 +1036,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
         painter->save();
         if (const QStyleOptionButton *checkbox = qstyleoption_cast<const QStyleOptionButton*>(option)) {
             
-            rect = rect.adjusted(-2, -2, 1, 1);
+            rect = rect.adjusted(-1, -1, 3, 3);
 			BRect bRect(0.0f, 0.0f, rect.width() - 1, rect.height() - 1);
 			TemporarySurface surface(bRect);
 			rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
@@ -1066,7 +1066,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
         painter->save();
         if (const QStyleOptionButton *checkbox = qstyleoption_cast<const QStyleOptionButton*>(option)) {
             
-            rect = rect.adjusted(-2, -2, 1, 1);
+            rect = rect.adjusted(-2, -2, 3, 3);
 			BRect bRect(0.0f, 0.0f, rect.width() - 1, rect.height() - 1);
 			TemporarySurface surface(bRect);
 			rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
@@ -1303,7 +1303,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
 /*!
   \reimp
 */
-void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *option, QPainter *painter,
+void QHaikuStyle::drawControl(ControlElement element, const QStyleOption *option, QPainter *painter,
                                    const QWidget *widget) const
 {
     QColor button = option->palette.button().color();
@@ -1814,7 +1814,7 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
                         // Check box
                         if (menuItem->icon.isNull()) {
                             if (checked || sunken) {
-                                QImage image(qt_cleanlooks_menuitem_checkbox_checked);
+                                QImage image(qt_haiku_menuitem_checkbox_checked);
                                 if (enabled && (menuItem->state & State_Selected)) {
                                     image.setColor(1, 0x55ffffff);
                                     image.setColor(2, 0xAAffffff);
@@ -2230,7 +2230,7 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
 /*!
   \reimp
 */
-QPalette QCleanlooksStyle::standardPalette () const
+QPalette QHaikuStyle::standardPalette () const
 {
     QPalette palette = QProxyStyle::standardPalette();
     palette.setBrush(QPalette::Active, QPalette::Highlight, QColor(98, 140, 178));
@@ -2275,7 +2275,7 @@ QPalette QCleanlooksStyle::standardPalette () const
 /*!
   \reimp
 */
-void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOptionComplex *option,
+void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionComplex *option,
                                          QPainter *painter, const QWidget *widget) const
 {
     QColor button = option->palette.button().color();
@@ -2626,7 +2626,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                 if (minButtonRect.isValid()) {
                     bool hover = (titleBar->activeSubControls & SC_TitleBarMinButton) && (titleBar->state & State_MouseOver);
                     bool sunken = (titleBar->activeSubControls & SC_TitleBarMinButton) && (titleBar->state & State_Sunken);
-                    qt_cleanlooks_draw_mdibutton(painter, titleBar, minButtonRect, hover, sunken);
+                    qt_haiku_draw_mdibutton(painter, titleBar, minButtonRect, hover, sunken);
                     QRect minButtonIconRect = minButtonRect.adjusted(buttonMargin ,buttonMargin , -buttonMargin, -buttonMargin);
                     painter->setPen(textColor);
                     painter->drawLine(minButtonIconRect.center().x() - 2, minButtonIconRect.center().y() + 3,
@@ -2647,7 +2647,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                 if (maxButtonRect.isValid()) {
                     bool hover = (titleBar->activeSubControls & SC_TitleBarMaxButton) && (titleBar->state & State_MouseOver);
                     bool sunken = (titleBar->activeSubControls & SC_TitleBarMaxButton) && (titleBar->state & State_Sunken);
-                    qt_cleanlooks_draw_mdibutton(painter, titleBar, maxButtonRect, hover, sunken);
+                    qt_haiku_draw_mdibutton(painter, titleBar, maxButtonRect, hover, sunken);
 
                     QRect maxButtonIconRect = maxButtonRect.adjusted(buttonMargin, buttonMargin, -buttonMargin, -buttonMargin);
 
@@ -2672,7 +2672,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                 if (closeButtonRect.isValid()) {
                     bool hover = (titleBar->activeSubControls & SC_TitleBarCloseButton) && (titleBar->state & State_MouseOver);
                     bool sunken = (titleBar->activeSubControls & SC_TitleBarCloseButton) && (titleBar->state & State_Sunken);
-                    qt_cleanlooks_draw_mdibutton(painter, titleBar, closeButtonRect, hover, sunken);
+                    qt_haiku_draw_mdibutton(painter, titleBar, closeButtonRect, hover, sunken);
                     QRect closeIconRect = closeButtonRect.adjusted(buttonMargin, buttonMargin, -buttonMargin, -buttonMargin);
                     painter->setPen(textAlphaColor);
                     const QLine lines[4] = {
@@ -2714,7 +2714,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     bool hover = (titleBar->activeSubControls & SC_TitleBarNormalButton) && (titleBar->state & State_MouseOver);
                     bool sunken = (titleBar->activeSubControls & SC_TitleBarNormalButton) && (titleBar->state & State_Sunken);
                     QRect normalButtonIconRect = normalButtonRect.adjusted(buttonMargin, buttonMargin, -buttonMargin, -buttonMargin);
-                    qt_cleanlooks_draw_mdibutton(painter, titleBar, normalButtonRect, hover, sunken);
+                    qt_haiku_draw_mdibutton(painter, titleBar, normalButtonRect, hover, sunken);
 
                     QRect frontWindowRect = normalButtonIconRect.adjusted(0, 3, -3, 0);
                     painter->setPen(textColor);
@@ -2758,7 +2758,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                 if (contextHelpButtonRect.isValid()) {
                     bool hover = (titleBar->activeSubControls & SC_TitleBarContextHelpButton) && (titleBar->state & State_MouseOver);
                     bool sunken = (titleBar->activeSubControls & SC_TitleBarContextHelpButton) && (titleBar->state & State_Sunken);
-                    qt_cleanlooks_draw_mdibutton(painter, titleBar, contextHelpButtonRect, hover, sunken);
+                    qt_haiku_draw_mdibutton(painter, titleBar, contextHelpButtonRect, hover, sunken);
 
                     QColor blend;
                     QImage image(qt_titlebar_context_help);
@@ -2777,7 +2777,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                 if (shadeButtonRect.isValid()) {
                     bool hover = (titleBar->activeSubControls & SC_TitleBarShadeButton) && (titleBar->state & State_MouseOver);
                     bool sunken = (titleBar->activeSubControls & SC_TitleBarShadeButton) && (titleBar->state & State_Sunken);
-                    qt_cleanlooks_draw_mdibutton(painter, titleBar, shadeButtonRect, hover, sunken);
+                    qt_haiku_draw_mdibutton(painter, titleBar, shadeButtonRect, hover, sunken);
                     QImage image(qt_scrollbar_button_arrow_up);
                     image.setColor(1, textColor.rgba());
                     painter->drawImage(shadeButtonRect.adjusted(5, 7, -5, -7), image);
@@ -2790,7 +2790,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                 if (unshadeButtonRect.isValid()) {
                     bool hover = (titleBar->activeSubControls & SC_TitleBarUnshadeButton) && (titleBar->state & State_MouseOver);
                     bool sunken = (titleBar->activeSubControls & SC_TitleBarUnshadeButton) && (titleBar->state & State_Sunken);
-                    qt_cleanlooks_draw_mdibutton(painter, titleBar, unshadeButtonRect, hover, sunken);
+                    qt_haiku_draw_mdibutton(painter, titleBar, unshadeButtonRect, hover, sunken);
                     QImage image(qt_scrollbar_button_arrow_down);
                     image.setColor(1, textColor.rgba());
                     painter->drawImage(unshadeButtonRect.adjusted(5, 7, -5, -7), image);
@@ -2824,6 +2824,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
             bool reverse = scrollBar->direction == Qt::RightToLeft;
             bool horizontal = scrollBar->orientation == Qt::Horizontal;
             bool sunken = scrollBar->state & State_Sunken;
+		
 
             painter->fillRect(option->rect, option->palette.background());
 
@@ -2831,10 +2832,12 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
             QRect scrollBarAddLine = proxy()->subControlRect(control, scrollBar, SC_ScrollBarAddLine, widget);
             QRect scrollBarSlider = proxy()->subControlRect(control, scrollBar, SC_ScrollBarSlider, widget);
             QRect grooveRect = proxy()->subControlRect(control, scrollBar, SC_ScrollBarGroove, widget);
+            
+            //grooveRect.adjust(0,0,0,1);           
 
             // paint groove
             if (scrollBar->subControls & SC_ScrollBarGroove) {
-                painter->setBrush(grooveColor);
+                /*painter->setBrush(grooveColor);
                 painter->setPen(Qt::NoPen);
                 if (horizontal) {
                     painter->drawRect(grooveRect);
@@ -2846,70 +2849,51 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     painter->setPen(darkOutline);
                     painter->drawLine(grooveRect.topLeft(), grooveRect.bottomLeft());
                     painter->drawLine(grooveRect.topRight(), grooveRect.bottomRight());
-                }
+                }*/
+                	// fill background besides the thumb
+                if (horizontal) {
+                	scrollBarSlider.adjust(2,0,-1,0);
+                	QRect thumbRect = scrollBarSlider;
+                	rgb_color normal = ui_color(B_PANEL_BACKGROUND_COLOR);
+                	BRect bRectGroove(0.0f, 0.0f, grooveRect.width() - 1, grooveRect.height() - 1);
+					BRect leftOfThumb(bRectGroove.left, bRectGroove.top, (thumbRect.left() - grooveRect.left()) - 2, bRectGroove.bottom);
+					BRect rightOfThumb((thumbRect.right() - grooveRect.left()) + 1, bRectGroove.top, bRectGroove.right, bRectGroove.bottom);
+					TemporarySurface surfaceGroove(bRectGroove);
+					surfaceGroove.view()->SetDrawingMode(B_OP_COPY);
+					be_control_look->DrawScrollBarBackground(surfaceGroove.view(), leftOfThumb, rightOfThumb, bRectGroove, normal, 0, B_HORIZONTAL);
+					surfaceGroove.view()->SetHighColor(tint_color(normal, B_DARKEN_2_TINT));
+					surfaceGroove.view()->StrokeRect(surfaceGroove.view()->Bounds());
+					painter->drawImage(grooveRect, surfaceGroove.image());
+                } else {
+                	scrollBarSlider.adjust(0,2,0,-1);
+                	QRect thumbRect = scrollBarSlider;
+                	rgb_color normal = ui_color(B_PANEL_BACKGROUND_COLOR);
+                	BRect bRectGroove(0.0f, 0.0f, grooveRect.width() - 1, grooveRect.height() - 1);
+					BRect upOfThumb(bRectGroove.left, bRectGroove.top, bRectGroove.right, (thumbRect.top() - grooveRect.top()) - 2);
+					BRect downOfThumb(bRectGroove.left, (thumbRect.top() - grooveRect.bottom()) + 1, bRectGroove.right, bRectGroove.bottom);
+					TemporarySurface surfaceGroove(bRectGroove);
+					surfaceGroove.view()->SetDrawingMode(B_OP_COPY);
+					be_control_look->DrawScrollBarBackground(surfaceGroove.view(), upOfThumb, downOfThumb, bRectGroove, normal, 0, B_VERTICAL);
+					surfaceGroove.view()->SetHighColor(tint_color(normal, B_DARKEN_2_TINT));
+					surfaceGroove.view()->StrokeRect(surfaceGroove.view()->Bounds());
+					painter->drawImage(grooveRect, surfaceGroove.image());                	
+                }                
             }
             //paint slider
             if (scrollBar->subControls & SC_ScrollBarSlider) {
                 QRect pixmapRect = scrollBarSlider;
                 if (horizontal)
-                    pixmapRect.adjust(-1, 0, 0, -1);
+                    pixmapRect.adjust(-1, 1, 0, -1);
                 else
-                    pixmapRect.adjust(0, -1, -1, 0);
+                    pixmapRect.adjust(1, -1, -1, 0);
 
                 if (isEnabled) {
-                    QLinearGradient gradient(pixmapRect.center().x(), pixmapRect.top(),
-                                             pixmapRect.center().x(), pixmapRect.bottom());
-                    if (!horizontal)
-                        gradient = QLinearGradient(pixmapRect.left(), pixmapRect.center().y(),
-                                                   pixmapRect.right(), pixmapRect.center().y());
-
-                    if (option->palette.button().gradient()) {
-                        gradient.setStops(option->palette.button().gradient()->stops());
-                    } else {
-                        if (sunken || (option->state & State_MouseOver &&
-                            (scrollBar->activeSubControls & SC_ScrollBarSlider))) {
-                            gradient.setColorAt(0, gradientStartColor.lighter(110));
-                            gradient.setColorAt(1, gradientStopColor.lighter(110));
-                        } else {
-                            gradient.setColorAt(0, gradientStartColor);
-                            gradient.setColorAt(1, gradientStopColor);
-                        }
-                    }
-                    painter->setPen(QPen(darkOutline, 0));
-                    painter->setBrush(gradient);
-                    painter->drawRect(pixmapRect);
-
-
-                    //calculate offsets used by highlight and shadow
-                    int yoffset, xoffset;
-                    if (option->state & State_Horizontal) {
-                        xoffset = 0;
-                        yoffset = 1;
-                    } else {
-                        xoffset = 1;
-                        yoffset = 0;
-                    }
-                    //draw slider highlights
-                    painter->setPen(QPen(gradientStopColor, 0));
-                    painter->drawLine(scrollBarSlider.left() + xoffset,
-                                      scrollBarSlider.bottom() - yoffset,
-                                      scrollBarSlider.right() - xoffset,
-                                      scrollBarSlider.bottom() - yoffset);
-                    painter->drawLine(scrollBarSlider.right() - xoffset,
-                                      scrollBarSlider.top() + yoffset,
-                                      scrollBarSlider.right() - xoffset,
-                                      scrollBarSlider.bottom() - yoffset);
-
-                    //draw slider shadow
-                    painter->setPen(QPen(gradientStartColor, 0));
-                    painter->drawLine(scrollBarSlider.left() + xoffset,
-                                      scrollBarSlider.top() + yoffset,
-                                      scrollBarSlider.right() - xoffset,
-                                      scrollBarSlider.top() + yoffset);
-                    painter->drawLine(scrollBarSlider.left() + xoffset,
-                                      scrollBarSlider.top() + yoffset,
-                                      scrollBarSlider.left() + xoffset,
-                                      scrollBarSlider.bottom() - yoffset);
+ 					BRect bRectThumb(0.0f, 0.0f, pixmapRect.width() - 1, pixmapRect.height() - 1);
+                	TemporarySurface surfaceThumb(bRectThumb);
+ 					rgb_color normal = ui_color(B_PANEL_BACKGROUND_COLOR);
+ 					rgb_color thumbColor = ui_color(B_SCROLL_BAR_THUMB_COLOR);
+ 					be_control_look->DrawButtonBackground(surfaceThumb.view(), bRectThumb, bRectThumb,	normal, 0, BControlLook::B_ALL_BORDERS, horizontal?B_HORIZONTAL:B_VERTICAL);
+ 					painter->drawImage(pixmapRect, surfaceThumb.image());
                 } else {
                     QLinearGradient gradient(pixmapRect.center().x(), pixmapRect.top(),
                                              pixmapRect.center().x(), pixmapRect.bottom());
@@ -2928,43 +2912,10 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     painter->setBrush(gradient);
                     painter->drawRect(pixmapRect);
                 }
-                int gripMargin = 4;
-                //draw grips
-                if (horizontal) {
-                    for (int i = -3; i< 6 ; i += 3) {
-                        painter->setPen(QPen(gripShadow, 1));
-                        painter->drawLine(
-                            QPoint(scrollBarSlider.center().x() + i ,
-                                   scrollBarSlider.top() + gripMargin),
-                            QPoint(scrollBarSlider.center().x() + i,
-                                   scrollBarSlider.bottom() - gripMargin));
-                        painter->setPen(QPen(palette.light(), 1));
-                        painter->drawLine(
-                            QPoint(scrollBarSlider.center().x() + i + 1,
-                                   scrollBarSlider.top() + gripMargin  ),
-                            QPoint(scrollBarSlider.center().x() + i + 1,
-                                   scrollBarSlider.bottom() - gripMargin));
-                    }
-                } else {
-                    for (int i = -3; i < 6 ; i += 3) {
-                        painter->setPen(QPen(gripShadow, 1));
-                        painter->drawLine(
-                            QPoint(scrollBarSlider.left() + gripMargin ,
-                                   scrollBarSlider.center().y()+ i),
-                            QPoint(scrollBarSlider.right() - gripMargin,
-                                   scrollBarSlider.center().y()+ i));
-                        painter->setPen(QPen(palette.light(), 1));
-                        painter->drawLine(
-                            QPoint(scrollBarSlider.left() + gripMargin,
-                                   scrollBarSlider.center().y() + 1 + i),
-                            QPoint(scrollBarSlider.right() - gripMargin,
-                                   scrollBarSlider.center().y() + 1 + i));
-                    }
-                }
             }
 
             // The SubLine (up/left) buttons
-            if (scrollBar->subControls & SC_ScrollBarSubLine) {
+            /*if (scrollBar->subControls & SC_ScrollBarSubLine) {
                 //int scrollBarExtent = proxy()->pixelMetric(PM_ScrollBarExtent, option, widget);
                 QRect pixmapRect = scrollBarSubLine;
                 if (isEnabled ) {
@@ -3064,10 +3015,10 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     arrowOpt.rect = scrollBarAddLine.adjusted(3, 3, -2, -2);
                     proxy()->drawPrimitive(arrow, &arrowOpt, painter, widget);
                 }
-            }
+            }*/
         }
         painter->restore();
-        break;;
+        break;
 #endif // QT_NO_SCROLLBAR
 #ifndef QT_NO_COMBOBOX
     case CC_ComboBox:
@@ -3188,7 +3139,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                 if (comboBox->subControls & SC_ComboBoxArrow) {
                     if (comboBox->editable) {
                         // Draw the down arrow
-                        QImage downArrow(qt_cleanlooks_arrow_down_xpm);
+                        QImage downArrow(qt_haiku_arrow_down_xpm);
                         downArrow.setColor(1, comboBox->palette.foreground().color().rgba());
                         cachePainter.drawImage(downArrowRect.center().x() - downArrow.width() / 2,
                                                downArrowRect.center().y() - downArrow.height() / 2 + 1, downArrow);
@@ -3351,7 +3302,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
 /*!
   \reimp
 */
-int QCleanlooksStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, const QWidget *widget) const
+int QHaikuStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, const QWidget *widget) const
 {
     int ret = -1;
     switch (metric) {
@@ -3451,7 +3402,7 @@ int QCleanlooksStyle::pixelMetric(PixelMetric metric, const QStyleOption *option
 /*!
   \reimp
 */
-QSize QCleanlooksStyle::sizeFromContents(ContentsType type, const QStyleOption *option,
+QSize QHaikuStyle::sizeFromContents(ContentsType type, const QStyleOption *option,
                                         const QSize &size, const QWidget *widget) const
 {
     QSize newSize = QProxyStyle::sizeFromContents(type, option, size, widget);
@@ -3546,7 +3497,7 @@ QSize QCleanlooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
 /*!
   \reimp
 */
-void QCleanlooksStyle::polish(QApplication *app)
+void QHaikuStyle::polish(QApplication *app)
 {
     QProxyStyle::polish(app);
 }
@@ -3554,7 +3505,7 @@ void QCleanlooksStyle::polish(QApplication *app)
 /*!
   \reimp
 */
-void QCleanlooksStyle::polish(QWidget *widget)
+void QHaikuStyle::polish(QWidget *widget)
 {
     QProxyStyle::polish(widget);
     if (qobject_cast<QAbstractButton*>(widget)
@@ -3589,7 +3540,7 @@ void QCleanlooksStyle::polish(QWidget *widget)
 /*!
   \reimp
 */
-void QCleanlooksStyle::polish(QPalette &pal)
+void QHaikuStyle::polish(QPalette &pal)
 {
     QProxyStyle::polish(pal);
     //this is a workaround for some themes such as Human, where the contrast
@@ -3605,7 +3556,7 @@ void QCleanlooksStyle::polish(QPalette &pal)
 /*!
   \reimp
 */
-void QCleanlooksStyle::unpolish(QWidget *widget)
+void QHaikuStyle::unpolish(QWidget *widget)
 {
     QProxyStyle::unpolish(widget);
     if (qobject_cast<QAbstractButton*>(widget)
@@ -3639,7 +3590,7 @@ void QCleanlooksStyle::unpolish(QWidget *widget)
 /*!
   \reimp
 */
-void QCleanlooksStyle::unpolish(QApplication *app)
+void QHaikuStyle::unpolish(QApplication *app)
 {
     QProxyStyle::unpolish(app);
 }
@@ -3647,7 +3598,7 @@ void QCleanlooksStyle::unpolish(QApplication *app)
 /*!
   \reimp
 */
-bool QCleanlooksStyle::event(QEvent *event)
+bool QHaikuStyle::event(QEvent *event)
 {
     switch (event->type()) {
     case QEvent::Timer: {
@@ -3672,7 +3623,7 @@ bool QCleanlooksStyle::event(QEvent *event)
 /*!
   \reimp
 */
-bool QCleanlooksStyle::eventFilter(QObject *o, QEvent *e)
+bool QHaikuStyle::eventFilter(QObject *o, QEvent *e)
 {
     switch (e->type())
     {
@@ -3703,7 +3654,7 @@ bool QCleanlooksStyle::eventFilter(QObject *o, QEvent *e)
     return QProxyStyle::eventFilter(o, e);
 }
 
-void QCleanlooksStyle::startProgressAnimation(QObject *o, QProgressBar *bar)
+void QHaikuStyle::startProgressAnimation(QObject *o, QProgressBar *bar)
 {
     if (!animatedProgressBars.contains(bar)) {
         animatedProgressBars << bar;
@@ -3716,7 +3667,7 @@ void QCleanlooksStyle::startProgressAnimation(QObject *o, QProgressBar *bar)
     }
 }
 
-void QCleanlooksStyle::stopProgressAnimation(QObject *o, QProgressBar *bar)
+void QHaikuStyle::stopProgressAnimation(QObject *o, QProgressBar *bar)
 {
     if (!animatedProgressBars.isEmpty()) {
         animatedProgressBars.removeOne(bar);
@@ -3730,7 +3681,7 @@ void QCleanlooksStyle::stopProgressAnimation(QObject *o, QProgressBar *bar)
 /*!
   \reimp
 */
-QRect QCleanlooksStyle::subControlRect(ComplexControl control, const QStyleOptionComplex *option,
+QRect QHaikuStyle::subControlRect(ComplexControl control, const QStyleOptionComplex *option,
                                        SubControl subControl, const QWidget *widget) const
 {
     QRect rect = QProxyStyle::subControlRect(control, option, subControl, widget);
@@ -4001,7 +3952,7 @@ QRect QCleanlooksStyle::subControlRect(ComplexControl control, const QStyleOptio
 /*!
   \reimp
 */
-QRect QCleanlooksStyle::itemPixmapRect(const QRect &r, int flags, const QPixmap &pixmap) const
+QRect QHaikuStyle::itemPixmapRect(const QRect &r, int flags, const QPixmap &pixmap) const
 {
     return QProxyStyle::itemPixmapRect(r, flags, pixmap);
 }
@@ -4009,7 +3960,7 @@ QRect QCleanlooksStyle::itemPixmapRect(const QRect &r, int flags, const QPixmap 
 /*!
   \reimp
 */
-void QCleanlooksStyle::drawItemPixmap(QPainter *painter, const QRect &rect,
+void QHaikuStyle::drawItemPixmap(QPainter *painter, const QRect &rect,
                             int alignment, const QPixmap &pixmap) const
 {
     QProxyStyle::drawItemPixmap(painter, rect, alignment, pixmap);
@@ -4018,7 +3969,7 @@ void QCleanlooksStyle::drawItemPixmap(QPainter *painter, const QRect &rect,
 /*!
   \reimp
 */
-QStyle::SubControl QCleanlooksStyle::hitTestComplexControl(ComplexControl cc, const QStyleOptionComplex *opt,
+QStyle::SubControl QHaikuStyle::hitTestComplexControl(ComplexControl cc, const QStyleOptionComplex *opt,
                               const QPoint &pt, const QWidget *w) const
 {
     return QProxyStyle::hitTestComplexControl(cc, opt, pt, w);
@@ -4027,7 +3978,7 @@ QStyle::SubControl QCleanlooksStyle::hitTestComplexControl(ComplexControl cc, co
 /*!
   \reimp
 */
-QPixmap QCleanlooksStyle::generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &pixmap,
+QPixmap QHaikuStyle::generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &pixmap,
                                         const QStyleOption *opt) const
 {
     return QProxyStyle::generatedIconPixmap(iconMode, pixmap, opt);
@@ -4036,7 +3987,7 @@ QPixmap QCleanlooksStyle::generatedIconPixmap(QIcon::Mode iconMode, const QPixma
 /*!
   \reimp
 */
-int QCleanlooksStyle::styleHint(StyleHint hint, const QStyleOption *option, const QWidget *widget,
+int QHaikuStyle::styleHint(StyleHint hint, const QStyleOption *option, const QWidget *widget,
                                QStyleHintReturn *returnData) const
 {
     int ret = 0;
@@ -4121,7 +4072,7 @@ int QCleanlooksStyle::styleHint(StyleHint hint, const QStyleOption *option, cons
 }
 
 /*! \reimp */
-QRect QCleanlooksStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QWidget *w) const
+QRect QHaikuStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QWidget *w) const
 {
     QRect r = QProxyStyle::subElementRect(sr, opt, w);
     switch (sr) {
@@ -4155,7 +4106,7 @@ QRect QCleanlooksStyle::subElementRect(SubElement sr, const QStyleOption *opt, c
 /*!
     \reimp
 */
-QIcon QCleanlooksStyle::standardIcon(StandardPixmap standardIcon, const QStyleOption *option,
+QIcon QHaikuStyle::standardIcon(StandardPixmap standardIcon, const QStyleOption *option,
                                      const QWidget *widget) const
 {
     return QProxyStyle::standardIcon(standardIcon, option, widget);
@@ -4164,7 +4115,7 @@ QIcon QCleanlooksStyle::standardIcon(StandardPixmap standardIcon, const QStyleOp
 /*!
  \reimp
  */
-QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
+QPixmap QHaikuStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
                                       const QWidget *widget) const
 {
     QPixmap pixmap;
