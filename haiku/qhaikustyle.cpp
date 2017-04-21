@@ -86,6 +86,14 @@ enum Direction {
     FromRight
 };
 
+typedef enum {
+	ARROW_LEFT = 0,
+	ARROW_RIGHT,
+	ARROW_UP,
+	ARROW_DOWN,
+	ARROW_NONE
+} arrow_direction;
+
 // Haiku BBitmap surface
 class TemporarySurface
 {
@@ -2838,7 +2846,8 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
             // paint groove
             if (scrollBar->subControls & SC_ScrollBarGroove) {
                 if (horizontal) {
-                	scrollBarSlider.adjust(2,0,-1,0);
+                	scrollBarSlider.adjust(1,0,-1,0);
+                	grooveRect.adjust(-1,0,0,0);
                 	QRect thumbRect = scrollBarSlider;
                 	rgb_color normal = ui_color(B_PANEL_BACKGROUND_COLOR);
                 	BRect bRectGroove(0.0f, 0.0f, grooveRect.width() - 1, grooveRect.height() - 1);
@@ -2851,6 +2860,7 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
 					surfaceGroove.view()->StrokeRect(surfaceGroove.view()->Bounds());
 					painter->drawImage(grooveRect, surfaceGroove.image());
                 } else {
+                	grooveRect.adjust(0,-1,0,0);
                 	QRect thumbRect = scrollBarSlider;
                 	rgb_color normal = ui_color(B_PANEL_BACKGROUND_COLOR);
                 	BRect bRectGroove(0.0f, 0.0f, grooveRect.width() - 1, grooveRect.height() - 1);
@@ -2870,14 +2880,14 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
                 if (horizontal)
                     pixmapRect.adjust(-1, 1, 0, -1);
                 else
-                    pixmapRect.adjust(1, 1, -1, -1);
+                    pixmapRect.adjust(1, -1, -1, -1);
 
                 if (isEnabled) {
  					BRect bRectThumb(0.0f, 0.0f, pixmapRect.width() - 1, pixmapRect.height() - 1);
                 	TemporarySurface surfaceThumb(bRectThumb);
  					rgb_color normal = ui_color(B_PANEL_BACKGROUND_COLOR);
  					rgb_color thumbColor = ui_color(B_SCROLL_BAR_THUMB_COLOR);
- 					be_control_look->DrawButtonBackground(surfaceThumb.view(), bRectThumb, bRectThumb,	normal, 0, BControlLook::B_ALL_BORDERS, horizontal?B_HORIZONTAL:B_VERTICAL);
+ 					be_control_look->DrawButtonBackground(surfaceThumb.view(), bRectThumb, bRectThumb,	thumbColor, 0, BControlLook::B_ALL_BORDERS, horizontal?B_HORIZONTAL:B_VERTICAL);
  					painter->drawImage(pixmapRect, surfaceThumb.image());
                 } else {
                     QLinearGradient gradient(pixmapRect.center().x(), pixmapRect.top(),
@@ -2898,6 +2908,38 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
                     painter->drawRect(pixmapRect);
                 }
             }
+            if (scrollBar->subControls & SC_ScrollBarSubLine) {
+				QRect pixmapRect = scrollBarSubLine;;
+                if (horizontal)
+                    pixmapRect.adjust(1, 1, -1, -1);
+                else
+                    pixmapRect.adjust(1, 1, -1, -1);
+
+                if (isEnabled ) {
+					uint32 flags = 0;
+					QRect buttonRect = pixmapRect;
+					rgb_color baseColor = tint_color(ui_color(B_PANEL_BACKGROUND_COLOR), B_LIGHTEN_1_TINT);
+					BRect bRectButton(0.0f, 0.0f, pixmapRect.width() - 1, pixmapRect.height() - 1);
+                	TemporarySurface surfaceButton(bRectButton);
+ 					rgb_color normal = ui_color(B_PANEL_BACKGROUND_COLOR);
+ 					rgb_color thumbColor = ui_color(B_SCROLL_BAR_THUMB_COLOR);
+ 					surfaceButton.view()->SetDrawingMode(B_OP_COPY);
+ 					be_control_look->DrawButtonBackground(surfaceButton.view(), bRectButton, bRectButton,	baseColor, flags, BControlLook::B_ALL_BORDERS, horizontal?B_HORIZONTAL:B_VERTICAL);
+ 					bRectButton.InsetBy(-1, -1);
+ 					surfaceButton.view()->SetDrawingMode(B_OP_ALPHA);
+					be_control_look->DrawArrowShape(surfaceButton.view(), bRectButton, bRectButton,	baseColor,  horizontal?ARROW_LEFT:ARROW_UP, flags, B_DARKEN_MAX_TINT);
+ 					painter->drawImage(pixmapRect, surfaceButton.image());
+                    painter->setPen(mkQColor(tint_color(normal, B_DARKEN_2_TINT)));
+                    painter->drawRect(scrollBarSubLine.adjusted(0,0,-1,-1));						
+				}				
+            }
+            
+        
+
+
+
+
+		            
 
             // The SubLine (up/left) buttons
             /*if (scrollBar->subControls & SC_ScrollBarSubLine) {
