@@ -900,6 +900,39 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
         painter->drawRect(option->rect.adjusted(0, 0, -1, -1));
         painter->restore();
         break;
+    case PE_FrameGroupBox:
+        painter->save();
+	    {    
+	        QColor backgroundColor(mkQColor(ui_color(B_PANEL_BACKGROUND_COLOR)));
+	        QColor frameColor(mkQColor(tint_color(ui_color(B_PANEL_BACKGROUND_COLOR), 1.30)));
+	        QColor bevelLight(mkQColor(tint_color(ui_color(B_PANEL_BACKGROUND_COLOR), 0.8)));
+	        QColor bevelShadow(mkQColor(tint_color(ui_color(B_PANEL_BACKGROUND_COLOR), 1.03)));
+	        
+	        QRect frame = option->rect;
+	        painter->setPen(bevelShadow);
+	        painter->drawLine(frame.topLeft(), frame.bottomLeft());
+	        painter->drawLine(frame.topLeft(), frame.topRight());
+	        painter->setPen(bevelLight);
+	        painter->drawLine(frame.topRight(), frame.bottomRight());
+	        painter->drawLine(frame.bottomLeft(), frame.bottomRight());
+	
+			frame.adjust(1, 1, -1, -1);
+	        painter->setPen(frameColor);
+	        painter->drawLine(frame.topLeft(), frame.bottomLeft());
+	        painter->drawLine(frame.topLeft(), frame.topRight());
+	        painter->drawLine(frame.topRight(), frame.bottomRight());
+	        painter->drawLine(frame.bottomLeft(), frame.bottomRight());
+			
+			frame.adjust(1, 1, -1, -1);
+	        painter->setPen(bevelLight);
+	        painter->drawLine(frame.topLeft(), frame.bottomLeft());
+	        painter->drawLine(frame.topLeft(), frame.topRight());
+	        painter->setPen(bevelShadow);
+	        painter->drawLine(frame.topRight(), frame.bottomRight());
+	        painter->drawLine(frame.bottomLeft(), frame.bottomRight());
+	    }
+        painter->restore();    
+    	break;
     case PE_FrameMenu:
         painter->save();
         {
