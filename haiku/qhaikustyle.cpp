@@ -64,13 +64,15 @@
 #include <qlibrary.h>
 #include <qstylefactory.h>
 
+#include <QDebug>
+
 #include <AppKit.h>
 #include <StorageKit.h>
 #include <InterfaceKit.h>
 #include <NodeInfo.h>
 #include <Bitmap.h>
-#include <ControlLook.h>
 #include <View.h>
+#include <ControlLook.h>
 
 #include "qstylehelper_p.h"
 #include "qstylecache_p.h"
@@ -515,9 +517,10 @@ static const char * const qt_haiku_checkbox_checked[] = {
     "             ",
     "             "};
     
-static void qt_haiku_draw_button(QPainter *painter, const QRect &qrect, bool def, bool flat, bool pushed, bool focus, bool enabled)
+static void qt_haiku_draw_button(QPainter *painter, const QRect &qrect, bool def, bool flat, bool pushed, bool focus, bool enabled, bool bevel=true, orientation orient = B_HORIZONTAL, arrow_direction arrow = ARROW_NONE)
 {
 	QRect rect = qrect;
+	
 	if (be_control_look != NULL) {
 		// TODO: If this button is embedded within a different color background, it would be
 		// nice to tell this function so the frame can be smoothly blended into the background.
@@ -535,7 +538,8 @@ static void qt_haiku_draw_button(QPainter *painter, const QRect &qrect, bool def
 		if (!enabled)
 			flags |= BControlLook::B_DISABLED;
 
-		BRect bRect(0.0f, 0.0f, rect.width() - 1, rect.height() - 1);
+		QRect sRect = bevel?QRect(0,0,rect.width(),rect.height()):QRect(1,1,rect.width()-2,rect.height()-2);
+		BRect bRect(0.0f, 0.0f, rect.width() - 1, rect.height() - 1);		
 
 		TemporarySurface surface(bRect);
 
@@ -544,9 +548,14 @@ static void qt_haiku_draw_button(QPainter *painter, const QRect &qrect, bool def
 		surface.view()->FillRect(bRect);
 
 		be_control_look->DrawButtonFrame(surface.view(), bRect, bRect, base, background, flags);
-		be_control_look->DrawButtonBackground(surface.view(), bRect, bRect, base, flags);
+		be_control_look->DrawButtonBackground(surface.view(), bRect, bRect, base, flags, BControlLook::B_ALL_BORDERS, orient);
+		
+		if (arrow != ARROW_NONE) {
+			bRect.InsetBy(-1, -1);			
+			be_control_look->DrawArrowShape(surface.view(), bRect, bRect, base, arrow, 0, B_DARKEN_MAX_TINT);
+		}
 
-		painter->drawImage(rect, surface.image());
+		painter->drawImage(rect, surface.image(), sRect);
 
 		return;
 	}
@@ -2832,7 +2841,6 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
             bool reverse = scrollBar->direction == Qt::RightToLeft;
             bool horizontal = scrollBar->orientation == Qt::Horizontal;
             bool sunken = scrollBar->state & State_Sunken;
-		
 
             painter->fillRect(option->rect, option->palette.background());
 
@@ -2841,9 +2849,23 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
             QRect scrollBarSlider = proxy()->subControlRect(control, scrollBar, SC_ScrollBarSlider, widget);
             QRect grooveRect = proxy()->subControlRect(control, scrollBar, SC_ScrollBarGroove, widget);
             
-            //grooveRect.adjust(0,0,0,1);           
+            if (scrollBar->subControls & SC_ScrollBarSubLine) {
+				QRect pixmapRect = scrollBarSubLine;;
+            
+            	bool pushed = (scrollBar->activeSubControls & SC_ScrollBarSubLine) && sunken;
+           	            
+				qt_haiku_draw_button(painter, pixmapRect, false, false, pushed, false, isEnabled, false,
+					horizontal?B_HORIZONTAL:B_VERTICAL, horizontal?ARROW_LEFT:ARROW_UP);	
+            }
+            if (scrollBar->subControls & SC_ScrollBarAddLine) {
+				QRect pixmapRect = scrollBarAddLine;;
 
-            // paint groove
+            	bool pushed = (scrollBar->activeSubControls & SC_ScrollBarAddLine) && sunken;
+
+				qt_haiku_draw_button(painter, pixmapRect, false, false, pushed, false, isEnabled, false,
+					horizontal?B_HORIZONTAL:B_VERTICAL, horizontal?ARROW_RIGHT:ARROW_DOWN);
+            }
+			// paint groove
             if (scrollBar->subControls & SC_ScrollBarGroove) {
                 if (horizontal) {
                 	scrollBarSlider.adjust(1,0,-1,0);
@@ -2860,12 +2882,12 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
 					surfaceGroove.view()->StrokeRect(surfaceGroove.view()->Bounds());
 					painter->drawImage(grooveRect, surfaceGroove.image());
                 } else {
-                	scrollBarSlider.adjust(0,1,0,1);
+                	scrollBarSlider.adjust(0,-1,0,1);
                 	grooveRect.adjust(0,-1,0,1);
                 	QRect thumbRect = scrollBarSlider;
                 	rgb_color normal = ui_color(B_PANEL_BACKGROUND_COLOR);
                 	BRect bRectGroove(0.0f, 0.0f, grooveRect.width() - 1, grooveRect.height() - 1);
-					BRect upOfThumb(bRectGroove.left, bRectGroove.top, bRectGroove.right, (thumbRect.top()-grooveRect.top())-2);
+					BRect upOfThumb(bRectGroove.left, bRectGroove.top, bRectGroove.right, (thumbRect.top()-grooveRect.top()));
 					BRect downOfThumb(bRectGroove.left, (thumbRect.bottom()-grooveRect.top()), bRectGroove.right, bRectGroove.bottom);
 					TemporarySurface surfaceGroove(bRectGroove);
 					surfaceGroove.view()->SetDrawingMode(B_OP_COPY);
@@ -2874,200 +2896,17 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
 					surfaceGroove.view()->StrokeRect(surfaceGroove.view()->Bounds());
 					painter->drawImage(grooveRect, surfaceGroove.image());                	
                 }                
-            }
+            }            
             //paint slider
             if (scrollBar->subControls & SC_ScrollBarSlider) {
                 QRect pixmapRect = scrollBarSlider;
+
                 if (horizontal)
-                    pixmapRect.adjust(-1, 1, 1, -1);
-                else
-                    pixmapRect.adjust(1, -1, -1, -1);
+                    pixmapRect.adjust(-2, 0, 2, 0);
 
-                if (isEnabled) {
- 					BRect bRectThumb(0.0f, 0.0f, pixmapRect.width() - 1, pixmapRect.height() - 1);
-                	TemporarySurface surfaceThumb(bRectThumb);
- 					rgb_color normal = ui_color(B_PANEL_BACKGROUND_COLOR);
- 					rgb_color thumbColor = ui_color(B_SCROLL_BAR_THUMB_COLOR);
- 					be_control_look->DrawButtonBackground(surfaceThumb.view(), bRectThumb, bRectThumb,	thumbColor, 0, BControlLook::B_ALL_BORDERS, horizontal?B_HORIZONTAL:B_VERTICAL);
- 					painter->drawImage(pixmapRect, surfaceThumb.image());
-                } else {
-                    QLinearGradient gradient(pixmapRect.center().x(), pixmapRect.top(),
-                                             pixmapRect.center().x(), pixmapRect.bottom());
-                    if (!horizontal) {
-                        gradient = QLinearGradient(pixmapRect.left(), pixmapRect.center().y(),
-                                                   pixmapRect.right(), pixmapRect.center().y());
-                    }
-                    if (sunken) {
-                        gradient.setColorAt(0, gradientStartColor.lighter(110));
-                        gradient.setColorAt(1, gradientStopColor.lighter(110));
-                    } else {
-                        gradient.setColorAt(0, gradientStartColor);
-                        gradient.setColorAt(1, gradientStopColor);
-                    }
-                    painter->setPen(darkOutline);
-                    painter->setBrush(gradient);
-                    painter->drawRect(pixmapRect);
-                }
+                qt_haiku_draw_button(painter, pixmapRect, false, false, false, false, isEnabled, false, 
+                	horizontal?B_HORIZONTAL:B_VERTICAL);
             }
-            if (scrollBar->subControls & SC_ScrollBarSubLine) {
-				QRect pixmapRect = scrollBarSubLine;;
-                if (horizontal)
-                    pixmapRect.adjust(1, 1, -1, -1);
-                else
-                    pixmapRect.adjust(1, 1, -1, -1);
-
-                if (isEnabled ) {
-					uint32 flags = 0;
-					QRect buttonRect = pixmapRect;
-					rgb_color baseColor = tint_color(ui_color(B_PANEL_BACKGROUND_COLOR), B_LIGHTEN_1_TINT);
-					BRect bRectButton(0.0f, 0.0f, pixmapRect.width() - 1, pixmapRect.height() - 1);
-                	TemporarySurface surfaceButton(bRectButton);
- 					rgb_color normal = ui_color(B_PANEL_BACKGROUND_COLOR);
- 					rgb_color thumbColor = ui_color(B_SCROLL_BAR_THUMB_COLOR);
- 					surfaceButton.view()->SetDrawingMode(B_OP_COPY);
- 					be_control_look->DrawButtonBackground(surfaceButton.view(), bRectButton, bRectButton,	baseColor, flags, BControlLook::B_ALL_BORDERS, horizontal?B_HORIZONTAL:B_VERTICAL);
- 					bRectButton.InsetBy(-1, -1);
- 					surfaceButton.view()->SetDrawingMode(B_OP_ALPHA);
-					be_control_look->DrawArrowShape(surfaceButton.view(), bRectButton, bRectButton,	baseColor,  horizontal?ARROW_LEFT:ARROW_UP, flags, B_DARKEN_MAX_TINT);
- 					painter->drawImage(pixmapRect, surfaceButton.image());
-                    painter->setPen(mkQColor(tint_color(normal, B_DARKEN_2_TINT)));
-                    painter->drawRect(scrollBarSubLine.adjusted(0,0,-1,-1));						
-				}				
-            }
-            if (scrollBar->subControls & SC_ScrollBarAddLine) {
-				QRect pixmapRect = scrollBarAddLine;;
-                if (horizontal)
-                    pixmapRect.adjust(1, 1, -1, -1);
-                else
-                    pixmapRect.adjust(1, 1, -1, -1);
-
-                if (isEnabled ) {
-					uint32 flags = 0;
-					QRect buttonRect = pixmapRect;
-					rgb_color baseColor = tint_color(ui_color(B_PANEL_BACKGROUND_COLOR), B_LIGHTEN_1_TINT);
-					BRect bRectButton(0.0f, 0.0f, pixmapRect.width() - 1, pixmapRect.height() - 1);
-                	TemporarySurface surfaceButton(bRectButton);
- 					rgb_color normal = ui_color(B_PANEL_BACKGROUND_COLOR);
- 					rgb_color thumbColor = ui_color(B_SCROLL_BAR_THUMB_COLOR);
- 					surfaceButton.view()->SetDrawingMode(B_OP_COPY);
- 					be_control_look->DrawButtonBackground(surfaceButton.view(), bRectButton, bRectButton,	baseColor, flags, BControlLook::B_ALL_BORDERS, horizontal?B_HORIZONTAL:B_VERTICAL);
- 					bRectButton.InsetBy(-1, -1);
- 					surfaceButton.view()->SetDrawingMode(B_OP_ALPHA);
-					be_control_look->DrawArrowShape(surfaceButton.view(), bRectButton, bRectButton,	baseColor,  horizontal?ARROW_RIGHT:ARROW_DOWN, flags, B_DARKEN_MAX_TINT);
- 					painter->drawImage(pixmapRect, surfaceButton.image());
-                    painter->setPen(mkQColor(tint_color(normal, B_DARKEN_2_TINT)));
-                    painter->drawRect(scrollBarAddLine.adjusted(0,0,-1,-1));						
-				}
-            }
-        
-
-
-
-
-		            
-
-            // The SubLine (up/left) buttons
-            /*if (scrollBar->subControls & SC_ScrollBarSubLine) {
-                //int scrollBarExtent = proxy()->pixelMetric(PM_ScrollBarExtent, option, widget);
-                QRect pixmapRect = scrollBarSubLine;
-                if (isEnabled ) {
-                    QRect fillRect = pixmapRect.adjusted(1, 1, -1, -1);
-                    // Gradients
-                    if ((scrollBar->activeSubControls & SC_ScrollBarSubLine) && sunken) {
-                        qt_haiku_draw_gradient(painter,
-                                                    QRect(fillRect),
-                                                    gradientStopColor.darker(120),
-                                                    gradientStopColor.darker(120),
-                                                    horizontal ? TopDown : FromLeft, option->palette.button());
-                    } else {
-                        qt_haiku_draw_gradient(painter,
-                                                    QRect(fillRect),
-                                                    gradientStartColor.lighter(105),
-                                                    gradientStopColor,
-                                                    horizontal ? TopDown : FromLeft, option->palette.button());
-                    }
-                }
-                // Details
-                QImage subButton;
-                if (horizontal) {
-                    subButton = QImage(reverse ? qt_scrollbar_button_right : qt_scrollbar_button_left);
-                } else {
-                    subButton = QImage(qt_scrollbar_button_up);
-                }
-                subButton.setColor(1, alphaCornerColor.rgba());
-                subButton.setColor(2, darkOutline.rgba());
-                if ((scrollBar->activeSubControls & SC_ScrollBarSubLine) && sunken) {
-                    subButton.setColor(3, gradientStopColor.darker(140).rgba());
-                    subButton.setColor(4, gradientStopColor.darker(120).rgba());
-                } else {
-                    subButton.setColor(3, gradientStartColor.lighter(105).rgba());
-                    subButton.setColor(4, gradientStopColor.rgba());
-                }
-                subButton.setColor(5, scrollBar->palette.text().color().rgba());
-                painter->drawImage(pixmapRect, subButton);
-
-                // Arrows
-                PrimitiveElement arrow;
-                if (option->state & State_Horizontal)
-                    arrow = option->direction == Qt::LeftToRight ? PE_IndicatorArrowLeft: PE_IndicatorArrowRight;
-                else
-                    arrow = PE_IndicatorArrowUp;
-                QStyleOption arrowOpt = *option;
-                arrowOpt.rect = scrollBarSubLine.adjusted(3, 3, -2, -2);
-                proxy()->drawPrimitive(arrow, &arrowOpt, painter, widget);
-
-
-                // The AddLine (down/right) button
-                if (scrollBar->subControls & SC_ScrollBarAddLine) {
-                    QString addLinePixmapName = QStyleHelper::uniqueName(QLatin1String("scrollbar_addline"), option, QSize(16, 16));
-                    QRect pixmapRect = scrollBarAddLine;
-                    if (isEnabled) {
-                        QRect fillRect = pixmapRect.adjusted(1, 1, -1, -1);
-                        // Gradients
-                        if ((scrollBar->activeSubControls & SC_ScrollBarAddLine) && sunken) {
-                            qt_haiku_draw_gradient(painter,
-                                                        fillRect,
-                                                        gradientStopColor.darker(120),
-                                                        gradientStopColor.darker(120),
-                                                        horizontal ? TopDown: FromLeft, option->palette.button());
-                        } else {
-                            qt_haiku_draw_gradient(painter,
-                                                        fillRect,
-                                                        gradientStartColor.lighter(105),
-                                                        gradientStopColor,
-                                                        horizontal ? TopDown : FromLeft, option->palette.button());
-                        }
-                    }
-                    // Details
-                    QImage addButton;
-                    if (horizontal) {
-                        addButton = QImage(reverse ? qt_scrollbar_button_left : qt_scrollbar_button_right);
-                    } else {
-                        addButton = QImage(qt_scrollbar_button_down);
-                    }
-                    addButton.setColor(1, alphaCornerColor.rgba());
-                    addButton.setColor(2, darkOutline.rgba());
-                    if ((scrollBar->activeSubControls & SC_ScrollBarAddLine) && sunken) {
-                        addButton.setColor(3, gradientStopColor.darker(140).rgba());
-                        addButton.setColor(4, gradientStopColor.darker(120).rgba());
-                    } else {
-                        addButton.setColor(3, gradientStartColor.lighter(105).rgba());
-                        addButton.setColor(4, gradientStopColor.rgba());
-                    }
-                    addButton.setColor(5, scrollBar->palette.text().color().rgba());
-                    painter->drawImage(pixmapRect, addButton);
-
-                    PrimitiveElement arrow;
-                    if (option->state & State_Horizontal)
-                        arrow = option->direction == Qt::LeftToRight ? PE_IndicatorArrowRight : PE_IndicatorArrowLeft;
-                    else
-                        arrow = PE_IndicatorArrowDown;
-
-                    QStyleOption arrowOpt = *option;
-                    arrowOpt.rect = scrollBarAddLine.adjusted(3, 3, -2, -2);
-                    proxy()->drawPrimitive(arrow, &arrowOpt, painter, widget);
-                }
-            }*/
         }
         painter->restore();
         break;
