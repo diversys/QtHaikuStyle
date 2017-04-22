@@ -980,80 +980,29 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
         }
         painter->restore();
         break;
-#ifndef QT_NO_LINEEDIT
     case PE_FrameLineEdit:
-        // fall through
-#endif // QT_NO_LINEEDIT
+        painter->save();
         {
-   /*         QPen oldPen = painter->pen();
-            if (option->state & State_Enabled) {
-                painter->setPen(QPen(option->palette.background(), 0));
-                painter->drawRect(rect.adjusted(0, 0, 0, 0));
-                painter->drawRect(rect.adjusted(1, 1, -1, -1));
-            } else {
-                painter->fillRect(rect, option->palette.background());
-            }
-            QRect r = rect.adjusted(0, 1, 0, -1);
-            painter->setPen(buttonShadowAlpha);
-            painter->drawLine(QPoint(r.left() + 2, r.top() - 1), QPoint(r.right() - 2, r.top() - 1));
-            const QPoint points[8] = {
-                QPoint(r.right() - 1, r.top()),
-                QPoint(r.right(), r.top() + 1),
-                QPoint(r.right() - 1, r.bottom()),
-                QPoint(r.right(), r.bottom() - 1),
-                QPoint(r.left() + 1, r.top() ),
-                QPoint(r.left(), r.top() + 1),
-                QPoint(r.left() + 1, r.bottom() ),
-                QPoint(r.left(), r.bottom() - 1)
-            };
-            painter->drawPoints(points, 8);
-            painter->setPen(QPen(option->palette.background().color(), 1));
-            painter->drawLine(QPoint(r.left() + 2, r.top() + 1), QPoint(r.right() - 2, r.top() + 1));
-
-            if (option->state & State_HasFocus) {
-                QColor darkoutline = option->palette.highlight().color().darker(150);
-                QColor innerline = mergedColors(option->palette.highlight().color(), Qt::white);
-                painter->setPen(QPen(innerline, 0));
-                painter->drawRect(rect.adjusted(1, 2, -2, -3));
-                painter->setPen(QPen(darkoutline, 0));
-            }
-            else {
-                QColor highlight = Qt::white;
-                highlight.setAlpha(130);
-                painter->setPen(option->palette.base().color().darker(120));
-                painter->drawLine(QPoint(r.left() + 1, r.top() + 1),
-                                  QPoint(r.right() - 1, r.top() + 1));
-                painter->drawLine(QPoint(r.left() + 1, r.top() + 1),
-                                  QPoint(r.left() + 1, r.bottom() - 1));
-                painter->setPen(option->palette.base().color());
-                painter->drawLine(QPoint(r.right() - 1, r.top() + 1),
-                                  QPoint(r.right() - 1, r.bottom() - 1));
-                painter->setPen(highlight);
-                painter->drawLine(QPoint(r.left() + 1, r.bottom() + 1),
-                                  QPoint(r.right() - 1, r.bottom() + 1));
-                painter->drawPoint(QPoint(r.left(), r.bottom()));
-                painter->drawPoint(QPoint(r.right(), r.bottom() ));
-                painter->setPen(QPen(darkOutline.lighter(115), 1));
-            }
-            painter->drawLine(QPoint(r.left(), r.top() + 2), QPoint(r.left(), r.bottom() - 2));
-            painter->drawLine(QPoint(r.right(), r.top() + 2), QPoint(r.right(), r.bottom() - 2));
-            painter->drawLine(QPoint(r.left() + 2, r.bottom()), QPoint(r.right() - 2, r.bottom()));
-            const QPoint points2[4] = {
-                QPoint(r.right() - 1, r.bottom() - 1),
-                QPoint(r.right() - 1, r.top() + 1),
-                QPoint(r.left() + 1, r.bottom() - 1),
-                QPoint(r.left() + 1, r.top() + 1)
-            };
-            painter->drawPoints(points2, 4);
-            painter->drawLine(QPoint(r.left() + 2, r.top()), QPoint(r.right() - 2, r.top()));
-            painter->setPen(oldPen);
-        }*/
+			QRect r = option->rect;
+			rgb_color base = ui_color(B_CONTROL_BACKGROUND_COLOR);;
+			uint32 flags = 0;
+			if (!option->state & State_Enabled)
+				flags |= BControlLook::B_DISABLED;
+			if (option->state & State_HasFocus)
+				flags |= BControlLook::B_FOCUSED;
+		    BRect bRect(0.0f, 0.0f, r.width() - 1, r.height() - 1);
+			TemporarySurface surface(bRect);
+			bRect.InsetBy(-1, -1);
+			be_control_look->DrawTextControlBorder(surface.view(), bRect, bRect, base, flags);
+			painter->drawImage(r, surface.image());			    
+        }
+        painter->restore();
         break;
     case PE_IndicatorCheckBox:
         painter->save();
         if (const QStyleOptionButton *checkbox = qstyleoption_cast<const QStyleOptionButton*>(option)) {
             
-            rect = rect.adjusted(-1, -1, 3, 3);
+            rect = rect.adjusted(-1, -1, 2, 2);
 			BRect bRect(0.0f, 0.0f, rect.width() - 1, rect.height() - 1);
 			TemporarySurface surface(bRect);
 			rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
@@ -1083,7 +1032,7 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
         painter->save();
         if (const QStyleOptionButton *checkbox = qstyleoption_cast<const QStyleOptionButton*>(option)) {
             
-            rect = rect.adjusted(-2, -2, 3, 3);
+            rect = rect.adjusted(-2, -2, 2, 2);
 			BRect bRect(0.0f, 0.0f, rect.width() - 1, rect.height() - 1);
 			TemporarySurface surface(bRect);
 			rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
@@ -1353,7 +1302,7 @@ void QHaikuStyle::drawControl(ControlElement element, const QStyleOption *option
         }
         break;
     case CE_Splitter:
-         painter->save();
+        painter->save();
         {
         	orientation orient = (option->state & State_Horizontal)?B_HORIZONTAL:B_VERTICAL;
         	
