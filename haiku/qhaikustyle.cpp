@@ -985,7 +985,7 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
         // fall through
 #endif // QT_NO_LINEEDIT
         {
-            QPen oldPen = painter->pen();
+   /*         QPen oldPen = painter->pen();
             if (option->state & State_Enabled) {
                 painter->setPen(QPen(option->palette.background(), 0));
                 painter->drawRect(rect.adjusted(0, 0, 0, 0));
@@ -1047,7 +1047,7 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
             painter->drawPoints(points2, 4);
             painter->drawLine(QPoint(r.left() + 2, r.top()), QPoint(r.right() - 2, r.top()));
             painter->setPen(oldPen);
-        }
+        }*/
         break;
     case PE_IndicatorCheckBox:
         painter->save();
