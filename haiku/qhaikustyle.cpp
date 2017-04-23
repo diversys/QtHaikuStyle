@@ -1146,16 +1146,25 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
     case PE_PanelButtonCommand:
         painter->save();
         {   
-	        if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(option)) {	            
-	            bool enabled = option->state & State_Enabled;
-	            bool pushed = (option->state & State_Sunken) || (option->state & State_On);
-	            bool focus = option->state & State_HasFocus;
-	            bool flat = btn->features & QStyleOptionButton::Flat;
-                bool def = (btn->features & QStyleOptionButton::DefaultButton) && (btn->state & State_Enabled);
-				qt_haiku_draw_button(painter, option->rect.adjusted(1,1,-1,-1), def, flat, pushed, focus, enabled);
-	        }
-	     painter->restore();
-        }        
+        	bool isDefault = false;
+        	bool isFlat = false;
+        	bool isDown = (option->state & State_Sunken) || (option->state & State_On);
+        	bool isTool = (elem == PE_PanelButtonTool);        	
+        	if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton*>(option)) {
+            	isDefault = btn->features & QStyleOptionButton::DefaultButton;
+            	isFlat = (btn->features & QStyleOptionButton::Flat);
+        	}
+
+        	if (isTool && !(option->state & State_Enabled || option->state & State_On) && (option->state & State_AutoRaise))
+            	break;
+
+			bool hasFocus = option->state & State_HasFocus;
+            bool isEnabled = option->state & State_Enabled;
+
+			qt_haiku_draw_button(painter, option->rect.adjusted(1,1,-1,-1),
+				isDefault, isFlat, isDown, hasFocus, isEnabled);
+	     	painter->restore();
+        }
         break;
 #ifndef QT_NO_TABBAR
         case PE_FrameTabWidget:
