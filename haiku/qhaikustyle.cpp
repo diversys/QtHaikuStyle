@@ -715,7 +715,7 @@ static void qt_haiku_draw_mdibutton(QPainter *painter, const QStyleOptionTitleBa
 */
 QHaikuStyle::QHaikuStyle() : QProxyStyle(QStyleFactory::create(QLatin1String("Windows"))), animateStep(0), animateTimer(0)
 {
-    setObjectName(QLatin1String("CleanLooks"));
+    setObjectName(QLatin1String("Haiku"));
 }
 
 /*!
@@ -2900,146 +2900,32 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
             bool sunken = comboBox->state & State_On; // play dead, if combobox has no items
             bool isEnabled = (comboBox->state & State_Enabled);
             bool focus = isEnabled && (comboBox->state & State_HasFocus);
-            QPixmap cache;
-            QString pixmapName = QStyleHelper::uniqueName(QLatin1String("combobox"), option, comboBox->rect.size());
-            if (sunken)
-                pixmapName += QLatin1String("-sunken");
-            if (comboBox->editable)
-                pixmapName += QLatin1String("-editable");
-            if (isEnabled)
-                pixmapName += QLatin1String("-enabled");
+           
+           	QRect rect = comboBox->rect.adjusted(0,1,0,-1);
+			BRect bRect(0.0f, 0.0f, rect.width() - 1, rect.height() - 1);
+			TemporarySurface surface(bRect);
+			rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
+			rgb_color color = tint_color(base, B_DARKEN_2_TINT);
 
-            if (!QPixmapCache::find(pixmapName, cache)) {
-                cache = QPixmap(comboBox->rect.size());
-                cache.fill(Qt::transparent);
-                QPainter cachePainter(&cache);
-                QRect pixmapRect(0, 0, comboBox->rect.width(), comboBox->rect.height());
-                QStyleOptionComboBox comboBoxCopy = *comboBox;
-                comboBoxCopy.rect = pixmapRect;
+			uint32 flags = 0;
 
-                QRect rect = pixmapRect;
-                QRect downArrowRect = proxy()->subControlRect(CC_ComboBox, &comboBoxCopy,
-                                                     SC_ComboBoxArrow, widget);
-                QRect editRect = proxy()->subControlRect(CC_ComboBox, &comboBoxCopy,
-                                                     SC_ComboBoxEditField, widget);
-                // Draw a push button
-                if (comboBox->editable) {
-                    QStyleOptionFrame  buttonOption;
-                    buttonOption.QStyleOption::operator=(*comboBox);
-                    buttonOption.rect = rect;
-                    buttonOption.state = comboBox->state & (State_Enabled | State_MouseOver);
+			if (!isEnabled)
+				flags |= BControlLook::B_DISABLED;
+			if (comboBox->state & State_On)
+				flags |= BControlLook::B_ACTIVATED;
+			if (comboBox->state & State_HasFocus)
+				flags |= BControlLook::B_FOCUSED;
+			if (comboBox->state & State_Sunken)
+				flags |= BControlLook::B_CLICKED;
+			if (comboBox->state & State_NoChange)
+				flags |= BControlLook::B_DISABLED | BControlLook::B_ACTIVATED;
 
-                    if (sunken) {
-                        buttonOption.state |= State_Sunken;
-                        buttonOption.state &= ~State_MouseOver;
-                    }
-
-                    proxy()->drawPrimitive(PE_PanelButtonCommand, &buttonOption, &cachePainter, widget);
-
-                    //remove shadow from left side of edit field when pressed:
-                    if (comboBox->direction != Qt::RightToLeft)
-                        cachePainter.fillRect(editRect.left() - 1, editRect.top() + 1, editRect.left(),
-                        editRect.bottom() - 3, option->palette.base());
-
-                    cachePainter.setPen(dark.lighter(110));
-                    if (!sunken) {
-                        int borderSize = 2;
-                        if (comboBox->direction == Qt::RightToLeft) {
-                            cachePainter.drawLine(QPoint(downArrowRect.right() - 1, downArrowRect.top() + borderSize ),
-                                                  QPoint(downArrowRect.right() - 1, downArrowRect.bottom() - borderSize));
-                            cachePainter.setPen(option->palette.light().color());
-                            cachePainter.drawLine(QPoint(downArrowRect.right(), downArrowRect.top() + borderSize),
-                                                  QPoint(downArrowRect.right(), downArrowRect.bottom() - borderSize));
-                        } else {
-                            cachePainter.drawLine(QPoint(downArrowRect.left() , downArrowRect.top() + borderSize),
-                                                  QPoint(downArrowRect.left() , downArrowRect.bottom() - borderSize));
-                            cachePainter.setPen(option->palette.light().color());
-                            cachePainter.drawLine(QPoint(downArrowRect.left() + 1, downArrowRect.top() + borderSize),
-                                                  QPoint(downArrowRect.left() + 1, downArrowRect.bottom() - borderSize));
-                        }
-                    } else {
-                        if (comboBox->direction == Qt::RightToLeft) {
-                            cachePainter.drawLine(QPoint(downArrowRect.right(), downArrowRect.top() + 2),
-                                                  QPoint(downArrowRect.right(), downArrowRect.bottom() - 2));
-
-                        } else {
-                            cachePainter.drawLine(QPoint(downArrowRect.left(), downArrowRect.top() + 2),
-                                                  QPoint(downArrowRect.left(), downArrowRect.bottom() - 2));
-                        }
-                    }
-                } else {
-                    QStyleOptionButton buttonOption;
-                    buttonOption.QStyleOption::operator=(*comboBox);
-                    buttonOption.rect = rect;
-                    buttonOption.state = comboBox->state & (State_Enabled | State_MouseOver);
-                    if (sunken) {
-                        buttonOption.state |= State_Sunken;
-                        buttonOption.state &= ~State_MouseOver;
-                    }
-                    proxy()->drawPrimitive(PE_PanelButtonCommand, &buttonOption, &cachePainter, widget);
-
-                    cachePainter.setPen(buttonShadow.darker(102));
-                    int borderSize = 4;
-
-                    if (!sunken) {
-                        if (comboBox->direction == Qt::RightToLeft) {
-                            cachePainter.drawLine(QPoint(downArrowRect.right() + 1, downArrowRect.top() + borderSize),
-                                                  QPoint(downArrowRect.right() + 1, downArrowRect.bottom() - borderSize));
-                            cachePainter.setPen(option->palette.light().color());
-                            cachePainter.drawLine(QPoint(downArrowRect.right(), downArrowRect.top() + borderSize),
-                                                  QPoint(downArrowRect.right(), downArrowRect.bottom() - borderSize));
-                        } else {
-                            cachePainter.drawLine(QPoint(downArrowRect.left() - 1, downArrowRect.top() + borderSize),
-                                                  QPoint(downArrowRect.left() - 1, downArrowRect.bottom() - borderSize));
-                            cachePainter.setPen(option->palette.light().color());
-                            cachePainter.drawLine(QPoint(downArrowRect.left() , downArrowRect.top() + borderSize),
-                                                  QPoint(downArrowRect.left() , downArrowRect.bottom() - borderSize));
-                        }
-                    } else {
-                        cachePainter.setPen(dark.lighter(110));
-                        if (comboBox->direction == Qt::RightToLeft) {
-                            cachePainter.drawLine(QPoint(downArrowRect.right() + 1, downArrowRect.top() + borderSize),
-                                                  QPoint(downArrowRect.right() + 1, downArrowRect.bottom() - borderSize));
-
-                        } else {
-                            cachePainter.drawLine(QPoint(downArrowRect.left() - 1, downArrowRect.top() + borderSize),
-                                                  QPoint(downArrowRect.left() - 1, downArrowRect.bottom() - borderSize));
-                        }
-                    }
-                }
-
-
-                if (comboBox->subControls & SC_ComboBoxArrow) {
-                    if (comboBox->editable) {
-                        // Draw the down arrow
-                        QImage downArrow(qt_haiku_arrow_down_xpm);
-                        downArrow.setColor(1, comboBox->palette.foreground().color().rgba());
-                        cachePainter.drawImage(downArrowRect.center().x() - downArrow.width() / 2,
-                                               downArrowRect.center().y() - downArrow.height() / 2 + 1, downArrow);
-                    } else {
-                        // Draw the up/down arrow
-                        QImage upArrow(qt_scrollbar_button_arrow_up);
-                        upArrow.setColor(1, comboBox->palette.foreground().color().rgba());
-                        QImage downArrow(qt_scrollbar_button_arrow_down);
-                        downArrow.setColor(1, comboBox->palette.foreground().color().rgba());
-                        cachePainter.drawImage(downArrowRect.center().x() - downArrow.width() / 2,
-                                               downArrowRect.center().y() - upArrow.height() - 1 , upArrow);
-                        cachePainter.drawImage(downArrowRect.center().x() - downArrow.width() / 2,
-                                               downArrowRect.center().y()  + 2, downArrow);
-                    }
-                }
-                // Draw the focus rect
-                if (focus && !comboBox->editable
-                    && ((option->state & State_KeyboardFocusChange) || styleHint(SH_UnderlineShortcut, option, widget))) {
-                    QStyleOptionFocusRect focus;
-                    focus.rect = proxy()->subControlRect(CC_ComboBox, &comboBoxCopy, SC_ComboBoxEditField, widget)
-                                 .adjusted(0, 2, option->direction == Qt::RightToLeft ? 1 : -1, -2);
-                    proxy()->drawPrimitive(PE_FrameFocusRect, &focus, &cachePainter, widget);
-                }
-                cachePainter.end();
-                QPixmapCache::insert(pixmapName, cache);
-            }
-            painter->drawPixmap(comboBox->rect.topLeft(), cache);
+			BRect bRect2 = bRect;
+			bRect2.InsetBy(1, 1);
+            be_control_look->DrawMenuFieldBackground(surface.view(), bRect2, bRect2, base, true, flags);
+            be_control_look->DrawMenuFieldFrame(surface.view(), bRect, bRect, base, base, flags);
+            
+			painter->drawImage(rect, surface.image());
         }
         painter->restore();
         break;
@@ -3707,16 +3593,16 @@ QRect QHaikuStyle::subControlRect(ComplexControl control, const QStyleOptionComp
         switch (subControl) {
         case SC_ComboBoxArrow:
             rect = visualRect(option->direction, option->rect, rect);
-            rect.setRect(rect.right() - 18, rect.top() - 2,
-                         19, rect.height() + 4);
+            rect.setRect(rect.right() - 9, rect.top() - 2,
+                         10, rect.height() + 4);
             rect = visualRect(option->direction, option->rect, rect);
             break;
         case SC_ComboBoxEditField: {
             int frameWidth = proxy()->pixelMetric(PM_DefaultFrameWidth);
             rect = visualRect(option->direction, option->rect, rect);
-            rect.setRect(option->rect.left() + frameWidth, option->rect.top() + frameWidth,
-                         option->rect.width() - 19 - 2 * frameWidth,
-                         option->rect.height() - 2 * frameWidth);
+            rect.setRect(option->rect.left() + frameWidth, option->rect.top() + frameWidth + 1,
+                         option->rect.width() - 10 - 2 * frameWidth,
+                         option->rect.height() - 2 * frameWidth - 2);
             if (const QStyleOptionComboBox *box = qstyleoption_cast<const QStyleOptionComboBox *>(option)) {
                 if (!box->editable) {
                     rect.adjust(2, 0, 0, 0);
