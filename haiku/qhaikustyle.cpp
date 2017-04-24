@@ -262,92 +262,6 @@ static const char * const qt_titlebar_context_help[] = {
     "    ##    ",
     "    ##    "};
 
-static const char * const qt_haiku_radiobutton[] = {
-    "13 13 9 1",
-    " 	c None",
-    ".	c #ABA094",
-    "+	c #B7ADA0",
-    "@	c #C4BBB2",
-    "#	c #DDD4CD",
-    "$	c #E7E1E0",
-    "%	c #F4EFED",
-    "&	c #FFFAF9",
-    "*	c #FCFEFB",
-    "   #@...@#   ",
-    "  @+@#$$#+@  ",
-    " @+$%%***&@@ ",
-    "#+$%**&&**&+#",
-    "@@$&&******#@",
-    ".#**********.",
-    ".$&******&*&.",
-    ".$*&******&*.",
-    "+#********&#@",
-    "#+*********+#",
-    " @@*******@@ ",
-    "  @+#%*%#+@  ",
-    "   #@...+#   "};
-
-static const char * const qt_haiku_radiobutton_checked[] = {
-    "13 13 20 1",
-    " 	c None",
-    ".	c #A8ABAE",
-    "+	c #596066",
-    "@	c #283138",
-    "#	c #A9ACAF",
-    "$	c #A6A9AB",
-    "%	c #6B7378",
-    "&	c #8C9296",
-    "*	c #A2A6AA",
-    "=	c #61696F",
-    "-	c #596065",
-    ";	c #93989C",
-    ">	c #777E83",
-    ",	c #60686E",
-    "'	c #252D33",
-    ")	c #535B62",
-    "!	c #21292E",
-    "~	c #242B31",
-    "{	c #1F262B",
-    "]	c #41484E",
-    "             ",
-    "             ",
-    "             ",
-    "    .+@+#    ",
-    "   $%&*&=#   ",
-    "   -&;>,'+   ",
-    "   @*>,)!@   ",
-    "   +&,)~{+   ",
-    "   #='!{]#   ",
-    "    #+@+#    ",
-    "             ",
-    "             ",
-    "             "};
-
-
-static const char * const qt_scrollbar_button_arrow_left[] = {
-    "4 7 2 1",
-    "   c None",
-    "*  c #BFBFBF",
-    "   *",
-    "  **",
-    " ***",
-    "****",
-    " ***",
-    "  **",
-    "   *"};
-
-static const char * const qt_scrollbar_button_arrow_right[] = {
-    "4 7 2 1",
-    "   c None",
-    "*  c #BFBFBF",
-    "*   ",
-    "**  ",
-    "*** ",
-    "****",
-    "*** ",
-    "**  ",
-    "*   "};
-
 static const char * const qt_scrollbar_button_arrow_up[] = {
     "7 4 2 1",
     "   c None",
@@ -384,105 +298,6 @@ static const char * const qt_spinbox_button_arrow_up[] = {
     " ***** ",
     "*******"};
 
-static const char * const qt_scrollbar_button_left[] = {
-    "16 16 6 1",
-    "   c None",
-    ".  c #BFBFBF",
-    "+  c #979797",
-    "#  c #FAFAFA",
-    "<  c #FAFAFA",
-    "*  c #FAFAFA",
-    " .++++++++++++++",
-    ".+#############+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    ".+<<<<<<<<<<<<<+",
-    " .++++++++++++++"};
-
-static const char * const qt_scrollbar_button_right[] = {
-    "16 16 6 1",
-    "   c None",
-    ".  c #BFBFBF",
-    "+  c #979797",
-    "#  c #FAFAFA",
-    "<  c #FAFAFA",
-    "*  c #FAFAFA",
-    "++++++++++++++. ",
-    "+#############+.",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+<<<<<<<<<<<<<+.",
-    "++++++++++++++. "};
-
-static const char * const qt_scrollbar_button_up[] = {
-    "16 16 6 1",
-    "   c None",
-    ".  c #BFBFBF",
-    "+  c #979797",
-    "#  c #FAFAFA",
-    "<  c #FAFAFA",
-    "*  c #FAFAFA",
-    " .++++++++++++. ",
-    ".+############+.",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+<<<<<<<<<<<<<<+",
-    "++++++++++++++++"};
-
-static const char * const qt_scrollbar_button_down[] = {
-    "16 16 6 1",
-    "   c None",
-    ".  c #BFBFBF",
-    "+  c #979797",
-    "#  c #FAFAFA",
-    "<  c #FAFAFA",
-    "*  c #FAFAFA",
-    "++++++++++++++++",
-    "+##############+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    "+#            <+",
-    ".+<<<<<<<<<<<<+.",
-    " .++++++++++++. "};
 
 static const char * const qt_haiku_menuitem_checkbox_checked[] = {
     "8 7 6 1",
@@ -499,26 +314,6 @@ static const char * const qt_haiku_menuitem_checkbox_checked[] = {
     "@#++.   ",
     "  @#    ",
     "   .    "};
-
-static const char * const qt_haiku_checkbox_checked[] = {
-    "13 13 3 1",
-    " 	c None",
-    ".	c #272D33",
-    "%	c #666666",
-
-    "             ",
-    "          %  ",
-    "         %.  ",
-    "        %.%  ",
-    "       %..   ",
-    "  %.% %..    ",
-    "  %..%..%    ",
-    "   %...%     ",
-    "    %..%     ",
-    "     %.%     ",
-    "      %      ",
-    "             ",
-    "             "};
 
 static QImage get_haiku_alert_icon(uint32 fType, int32 iconSize)
 {
@@ -664,47 +459,6 @@ static void qt_haiku_draw_gradient(QPainter *painter, const QRect &rect, const Q
         else {
             gradient->setColorAt(0, gradientStart);
             gradient->setColorAt(1, gradientStop);
-        }
-        painter->fillRect(rect, *gradient);
-        delete gradient;
-}
-
-static void qt_haiku_draw_buttongradient(QPainter *painter, const QRect &rect, const QColor &gradientStart,
-                                                const QColor &gradientMid, const QColor &gradientStop, Direction direction = TopDown,
-                                                QBrush bgBrush = QBrush())
-{
-        int x = rect.center().x();
-        int y = rect.center().y();
-        QLinearGradient *gradient;
-        bool horizontal = false;
-        switch (direction) {
-            case FromLeft:
-                horizontal = true;
-                gradient = new QLinearGradient(rect.left(), y, rect.right(), y);
-                break;
-            case FromRight:
-                horizontal = true;
-                gradient = new QLinearGradient(rect.right(), y, rect.left(), y);
-                break;
-            case BottomUp:
-                gradient = new QLinearGradient(x, rect.bottom(), x, rect.top());
-                break;
-            case TopDown:
-            default:
-                gradient = new QLinearGradient(x, rect.top(), x, rect.bottom());
-                break;
-        }
-        if (bgBrush.gradient())
-            gradient->setStops(bgBrush.gradient()->stops());
-        else {
-            int size = horizontal ? rect.width() : rect.height() ;
-            if (size > 4) {
-                float edge = 4.0/(float)size;
-                gradient->setColorAt(0, gradientStart);
-                gradient->setColorAt(edge, gradientMid.lighter(104));
-                gradient->setColorAt(1.0 - edge, gradientMid.darker(100));
-                gradient->setColorAt(1.0, gradientStop);
-            }
         }
         painter->fillRect(rect, *gradient);
         delete gradient;
@@ -3523,7 +3277,7 @@ QRect QHaikuStyle::subControlRect(ComplexControl control, const QStyleOptionComp
 #ifndef QT_NO_SLIDER
     case CC_Slider:
         if (const QStyleOptionSlider *slider = qstyleoption_cast<const QStyleOptionSlider *>(option)) {        	
-            int tickSize = proxy()->pixelMetric(PM_SliderTickmarkOffset, option, widget);
+            //int tickSize = proxy()->pixelMetric(PM_SliderTickmarkOffset, option, widget);
 
             QPoint grooveCenter = slider->rect.center();
             if (slider->orientation == Qt::Horizontal)
