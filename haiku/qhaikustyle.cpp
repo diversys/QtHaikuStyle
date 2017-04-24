@@ -74,6 +74,8 @@
 #include <View.h>
 #include <ControlLook.h>
 #include <ScrollBar.h>
+#include <Bitmap.h>
+#include <IconUtils.h>
 
 #include "qstylehelper_p.h"
 #include "qstylecache_p.h"
@@ -3208,7 +3210,6 @@ QSize QHaikuStyle::sizeFromContents(ContentsType type, const QStyleOption *optio
         newSize += QSize(2, 4);
         break;
     case CT_LineEdit:
-        newSize += QSize(0, 4);
         break;
     case CT_MenuBarItem:
         newSize += QSize(0, -2);
@@ -3230,7 +3231,7 @@ QSize QHaikuStyle::sizeFromContents(ContentsType type, const QStyleOption *optio
         }
         break;
     case CT_SizeGrip:
-        newSize += QSize(4, 4);
+        newSize += QSize(2, 2);
         break;
     case CT_MdiControls:
         if (const QStyleOptionComplex *styleOpt = qstyleoption_cast<const QStyleOptionComplex *>(option)) {
@@ -3855,6 +3856,79 @@ QIcon QHaikuStyle::standardIcon(StandardPixmap standardIcon, const QStyleOption 
     return QProxyStyle::standardIcon(standardIcon, option, widget);
 }
 
+BBitmap* _CreateTypeIcon(uint32 fType)
+{
+	if (fType == B_EMPTY_ALERT)
+		return NULL;
+
+	// The icons are in the app_server resources
+	BBitmap* icon = NULL;
+	BPath path;
+	status_t status = find_directory(B_BEOS_SERVERS_DIRECTORY, &path);
+	if (status != B_OK) {
+		return NULL;
+	}
+
+	path.Append("app_server");
+	BFile file;
+	status = file.SetTo(path.Path(), B_READ_ONLY);
+	if (status != B_OK) {
+		return NULL;
+	}
+
+	BResources resources;
+	status = resources.SetTo(&file);
+	if (status != B_OK) {
+		return NULL;
+	}
+
+	// Which icon are we trying to load?
+	const char* iconName;
+	switch (fType) {
+		case B_INFO_ALERT:
+			iconName = "info";
+			break;
+		case B_IDEA_ALERT:
+			iconName = "idea";
+			break;
+		case B_WARNING_ALERT:
+			iconName = "warn";
+			break;
+		case B_STOP_ALERT:
+			iconName = "stop";
+			break;
+		default:
+			return NULL;
+	}
+
+	int32 iconSize = 48;
+	icon = new(std::nothrow) BBitmap(BRect(0, 0, iconSize - 1, iconSize - 1),
+		0, B_RGBA32);
+	if (icon == NULL || icon->InitCheck() < B_OK) {
+		delete icon;
+		return NULL;
+	}
+
+	size_t size = 0;
+	const uint8* rawIcon;
+
+	rawIcon = (const uint8*)resources.LoadResource(B_VECTOR_ICON_TYPE,
+		iconName, &size);
+	if (rawIcon != NULL	&& BIconUtils::GetVectorIcon(rawIcon, size, icon) == B_OK)
+		return icon;
+
+	rawIcon = (const uint8*)resources.LoadResource(B_LARGE_ICON_TYPE, iconName, &size);
+	if (rawIcon == NULL) {
+		delete icon;
+		return NULL;
+	}
+
+	if (icon->ColorSpace() != B_CMAP8)
+		BIconUtils::ConvertFromCMAP8(rawIcon, iconSize, iconSize, iconSize, icon);
+
+	return icon;
+}
+
 /*!
  \reimp
  */
@@ -3862,6 +3936,37 @@ QPixmap QHaikuStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleO
                                       const QWidget *widget) const
 {
     QPixmap pixmap;
+	uint32 atype = B_EMPTY_ALERT;
+
+	switch (standardPixmap) {
+    case SP_MessageBoxQuestion:
+    	atype = B_IDEA_ALERT;
+    	break;
+    case SP_MessageBoxInformation:
+    	atype = B_INFO_ALERT;
+    	break;
+    case SP_MessageBoxCritical:
+    	atype = B_STOP_ALERT;
+    	break;
+    case SP_MessageBoxWarning:
+    	atype = B_WARNING_ALERT;
+        break;
+    default:
+        break;        
+	}
+    	
+    if(	atype != B_EMPTY_ALERT ) {
+   		BBitmap *bmp = _CreateTypeIcon(atype);
+   		if(bmp!=NULL) {
+   			TemporarySurface surface(BRect(0,0,47,47));
+			surface.view()->SetDrawingMode(B_OP_ALPHA);
+			surface.view()->SetBlendingMode(B_PIXEL_ALPHA, B_ALPHA_OVERLAY);
+			surface.view()->DrawBitmap(bmp, BPoint(0,0));
+			pixmap = QPixmap::fromImage(surface.image());
+   			delete bmp;
+   			return pixmap;
+   		}
+   	}
 
 #ifndef QT_NO_IMAGEFORMAT_XPM
     switch (standardPixmap) {
@@ -3877,6 +3982,7 @@ QPixmap QHaikuStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleO
         break;
     }
 #endif //QT_NO_IMAGEFORMAT_XPM
+
 
     return QProxyStyle::standardPixmap(standardPixmap, opt, widget);
 }
