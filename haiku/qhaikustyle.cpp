@@ -519,7 +519,82 @@ static const char * const qt_haiku_checkbox_checked[] = {
     "      %      ",
     "             ",
     "             "};
-    
+
+static QImage get_haiku_alert_icon(uint32 fType)
+{
+	QImage image;
+
+	if (fType == B_EMPTY_ALERT)
+		return image;
+
+	BBitmap* icon = NULL;
+	BPath path;
+	status_t status = find_directory(B_BEOS_SERVERS_DIRECTORY, &path);
+	if (status != B_OK)
+		return image;
+
+	path.Append("app_server");
+	BFile file;
+	status = file.SetTo(path.Path(), B_READ_ONLY);
+	if (status != B_OK)
+		return image;
+
+	BResources resources;
+	status = resources.SetTo(&file);
+	if (status != B_OK)
+		return image;
+
+	const char* iconName;
+	switch (fType) {
+		case B_INFO_ALERT:
+			iconName = "info";
+			break;
+		case B_IDEA_ALERT:
+			iconName = "idea";
+			break;
+		case B_WARNING_ALERT:
+			iconName = "warn";
+			break;
+		case B_STOP_ALERT:
+			iconName = "stop";
+			break;
+		default:
+			return image;
+	}
+
+	int32 iconSize = 48;
+	icon = new(std::nothrow) BBitmap(BRect(0, 0, iconSize - 1, iconSize - 1), 0, B_RGBA32);
+	if (icon == NULL || icon->InitCheck() < B_OK) {
+		delete icon;
+		return image;
+	}
+
+	size_t size = 0;
+	const uint8* rawIcon;
+
+	rawIcon = (const uint8*)resources.LoadResource(B_VECTOR_ICON_TYPE, iconName, &size);
+	if (rawIcon != NULL	&& BIconUtils::GetVectorIcon(rawIcon, size, icon) == B_OK) {
+		image = QImage((unsigned char *) icon->Bits(),
+			icon->Bounds().Width() + 1, icon->Bounds().Height() + 1, QImage::Format_ARGB32);
+		delete icon;
+		return image;
+	}
+
+	rawIcon = (const uint8*)resources.LoadResource(B_LARGE_ICON_TYPE, iconName, &size);
+	if (rawIcon == NULL) {
+		delete icon;
+		return image;
+	}
+
+	if (icon->ColorSpace() != B_CMAP8)
+		BIconUtils::ConvertFromCMAP8(rawIcon, iconSize, iconSize, iconSize, icon);	
+	
+	image = QImage((unsigned char *) icon->Bits(), icon->Bounds().Width() + 1,
+		icon->Bounds().Height() + 1, QImage::Format_ARGB32);
+	delete icon;
+	return image;
+}
+
 static void qt_haiku_draw_button(QPainter *painter, const QRect &qrect, bool def, bool flat, bool pushed, bool focus, bool enabled, bool bevel=true, orientation orient = B_HORIZONTAL, arrow_direction arrow = ARROW_NONE)
 {
 	QRect rect = qrect;
@@ -3856,79 +3931,6 @@ QIcon QHaikuStyle::standardIcon(StandardPixmap standardIcon, const QStyleOption 
     return QProxyStyle::standardIcon(standardIcon, option, widget);
 }
 
-BBitmap* _CreateTypeIcon(uint32 fType)
-{
-	if (fType == B_EMPTY_ALERT)
-		return NULL;
-
-	// The icons are in the app_server resources
-	BBitmap* icon = NULL;
-	BPath path;
-	status_t status = find_directory(B_BEOS_SERVERS_DIRECTORY, &path);
-	if (status != B_OK) {
-		return NULL;
-	}
-
-	path.Append("app_server");
-	BFile file;
-	status = file.SetTo(path.Path(), B_READ_ONLY);
-	if (status != B_OK) {
-		return NULL;
-	}
-
-	BResources resources;
-	status = resources.SetTo(&file);
-	if (status != B_OK) {
-		return NULL;
-	}
-
-	// Which icon are we trying to load?
-	const char* iconName;
-	switch (fType) {
-		case B_INFO_ALERT:
-			iconName = "info";
-			break;
-		case B_IDEA_ALERT:
-			iconName = "idea";
-			break;
-		case B_WARNING_ALERT:
-			iconName = "warn";
-			break;
-		case B_STOP_ALERT:
-			iconName = "stop";
-			break;
-		default:
-			return NULL;
-	}
-
-	int32 iconSize = 48;
-	icon = new(std::nothrow) BBitmap(BRect(0, 0, iconSize - 1, iconSize - 1),
-		0, B_RGBA32);
-	if (icon == NULL || icon->InitCheck() < B_OK) {
-		delete icon;
-		return NULL;
-	}
-
-	size_t size = 0;
-	const uint8* rawIcon;
-
-	rawIcon = (const uint8*)resources.LoadResource(B_VECTOR_ICON_TYPE,
-		iconName, &size);
-	if (rawIcon != NULL	&& BIconUtils::GetVectorIcon(rawIcon, size, icon) == B_OK)
-		return icon;
-
-	rawIcon = (const uint8*)resources.LoadResource(B_LARGE_ICON_TYPE, iconName, &size);
-	if (rawIcon == NULL) {
-		delete icon;
-		return NULL;
-	}
-
-	if (icon->ColorSpace() != B_CMAP8)
-		BIconUtils::ConvertFromCMAP8(rawIcon, iconSize, iconSize, iconSize, icon);
-
-	return icon;
-}
-
 /*!
  \reimp
  */
@@ -3954,16 +3956,11 @@ QPixmap QHaikuStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleO
     default:
         break;        
 	}
-    	
+
     if(	atype != B_EMPTY_ALERT ) {
-   		BBitmap *bmp = _CreateTypeIcon(atype);
-   		if(bmp!=NULL) {
-   			TemporarySurface surface(BRect(0,0,47,47));
-			surface.view()->SetDrawingMode(B_OP_ALPHA);
-			surface.view()->SetBlendingMode(B_PIXEL_ALPHA, B_ALPHA_OVERLAY);
-			surface.view()->DrawBitmap(bmp, BPoint(0,0));
-			pixmap = QPixmap::fromImage(surface.image());
-   			delete bmp;
+   		QImage image = get_haiku_alert_icon(atype);
+   		if(!image.isNull()) {
+			pixmap = QPixmap::fromImage(image);
    			return pixmap;
    		}
    	}
