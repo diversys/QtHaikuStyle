@@ -1122,7 +1122,7 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
         }
         painter->restore();
         break;
-    case PE_FrameDefaultButton:
+   /* case PE_FrameDefaultButton:
         case PE_FrameFocusRect:
         if (const QStyleOptionFocusRect *focusFrame = qstyleoption_cast<const QStyleOptionFocusRect *>(option)) {
             if (!(focusFrame->state & State_KeyboardFocusChange))
@@ -1142,19 +1142,16 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
             painter->drawRects(rects, 4);
             painter->restore();
         }
-        break;
+        break;*/
     case PE_PanelButtonCommand:
         painter->save();
         {   
-	        if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(option)) {
-	            QStyleOptionButton copy = *btn;
-	            
+	        if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(option)) {	            
 	            bool enabled = option->state & State_Enabled;
 	            bool pushed = (option->state & State_Sunken) || (option->state & State_On);
 	            bool focus = option->state & State_HasFocus;
-	            bool flat = btn->features & QStyleOptionFrameV2::Flat;
+	            bool flat = btn->features & QStyleOptionButton::Flat;
                 bool def = (btn->features & QStyleOptionButton::DefaultButton) && (btn->state & State_Enabled);
-            	            
 				qt_haiku_draw_button(painter, option->rect.adjusted(1,1,-1,-1), def, flat, pushed, focus, enabled);
 	        }
 	     painter->restore();
@@ -3031,7 +3028,7 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
 						mlocation |= B_HASH_MARKS_TOP;
 					if (ticksBelow)
 						mlocation |= B_HASH_MARKS_BOTTOM;
-					int interval =  slider->tickInterval<=0 ? 1 : slider->tickInterval;
+					int interval =  slider->tickInterval <= 0 ? 1 : slider->tickInterval;
 					int num = 1 + ((slider->maximum-slider->minimum) / interval);
 					int len = pixelMetric(PM_SliderLength, slider, widget) / 2;
 					r = (orient == B_HORIZONTAL) ? option->rect.adjusted(len, -2, -len, 2) : option->rect.adjusted(0, len, 0, -len);
@@ -3043,7 +3040,6 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
 					bRect = BRect(handle.x(), handle.y(), handle.x() + handle.width(), handle.y() + handle.height());
 					be_control_look->DrawSliderTriangle(surface.view(), bRect, bRect, base, flags, orient);
 				}
-
 				painter->drawImage(slider->rect, surface.image());
 			}
             painter->restore();
