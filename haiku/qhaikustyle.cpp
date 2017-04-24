@@ -73,6 +73,7 @@
 #include <Bitmap.h>
 #include <View.h>
 #include <ControlLook.h>
+#include <ScrollBar.h>
 
 #include "qstylehelper_p.h"
 #include "qstylecache_p.h"
@@ -3004,7 +3005,7 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
 			if (be_control_look != NULL) {
 				QRect r = groove;
 				rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
-				rgb_color fill_color = ui_color(B_PANEL_BACKGROUND_COLOR);
+				rgb_color fill_color = tint_color(ui_color(B_PANEL_BACKGROUND_COLOR), B_DARKEN_1_TINT);
 				uint32 flags = 0;            
 
 		        BRect bRect(0.0f, 0.0f, option->rect.width() - 1,  option->rect.height() - 1);
@@ -3016,32 +3017,35 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
 				
 				if ((option->subControls & SC_SliderGroove) && groove.isValid()) {
 					r = groove;
-					bRect = BRect(r.x(), r.y(), r.x()+r.width(), r.y()+r.height());
+					if (orient==B_HORIZONTAL)
+						bRect = BRect(r.x(), r.y(), r.x()+r.width(), r.y()+r.height());
+					else
+						bRect = BRect(r.x(), r.y(), r.x()+r.width(), r.y()+r.height());
 					be_control_look->DrawSliderBar(surface.view(), bRect, bRect, base, fill_color, flags, orient);
 					painter->drawImage(r, surface.image());		
 				}
 
 				if (option->subControls & SC_SliderTickmarks) {
 					int mlocation = B_HASH_MARKS_NONE;
-					if(ticksAbove)mlocation|=B_HASH_MARKS_TOP;
-					if(ticksBelow)mlocation|=B_HASH_MARKS_BOTTOM;
-					int interval =  slider->tickInterval<=0?1:slider->tickInterval;
-					int num = 1+((slider->maximum-slider->minimum)/interval);
-					int len = pixelMetric(PM_SliderLength, slider, widget)/2;
-					r=(orient==B_HORIZONTAL)?option->rect.adjusted(len,0,-len,0):option->rect.adjusted(0,len,0,-len);
-					bRect = BRect(r.x(), r.y(), r.x()+r.width(), r.y()+r.height());						
+					if (ticksAbove)
+						mlocation |= B_HASH_MARKS_TOP;
+					if (ticksBelow)
+						mlocation |= B_HASH_MARKS_BOTTOM;
+					int interval =  slider->tickInterval<=0 ? 1 : slider->tickInterval;
+					int num = 1 + ((slider->maximum-slider->minimum) / interval);
+					int len = pixelMetric(PM_SliderLength, slider, widget) / 2;
+					r = (orient == B_HORIZONTAL) ? option->rect.adjusted(len, -2, -len, 2) : option->rect.adjusted(0, len, 0, -len);
+					bRect = BRect(r.x(), r.y(), r.x() + r.width(), r.y() + r.height());
 					be_control_look->DrawSliderHashMarks(surface.view(), bRect, bRect, base, num, (hash_mark_location)mlocation, flags, orient);						
 				}
-								
+
 				if (option->subControls & SC_SliderHandle ) {
-					r=handle.adjusted(7,7,-7,0);
-					bRect = BRect(r.x(), r.y(), r.x()+r.width(), r.y()+r.height());
+					bRect = BRect(handle.x(), handle.y(), handle.x() + handle.width(), handle.y() + handle.height());
 					be_control_look->DrawSliderTriangle(surface.view(), bRect, bRect, base, flags, orient);
-				}					    
-								
-				painter->drawImage(slider->rect, surface.image());		
-			}            
-            
+				}
+
+				painter->drawImage(slider->rect, surface.image());
+			}
             painter->restore();
         }
         break;
@@ -3079,7 +3083,7 @@ int QHaikuStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, con
         ret = 48;
         break;
     case PM_ListViewIconSize:
-        ret = 24;
+        ret = 16;
         break;
     case PM_DialogButtonsSeparator:
     case PM_SplitterWidth:
@@ -3095,13 +3099,13 @@ int QHaikuStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, con
         ret = 24;
         break;
     case PM_ScrollBarExtent:
-        ret = 15;
+        ret = B_V_SCROLL_BAR_WIDTH;
         break;
     case PM_SliderThickness:
-        ret = 15;
+        ret = 8;
         break;
     case PM_SliderLength:
-        ret = 27;
+        ret = 12;
         break;
     case PM_DockWidgetTitleMargin:
         ret = 1;
@@ -3202,6 +3206,14 @@ QSize QHaikuStyle::sizeFromContents(ContentsType type, const QStyleOption *optio
             newSize += QSize(4, 6);
 #endif // QT_NO_TOOLBAR
         break;
+    case CT_Slider:
+    	if (const QStyleOptionSlider *slider = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
+    		if (slider->orientation == Qt::Horizontal)
+    			newSize += QSize(0, 8);
+    		else
+    			newSize += QSize(6, 0);
+    	}
+    	break;
     case CT_SpinBox:
         newSize += QSize(0, -2);
         break;
@@ -3448,46 +3460,31 @@ QRect QHaikuStyle::subControlRect(ComplexControl control, const QStyleOptionComp
     switch (control) {
 #ifndef QT_NO_SLIDER
     case CC_Slider:
-        if (const QStyleOptionSlider *slider = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
+        if (const QStyleOptionSlider *slider = qstyleoption_cast<const QStyleOptionSlider *>(option)) {        	
             int tickSize = proxy()->pixelMetric(PM_SliderTickmarkOffset, option, widget);
+
+            QPoint grooveCenter = slider->rect.center();
+            if (slider->orientation == Qt::Horizontal)
+                rect.setHeight(6);
+            else
+                rect.setWidth(6);
+
             switch (subControl) {
             case SC_SliderHandle: {
                 if (slider->orientation == Qt::Horizontal) {
                     rect.setHeight(proxy()->pixelMetric(PM_SliderThickness));
-                    rect.setWidth(proxy()->pixelMetric(PM_SliderLength));
-                    int centerY = slider->rect.center().y() - rect.height() / 2;
-                    if (slider->tickPosition & QSlider::TicksAbove)
-                        centerY += tickSize;
-                    if (slider->tickPosition & QSlider::TicksBelow)
-                        centerY -= tickSize;
+                    rect.setWidth(proxy()->pixelMetric(PM_SliderLength));                    
+                    int centerY = grooveCenter.y() + 1;
                     rect.moveTop(centerY);
                 } else {
                     rect.setWidth(proxy()->pixelMetric(PM_SliderThickness));
                     rect.setHeight(proxy()->pixelMetric(PM_SliderLength));
-                    int centerX = slider->rect.center().x() - rect.width() / 2;
-                    if (slider->tickPosition & QSlider::TicksAbove)
-                        centerX += tickSize;
-                    if (slider->tickPosition & QSlider::TicksBelow)
-                        centerX -= tickSize;
+                    int centerX = grooveCenter.x() + 1;
                     rect.moveLeft(centerX);
                 }
             }
-                break;
+            	break;
             case SC_SliderGroove: {
-                QPoint grooveCenter = slider->rect.center();
-                if (slider->orientation == Qt::Horizontal) {
-                    rect.setHeight(7);
-                    if (slider->tickPosition & QSlider::TicksAbove)
-                        grooveCenter.ry() += tickSize;
-                    if (slider->tickPosition & QSlider::TicksBelow)
-                        grooveCenter.ry() -= tickSize;
-                } else {
-                    rect.setWidth(7);
-                    if (slider->tickPosition & QSlider::TicksAbove)
-                        grooveCenter.rx() += tickSize;
-                    if (slider->tickPosition & QSlider::TicksBelow)
-                        grooveCenter.rx() -= tickSize;
-                }
                 rect.moveCenter(grooveCenter);
                 break;
             }
