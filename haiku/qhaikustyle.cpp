@@ -1122,27 +1122,9 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
         }
         painter->restore();
         break;
-   /* case PE_FrameDefaultButton:
-        case PE_FrameFocusRect:
-        if (const QStyleOptionFocusRect *focusFrame = qstyleoption_cast<const QStyleOptionFocusRect *>(option)) {
-            if (!(focusFrame->state & State_KeyboardFocusChange))
-                return;
-            QRect rect = focusFrame->rect;
-            painter->save();
-            painter->setBackgroundMode(Qt::TransparentMode);
-            painter->setBrush(QBrush(dark.darker(120), Qt::Dense4Pattern));
-            painter->setBrushOrigin(rect.topLeft());
-            painter->setPen(Qt::NoPen);
-            const QRect rects[4] = {
-                QRect(rect.left(), rect.top(), rect.width(), 1),    // Top
-                QRect(rect.left(), rect.bottom(), rect.width(), 1), // Bottom
-                QRect(rect.left(), rect.top(), 1, rect.height()),   // Left
-                QRect(rect.right(), rect.top(), 1, rect.height())   // Right
-            };
-            painter->drawRects(rects, 4);
-            painter->restore();
-        }
-        break;*/
+	case PE_FrameDefaultButton:
+    case PE_FrameFocusRect:
+    	break;
     case PE_PanelButtonCommand:
         painter->save();
         {   
