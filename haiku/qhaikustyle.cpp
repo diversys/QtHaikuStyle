@@ -520,7 +520,7 @@ static const char * const qt_haiku_checkbox_checked[] = {
     "             ",
     "             "};
 
-static QImage get_haiku_alert_icon(uint32 fType)
+static QImage get_haiku_alert_icon(uint32 fType, int32 iconSize)
 {
 	QImage image;
 
@@ -562,7 +562,6 @@ static QImage get_haiku_alert_icon(uint32 fType)
 			return image;
 	}
 
-	int32 iconSize = 48;
 	icon = new(std::nothrow) BBitmap(BRect(0, 0, iconSize - 1, iconSize - 1), 0, B_RGBA32);
 	if (icon == NULL || icon->InitCheck() < B_OK) {
 		delete icon;
@@ -3958,7 +3957,8 @@ QPixmap QHaikuStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleO
 	}
 
     if(	atype != B_EMPTY_ALERT ) {
-   		QImage image = get_haiku_alert_icon(atype);
+    	int size = pixelMetric(PM_MessageBoxIconSize, opt, widget);
+   		QImage image = get_haiku_alert_icon(atype, size);
    		if(!image.isNull()) {
 			pixmap = QPixmap::fromImage(image);
    			return pixmap;
