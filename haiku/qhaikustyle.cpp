@@ -819,7 +819,7 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
 			TemporarySurface surface(bRect);
 			bRect.InsetBy(-1, -1);
 			be_control_look->DrawTextControlBorder(surface.view(), bRect, bRect, base, flags);
-			painter->drawImage(r, surface.image());			    
+			painter->drawImage(r, surface.image());
         }
         painter->restore();
         break;
@@ -2850,9 +2850,9 @@ QSize QHaikuStyle::sizeFromContents(ContentsType type, const QStyleOption *optio
     case CT_PushButton:
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(option)) {
             if (!btn->text.isEmpty()) {
-            	newSize += QSize(8, 6);
-				if(newSize.width() < 80)
-                	newSize.setWidth(80);
+            	newSize += QSize(7, 2);
+				if(newSize.width() < 64)
+                	newSize.setWidth(64);
             }
             if (!btn->icon.isNull() && btn->iconSize.height() > 16)
                 newSize -= QSize(0, 2);
