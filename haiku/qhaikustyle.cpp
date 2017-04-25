@@ -827,7 +827,7 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
         painter->save();
         if (const QStyleOptionButton *checkbox = qstyleoption_cast<const QStyleOptionButton*>(option)) {
             
-            //rect = rect.adjusted(-1, -1, 2, 2);
+            rect = rect.adjusted(1, 1, -1, -1);
 			BRect bRect(0.0f, 0.0f, rect.width() - 1, rect.height() - 1);
 			TemporarySurface surface(bRect);
 			rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
@@ -855,9 +855,9 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
         break;  
     case PE_IndicatorRadioButton:
         painter->save();
-        if (const QStyleOptionButton *checkbox = qstyleoption_cast<const QStyleOptionButton*>(option)) {
+        if (const QStyleOptionButton *radiobutton = qstyleoption_cast<const QStyleOptionButton*>(option)) {
             
-            rect = rect.adjusted(-2, -2, 2, 2);
+            rect = rect.adjusted(1, -1, 3, 1);
 			BRect bRect(0.0f, 0.0f, rect.width() - 1, rect.height() - 1);
 			TemporarySurface surface(bRect);
 			rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
@@ -869,13 +869,13 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
 
 			if (!(state & State_Enabled))
 				flags |= BControlLook::B_DISABLED;
-			if (checkbox->state & State_On)
+			if (radiobutton->state & State_On)
 				flags |= BControlLook::B_ACTIVATED;
-			if (checkbox->state & State_HasFocus)
+			if (radiobutton->state & State_HasFocus)
 				flags |= BControlLook::B_FOCUSED;
-			if (checkbox->state & State_Sunken)
+			if (radiobutton->state & State_Sunken)
 				flags |= BControlLook::B_CLICKED;
-			if (checkbox->state & State_NoChange)
+			if (radiobutton->state & State_NoChange)
 				flags |= BControlLook::B_DISABLED | BControlLook::B_ACTIVATED;
 
 			be_control_look->DrawRadioButton(surface.view(), bRect, bRect, base, flags);
@@ -1042,7 +1042,7 @@ void QHaikuStyle::drawControl(ControlElement element, const QStyleOption *option
      case CE_CheckBox:
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(option)) {
             QStyleOptionButton copy = *btn;
-           // copy.rect.adjust(2, 0, -2, 0);
+            copy.rect.adjust(1, -1, 3, 2);
             QProxyStyle::drawControl(element, &copy, painter, widget);
         }
         break;
@@ -2633,18 +2633,10 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
                     QColor textColor = groupBox->textColor;
                     if (textColor.isValid())
                         painter->setPen(textColor);
-                    int alignment = int(groupBox->textAlignment);
-                    if (!styleHint(QStyle::SH_UnderlineShortcut, option, widget))
-                        alignment |= Qt::TextHideMnemonic;
-                    if (flat) {
-                        QFont font = painter->font();
-                        font.setBold(true);
-                        painter->setFont(font);
-                        if (groupBox->subControls & SC_GroupBoxCheckBox) {
-                            textRect.adjust(checkBoxRect.right() + 4, 0, checkBoxRect.right() + 4, 0);
-                        }
-                    }
-                    painter->drawText(textRect, Qt::TextShowMnemonic | Qt::AlignLeft| alignment, groupBox->text);
+					QFont font = widget->font();
+					font.setBold(true);
+					painter->setFont(font);
+                    painter->drawText(textRect, Qt::AlignLeft, groupBox->text);
                 }
             }
             if (groupBox->subControls & SC_GroupBoxCheckBox) {
@@ -2833,9 +2825,9 @@ int QHaikuStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, con
     case PM_TabBarTabShiftHorizontal:
         return 0;
     case PM_IndicatorWidth:
-    	return 16;
+    	return 18;
     case PM_IndicatorHeight:
-    	return 16;
+    	return 18;
 //    case PM_TabBarTabOverlap:
 //        return 50;
 //    case PM_TabBarBaseOverlap:
@@ -2884,8 +2876,10 @@ QSize QHaikuStyle::sizeFromContents(ContentsType type, const QStyleOption *optio
         break;
 #endif //QT_NO_GROUPBOX
     case CT_RadioButton:
+    	newSize += QSize(1, 1);
+    	break;
     case CT_CheckBox:
-       // newSize += QSize(0, 1);
+        newSize += QSize(1, 1);
         break;
     case CT_ToolButton:
 #ifndef QT_NO_TOOLBAR
@@ -3279,54 +3273,7 @@ QRect QHaikuStyle::subControlRect(ComplexControl control, const QStyleOptionComp
             rect = visualRect(option->direction, option->rect, rect);
         }
 
-        return rect;    
-/*    
-        if (const QStyleOptionGroupBox *groupBox = qstyleoption_cast<const QStyleOptionGroupBox *>(option)) {
-            int topMargin = 0;
-            int topHeight = 0;
-            int verticalAlignment = proxy()->styleHint(SH_GroupBox_TextLabelVerticalAlignment, groupBox, widget);
-            bool flat = groupBox->features & QStyleOptionFrame::Flat;
-            if (!groupBox->text.isEmpty()) {
-                topHeight = groupBox->fontMetrics.height();
-                if (verticalAlignment & Qt::AlignVCenter)
-                    topMargin = topHeight / 2;
-                else if (verticalAlignment & Qt::AlignTop)
-                    topMargin = topHeight;
-            }
-            QRect frameRect = groupBox->rect;
-            frameRect.setTop(topMargin);
-            if (subControl == SC_GroupBoxFrame) {
-                return rect;
-            }
-            else if (subControl == SC_GroupBoxContents) {
-                if (flat) {
-                    int margin = 0;
-                    int leftMarginExtension = 16;
-                    rect = frameRect.adjusted(leftMarginExtension + margin, margin + topHeight, -margin, -margin);
-                }
-                break;
-            }
-            if (flat) {
-                if (const QGroupBox *groupBoxWidget = qobject_cast<const QGroupBox *>(widget)) {
-                    //Prepare metrics for a bold font
-                    QFont font = widget->font();
-                    font.setBold(true);
-                    QFontMetrics fontMetrics(font);
-
-                    QSize textRect = fontMetrics.boundingRect(groupBoxWidget->title()).size() + QSize(2, 2);
-                    if (subControl == SC_GroupBoxCheckBox) {
-                        int indicatorWidth = proxy()->pixelMetric(PM_IndicatorWidth, option, widget);
-                        int indicatorHeight = proxy()->pixelMetric(PM_IndicatorHeight, option, widget);
-                        rect.setWidth(indicatorWidth);
-                        rect.setHeight(indicatorHeight);
-                        rect.moveTop((fontMetrics.height() - indicatorHeight) / 2 + 2);
-                    } else if (subControl == SC_GroupBoxLabel) {
-                        rect.setSize(textRect);
-                    }
-                }
-            }
-        }
-        return rect;*/
+        return rect;
 #ifndef QT_NO_COMBOBOX
     case CC_ComboBox:
         switch (subControl) {
