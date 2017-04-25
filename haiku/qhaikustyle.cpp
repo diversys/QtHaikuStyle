@@ -981,11 +981,41 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
 #ifndef QT_NO_TABBAR
         case PE_FrameTabWidget:        
             painter->save();
-        {
+            if (const QStyleOptionTabWidgetFrame *twf = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(option)) {
+		        QColor backgroundColor(mkQColor(ui_color(B_PANEL_BACKGROUND_COLOR)));
+		        QColor frameColor(mkQColor(tint_color(ui_color(B_PANEL_BACKGROUND_COLOR), 1.30)));
+		        QColor bevelLight(mkQColor(tint_color(ui_color(B_PANEL_BACKGROUND_COLOR), 0.8)));
+		        QColor bevelShadow(mkQColor(tint_color(ui_color(B_PANEL_BACKGROUND_COLOR), 1.03)));
+		        
+		        QRect frame = option->rect.adjusted(-1,-1,1,1);
+		        painter->setPen(bevelShadow);
+		        painter->drawLine(frame.topLeft(), frame.bottomLeft());
+		        painter->drawLine(frame.topLeft(), frame.topRight());
+		        painter->setPen(bevelLight);
+		        painter->drawLine(frame.topRight(), frame.bottomRight());
+		        painter->drawLine(frame.bottomLeft(), frame.bottomRight());
+		
+				frame.adjust(1, 1, -1, -1);
+		        painter->setPen(frameColor);
+		        painter->drawLine(frame.topLeft(), frame.bottomLeft());
+		        painter->drawLine(frame.topLeft(), frame.topRight());
+		        painter->drawLine(frame.topRight(), frame.bottomRight());
+		        painter->drawLine(frame.bottomLeft(), frame.bottomRight());
+				
+				frame.adjust(1, 1, -1, -1);
+		        painter->setPen(bevelLight);
+		        painter->drawLine(frame.topLeft(), frame.bottomLeft());
+		        painter->drawLine(frame.topLeft(), frame.topRight());
+		        painter->setPen(bevelShadow);
+		        painter->drawLine(frame.topRight(), frame.bottomRight());
+		        painter->drawLine(frame.bottomLeft(), frame.bottomRight());            	
+            }
+/*        {
             painter->fillRect(option->rect, tabFrameColor);
         }
 #ifndef QT_NO_TABWIDGET
-        /*if (const QStyleOptionTabWidgetFrame *twf = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(option)) {
+
+        if (const QStyleOptionTabWidgetFrame *twf = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(option)) {
             QColor borderColor = darkOutline.lighter(110);
             QColor alphaCornerColor = mergedColors(borderColor, option->palette.background().color());
 
@@ -1092,8 +1122,8 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
                 leftTopInnerCorner2
             };
             painter->drawPoints(points, 6);
-        }*/
-#endif // QT_NO_TABWIDGET
+        }
+#endif // QT_NO_TABWIDGET*/
     painter->restore();
     break ;
 
@@ -1914,33 +1944,57 @@ void QHaikuStyle::drawControl(ControlElement element, const QStyleOption *option
 					case QTabBar::TriangularNorth:
             		case QTabBar::RoundedNorth:
             			side = BControlLook::B_TOP_BORDER;
-            			borders = BControlLook::B_RIGHT_BORDER|BControlLook::B_TOP_BORDER|BControlLook::B_BOTTOM_BORDER;
-            			bRect1.InsetBy(-1,0);
+            			borders = (lastTab?BControlLook::B_RIGHT_BORDER:0) |
+            					  (previousSelected?0:BControlLook::B_LEFT_BORDER) |
+            					  BControlLook::B_TOP_BORDER |
+            					  BControlLook::B_BOTTOM_BORDER;
+            			if (lastTab || selected)
+            				bRect1.right++;
+            			if(!previousSelected || selected)
+            				bRect1.left--;
     	            	break;
 	                case QTabBar::TriangularSouth:
                 	case QTabBar::RoundedSouth:
                 		side = BControlLook::B_BOTTOM_BORDER;
-                		borders = BControlLook::B_RIGHT_BORDER|BControlLook::B_TOP_BORDER|BControlLook::B_BOTTOM_BORDER;
-                		bRect1.InsetBy(-1,0);
-	                	break;
+            			borders = (lastTab?BControlLook::B_RIGHT_BORDER:0) |
+            					  (previousSelected?0:BControlLook::B_LEFT_BORDER) |
+            					  BControlLook::B_TOP_BORDER |
+            					  BControlLook::B_BOTTOM_BORDER;
+            			if (lastTab || selected)
+            				bRect1.right++;
+            			if(!previousSelected || selected)
+            				bRect1.left--;
+    	            	break;                		
  					case QTabBar::TriangularWest:
                 	case QTabBar::RoundedWest:
-                		side = BControlLook::B_LEFT_BORDER;
-                		borders = BControlLook::B_LEFT_BORDER|BControlLook::B_RIGHT_BORDER|BControlLook::B_BOTTOM_BORDER;
-                		bRect1.InsetBy(0,-1);
+                		side = BControlLook::B_LEFT_BORDER;                		
+            			borders = (lastTab?BControlLook::B_BOTTOM_BORDER:0) |
+            					  (previousSelected?0:BControlLook::B_TOP_BORDER) |
+            					  BControlLook::B_LEFT_BORDER |
+            					  BControlLook::B_RIGHT_BORDER;
+            			if (lastTab || selected)
+            				bRect1.bottom++;
+            			if(!previousSelected || selected)
+            				bRect1.top--;
 	                	break;
     	            case QTabBar::TriangularEast:
 	                case QTabBar::RoundedEast:
 	                	side = BControlLook::B_RIGHT_BORDER;
-	                	borders = BControlLook::B_LEFT_BORDER|BControlLook::B_RIGHT_BORDER|BControlLook::B_BOTTOM_BORDER;
-	                	bRect1.InsetBy(0,-1);
-	                	break;                            	
+            			borders = (lastTab?BControlLook::B_BOTTOM_BORDER:0) |
+            					  (previousSelected?0:BControlLook::B_TOP_BORDER) |
+            					  BControlLook::B_LEFT_BORDER |
+            					  BControlLook::B_RIGHT_BORDER;
+            			if (lastTab || selected)
+            				bRect1.bottom++;
+            			if(!previousSelected || selected)
+            				bRect1.top--;
+						break;
 				}
 
 				if(selected)
 					be_control_look->DrawActiveTab(surface.view(), bRect1, bRect, base, flags, BControlLook::B_ALL_BORDERS, side);
 				else
-					be_control_look->DrawInactiveTab(surface.view(), bRect1, bRect, base, flags, BControlLook::B_ALL_BORDERS, side);
+					be_control_look->DrawInactiveTab(surface.view(), bRect1, bRect, base, flags, borders, side);
 
 				painter->drawImage(r, surface.image());		    
 			}
