@@ -3435,10 +3435,13 @@ int QHaikuStyle::styleHint(StyleHint hint, const QStyleOption *option, const QWi
     int ret = 0;
     switch (hint) {
     case SH_ScrollBar_MiddleClickAbsolutePosition:
-        ret = true;
+        ret = int(true);
         break;
     case SH_EtchDisabledText:
-        ret = 1;
+        ret = int(false);
+        break;
+	case SH_UnderlineShortcut:
+        ret = int(false);
         break;
     case SH_Menu_AllowActiveAndDisabled:
         ret = false;
