@@ -1410,37 +1410,30 @@ void QHaikuStyle::drawControl(ControlElement element, const QStyleOption *option
         if (const QStyleOptionMenuItem *mbi = qstyleoption_cast<const QStyleOptionMenuItem *>(option))
         {
             QStyleOptionMenuItem item = *mbi;
-            item.rect = mbi->rect.adjusted(0, 0, 0, 0);
-			if (be_control_look != NULL) {
-				QRect r = rect.adjusted(0,-1,0,0);
-				rgb_color base = ui_color(B_MENU_BACKGROUND_COLOR);;
-				uint32 flags = 0;            
-		        BRect bRect(0.0f, 0.0f, r.width() - 1, r.height() - 1);
-				TemporarySurface surface(bRect);
-				be_control_look->DrawMenuBarBackground(surface.view(), bRect, bRect, base, flags, 8);
-				painter->drawImage(r, surface.image());			    
-			}
-			
+            item.rect = mbi->rect.adjusted(-1, -1, 1, 0);
+
             bool act = mbi->state & State_Selected && mbi->state & State_Sunken;
             bool dis = !(mbi->state & State_Enabled);
 
-            QRect r = option->rect;
-            if (act) {
-                qt_haiku_draw_gradient(painter, r.adjusted(1, 1, -1, -1),
-                                            QColor(150,150,150),
-                                            QColor(168,168,168), TopDown,
-                                            QColor(168,168,168));
+			if (be_control_look != NULL) {
+				rgb_color base = ui_color(B_MENU_BACKGROUND_COLOR);
 
-                painter->setPen(QPen(QColor(168,168,168), 0));
-                painter->drawLine(QPoint(r.left(), r.top()), QPoint(r.left(), r.bottom()));
-                painter->drawLine(QPoint(r.right(), r.top()), QPoint(r.right(), r.bottom()));
-                painter->drawLine(QPoint(r.left(), r.bottom()), QPoint(r.right(), r.bottom()));
-                painter->drawLine(QPoint(r.left(), r.top()), QPoint(r.right(), r.top()));
-            }
+				uint32 flags = 0;
+
+				if (act)
+					flags |= BControlLook::B_ACTIVATED;
+				if (dis)
+					flags |= BControlLook::B_DISABLED;
+
+		        BRect bRect(0.0f, 0.0f, option->rect.width() - 1, option->rect.height() - 1);
+				TemporarySurface surface(bRect);
+				be_control_look->DrawMenuBarBackground(surface.view(), bRect, bRect, base, flags, 8);
+				painter->drawImage(option->rect, surface.image());
+			}
 
             QPalette::ColorRole textRole = QPalette::Text;
             uint alignment = Qt::AlignCenter  | Qt::TextHideMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
-            drawItemText(painter, item.rect, alignment, mbi->palette, mbi->state & State_Enabled, mbi->text, textRole);            
+            drawItemText(painter, item.rect, alignment, mbi->palette, mbi->state & State_Enabled, mbi->text, textRole);
         }
         painter->restore();
         break;
@@ -2765,7 +2758,7 @@ int QHaikuStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, con
         ret = 26;
         break;
     case PM_MenuPanelWidth: //menu framewidth
-        ret = 2;
+        ret = 1;
         break;
     case PM_TitleBarHeight:
         ret = 24;
@@ -2783,7 +2776,7 @@ int QHaikuStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, con
         ret = 1;
         break;
     case PM_MenuBarVMargin:
-        ret = 1;
+        ret = 0;
         break;
     case PM_DefaultFrameWidth:
         ret = 2;
@@ -2792,7 +2785,7 @@ int QHaikuStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, con
         ret = 3;
         break;
     case PM_MenuBarItemSpacing:
-        ret = 2;
+        ret = 0;
         break;
     case PM_MenuBarHMargin:
         ret = 0;
@@ -2909,8 +2902,11 @@ QSize QHaikuStyle::sizeFromContents(ContentsType type, const QStyleOption *optio
         break;
     case CT_LineEdit:
         break;
+    case CT_MenuBar:
+        newSize += QSize(0, 1);
+        break;
     case CT_MenuBarItem:
-        newSize += QSize(-1, -2);
+        newSize += QSize(4, 0);
         break;
     case CT_MenuItem:
         if (const QStyleOptionMenuItem *menuItem = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
