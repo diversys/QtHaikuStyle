@@ -2895,11 +2895,14 @@ QSize QHaikuStyle::sizeFromContents(ContentsType type, const QStyleOption *optio
     switch (type) {
     case CT_PushButton:
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(option)) {
-            if (!btn->text.isEmpty() && newSize.width() < 80)
-                newSize.setWidth(80);
+            if (!btn->text.isEmpty()) {
+            	newSize += QSize(8, 0);
+				if(newSize.width() < 80)
+                	newSize.setWidth(80);
+            }
             if (!btn->icon.isNull() && btn->iconSize.height() > 16)
-                newSize -= QSize(0, 2);
-            newSize += QSize(6, 4);
+                newSize -= QSize(0, 2);            
+            newSize += QSize(0, 4);
         }
         break;
 #ifndef QT_NO_GROUPBOX
