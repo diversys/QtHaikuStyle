@@ -2899,7 +2899,7 @@ QSize QHaikuStyle::sizeFromContents(ContentsType type, const QStyleOption *optio
         break;
     case CT_ComboBox:
         newSize = sizeFromContents(CT_PushButton, option, size, widget);
-        newSize.rwidth() += 24;
+        newSize.rwidth() += 28;
         newSize.rheight() += 8;
         break;
     case CT_LineEdit:
