@@ -3458,6 +3458,9 @@ int QHaikuStyle::styleHint(StyleHint hint, const QStyleOption *option, const QWi
     case SH_TitleBar_NoBorder:
         ret = 1;
         break;
+    case SH_LineEdit_PasswordCharacter:
+        ret = 0x00B7;
+        break;
     case SH_ItemView_ShowDecorationSelected:
         ret = true;
         break;
