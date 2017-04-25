@@ -2750,7 +2750,7 @@ int QHaikuStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, con
         ret = 0;
         break;
     case PM_MessageBoxIconSize:
-        ret = 48;
+        ret = 32;
         break;
     case PM_ListViewIconSize:
         ret = 16;
