@@ -2850,13 +2850,12 @@ QSize QHaikuStyle::sizeFromContents(ContentsType type, const QStyleOption *optio
     case CT_PushButton:
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(option)) {
             if (!btn->text.isEmpty()) {
-            	newSize += QSize(8, 0);
+            	newSize += QSize(8, 6);
 				if(newSize.width() < 80)
                 	newSize.setWidth(80);
             }
             if (!btn->icon.isNull() && btn->iconSize.height() > 16)
-                newSize -= QSize(0, 2);            
-            newSize += QSize(0, 4);
+                newSize -= QSize(0, 2);
         }
         break;
 #ifndef QT_NO_GROUPBOX
