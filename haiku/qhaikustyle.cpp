@@ -982,12 +982,33 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
         case PE_FrameTabWidget:        
             painter->save();
             if (const QStyleOptionTabWidgetFrame *twf = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(option)) {
+            	            	
 		        QColor backgroundColor(mkQColor(ui_color(B_PANEL_BACKGROUND_COLOR)));
 		        QColor frameColor(mkQColor(tint_color(ui_color(B_PANEL_BACKGROUND_COLOR), 1.30)));
 		        QColor bevelLight(mkQColor(tint_color(ui_color(B_PANEL_BACKGROUND_COLOR), 0.8)));
 		        QColor bevelShadow(mkQColor(tint_color(ui_color(B_PANEL_BACKGROUND_COLOR), 1.03)));
 		        
-		        QRect frame = option->rect.adjusted(-1,-1,1,1);
+		        QRect frame = option->rect;
+		        
+		        switch(twf->shape) {
+		        	case QTabBar::RoundedNorth:
+					case QTabBar::TriangularNorth:
+						frame.adjust(-1,0,1,1);
+						break;
+					case QTabBar::RoundedSouth:
+					case QTabBar::TriangularSouth:
+						frame.adjust(-1,-1,1,0);
+						break;
+					case QTabBar::RoundedWest:
+					case QTabBar::TriangularWest:
+						frame.adjust(0,-1,1,1);
+						break;
+					case QTabBar::RoundedEast:
+					case QTabBar::TriangularEast:
+						frame.adjust(-1,-1,0,1);
+						break;
+				}
+		        
 		        painter->setPen(bevelShadow);
 		        painter->drawLine(frame.topLeft(), frame.bottomLeft());
 		        painter->drawLine(frame.topLeft(), frame.topRight());
@@ -1928,6 +1949,12 @@ void QHaikuStyle::drawControl(ControlElement element, const QStyleOption *option
             bool rightAligned = (!rtlHorTabs && tabBarAlignment == Qt::AlignRight)
                                 || (rtlHorTabs
                                     && tabBarAlignment == Qt::AlignLeft);
+
+	        QColor backgroundColor(mkQColor(ui_color(B_PANEL_BACKGROUND_COLOR)));
+	        QColor frameColor(mkQColor(tint_color(ui_color(B_PANEL_BACKGROUND_COLOR), 1.30)));
+	        QColor bevelLight(mkQColor(tint_color(ui_color(B_PANEL_BACKGROUND_COLOR), 0.8)));
+    	    QColor bevelShadow(mkQColor(tint_color(ui_color(B_PANEL_BACKGROUND_COLOR), 1.03)));
+
                                     
 			if (be_control_look != NULL) {
 				QRect r = option->rect;
@@ -1994,11 +2021,28 @@ void QHaikuStyle::drawControl(ControlElement element, const QStyleOption *option
 				if(selected)
 					be_control_look->DrawActiveTab(surface.view(), bRect1, bRect, base, flags, BControlLook::B_ALL_BORDERS, side);
 				else
-					be_control_look->DrawInactiveTab(surface.view(), bRect1, bRect, base, flags, borders, side);
+					be_control_look->DrawInactiveTab(surface.view(), bRect1, bRect, base, flags, borders, side);		    	    
 
-				painter->drawImage(r, surface.image());		    
+				painter->drawImage(r, surface.image());
+				if (!selected) {					
+   	        		painter->setPen(QPen(frameColor));
+   	        		switch(side) {
+   	        			case BControlLook::B_TOP_BORDER:
+   	        				painter->drawLine(rect.bottomLeft(), rect.bottomRight());
+   	        				break;
+   	        			case BControlLook::B_BOTTOM_BORDER:
+   	        				painter->drawLine(rect.topLeft(), rect.topRight());
+   	        				break;
+   	        			case BControlLook::B_LEFT_BORDER:
+   	        				painter->drawLine(rect.topRight(), rect.bottomRight());
+   	        				break;
+   	        			case BControlLook::B_RIGHT_BORDER:
+   	        				painter->drawLine(rect.topLeft(), rect.bottomLeft());
+   	        				break;
+   	        		}            		
+				}
 			}
-		}   
+		}
         painter->restore();
         break;
 
