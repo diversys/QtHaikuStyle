@@ -2792,7 +2792,7 @@ int QHaikuStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, con
         ret = 3;
         break;
     case PM_MenuBarItemSpacing:
-        ret = 6;
+        ret = 2;
         break;
     case PM_MenuBarHMargin:
         ret = 0;
@@ -2910,7 +2910,7 @@ QSize QHaikuStyle::sizeFromContents(ContentsType type, const QStyleOption *optio
     case CT_LineEdit:
         break;
     case CT_MenuBarItem:
-        newSize += QSize(0, -2);
+        newSize += QSize(-1, -2);
         break;
     case CT_MenuItem:
         if (const QStyleOptionMenuItem *menuItem = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
