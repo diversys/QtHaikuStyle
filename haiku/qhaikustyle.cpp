@@ -978,7 +978,6 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
 	     	painter->restore();
         }
         break;
-#ifndef QT_NO_TABBAR
         case PE_FrameTabWidget:        
             painter->save();
             if (const QStyleOptionTabWidgetFrame *twf = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(option)) {
@@ -1031,7 +1030,6 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
 		        painter->drawLine(frame.topRight(), frame.bottomRight());
 		        painter->drawLine(frame.bottomLeft(), frame.bottomRight());            	
             }
-#endif // QT_NO_TABWIDGET*/
     painter->restore();
     break ;
 
@@ -1049,7 +1047,6 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
         }
         break;
 
-#endif // QT_NO_TABBAR
     default:
         QProxyStyle::drawPrimitive(elem, option, painter, widget);
         break;
