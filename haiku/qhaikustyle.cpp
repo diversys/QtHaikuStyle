@@ -1008,21 +1008,21 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
 						frame.adjust(-1,-1,0,1);
 						break;
 				}
-		        
+
 		        painter->setPen(bevelShadow);
 		        painter->drawLine(frame.topLeft(), frame.bottomLeft());
 		        painter->drawLine(frame.topLeft(), frame.topRight());
 		        painter->setPen(bevelLight);
 		        painter->drawLine(frame.topRight(), frame.bottomRight());
 		        painter->drawLine(frame.bottomLeft(), frame.bottomRight());
-		
+
 				frame.adjust(1, 1, -1, -1);
 		        painter->setPen(frameColor);
 		        painter->drawLine(frame.topLeft(), frame.bottomLeft());
 		        painter->drawLine(frame.topLeft(), frame.topRight());
 		        painter->drawLine(frame.topRight(), frame.bottomRight());
 		        painter->drawLine(frame.bottomLeft(), frame.bottomRight());
-				
+
 				frame.adjust(1, 1, -1, -1);
 		        painter->setPen(bevelLight);
 		        painter->drawLine(frame.topLeft(), frame.bottomLeft());
@@ -1031,119 +1031,6 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
 		        painter->drawLine(frame.topRight(), frame.bottomRight());
 		        painter->drawLine(frame.bottomLeft(), frame.bottomRight());            	
             }
-/*        {
-            painter->fillRect(option->rect, tabFrameColor);
-        }
-#ifndef QT_NO_TABWIDGET
-
-        if (const QStyleOptionTabWidgetFrame *twf = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(option)) {
-            QColor borderColor = darkOutline.lighter(110);
-            QColor alphaCornerColor = mergedColors(borderColor, option->palette.background().color());
-
-            int borderThickness = proxy()->pixelMetric(PM_TabBarBaseOverlap, twf, widget);
-            bool reverse = (twf->direction == Qt::RightToLeft);
-            QRect tabBarRect;
-
-            switch (twf->shape) {
-            case QTabBar::RoundedNorth:
-                if (reverse) {
-                    tabBarRect = QRect(twf->rect.right() - twf->leftCornerWidgetSize.width()
-                                       - twf->tabBarSize.width() + 1,
-                                       twf->rect.top(),
-                                       twf->tabBarSize.width(), borderThickness);
-                } else {
-                    tabBarRect = QRect(twf->rect.left() + twf->leftCornerWidgetSize.width(),
-                                       twf->rect.top(),
-                                       twf->tabBarSize.width(), borderThickness);
-                }
-                break ;
-            case QTabBar::RoundedWest:
-                tabBarRect = QRect(twf->rect.left(),
-                                   twf->rect.top() + twf->leftCornerWidgetSize.height(),
-                                   borderThickness,
-                                   twf->tabBarSize.height());
-                tabBarRect = tabBarRect; //adjust
-                break ;
-            case QTabBar::RoundedEast:
-                tabBarRect = QRect(twf->rect.right() - borderThickness + 1,
-                                   twf->rect.top()  + twf->leftCornerWidgetSize.height(),
-                                   0,
-                                   twf->tabBarSize.height());
-                break ;
-            case QTabBar::RoundedSouth:
-                if (reverse) {
-                    tabBarRect = QRect(twf->rect.right() - twf->leftCornerWidgetSize.width() - twf->tabBarSize.width() + 1,
-                                       twf->rect.bottom() + 1,
-                                       twf->tabBarSize.width(),
-                                       borderThickness);
-                } else {
-                    tabBarRect = QRect(twf->rect.left() + twf->leftCornerWidgetSize.width(),
-                                       twf->rect.bottom() + 1,
-                                       twf->tabBarSize.width(),
-                                       borderThickness);
-                }
-                break;
-            default:
-                break;
-            }
-
-            QRegion region(twf->rect);
-            region -= tabBarRect;
-            painter->setClipRegion(region);
-
-            // Outer border
-            QLine leftLine = QLine(twf->rect.topLeft() + QPoint(0, 2), twf->rect.bottomLeft() - QPoint(0, 2));
-            QLine rightLine = QLine(twf->rect.topRight(), twf->rect.bottomRight() - QPoint(0, 2));
-            QLine bottomLine = QLine(twf->rect.bottomLeft() + QPoint(2, 0), twf->rect.bottomRight() - QPoint(2, 0));
-            QLine topLine = QLine(twf->rect.topLeft(), twf->rect.topRight());
-
-            painter->setPen(borderColor);
-            painter->drawLine(topLine);
-
-            // Inner border
-            QLine innerLeftLine = QLine(leftLine.p1() + QPoint(1, 0), leftLine.p2() + QPoint(1, 0));
-            QLine innerRightLine = QLine(rightLine.p1() - QPoint(1, -1), rightLine.p2() - QPoint(1, 0));
-            QLine innerBottomLine = QLine(bottomLine.p1() - QPoint(0, 1), bottomLine.p2() - QPoint(0, 1));
-            QLine innerTopLine = QLine(topLine.p1() + QPoint(0, 1), topLine.p2() + QPoint(-1, 1));
-
-            // Rounded Corner
-            QPoint leftBottomOuterCorner = QPoint(innerLeftLine.p2() + QPoint(0, 1));
-            QPoint leftBottomInnerCorner1 = QPoint(leftLine.p2() + QPoint(0, 1));
-            QPoint leftBottomInnerCorner2 = QPoint(bottomLine.p1() - QPoint(1, 0));
-            QPoint rightBottomOuterCorner = QPoint(innerRightLine.p2() + QPoint(0, 1));
-            QPoint rightBottomInnerCorner1 = QPoint(rightLine.p2() + QPoint(0, 1));
-            QPoint rightBottomInnerCorner2 = QPoint(bottomLine.p2() + QPoint(1, 0));
-            QPoint leftTopOuterCorner = QPoint(innerLeftLine.p1() - QPoint(0, 1));
-            QPoint leftTopInnerCorner1 = QPoint(leftLine.p1() - QPoint(0, 1));
-            QPoint leftTopInnerCorner2 = QPoint(topLine.p1() - QPoint(1, 0));
-
-            painter->setPen(borderColor);
-            painter->drawLine(leftLine);
-            painter->drawLine(rightLine);
-            painter->drawLine(bottomLine);
-            painter->drawPoint(leftBottomOuterCorner);
-            painter->drawPoint(rightBottomOuterCorner);
-            painter->drawPoint(leftTopOuterCorner);
-
-            painter->setPen(option->palette.light().color());
-            painter->drawLine(innerLeftLine);
-            painter->drawLine(innerTopLine);
-
-            painter->setPen(buttonShadowAlpha);
-            painter->drawLine(innerRightLine);
-            painter->drawLine(innerBottomLine);
-
-            painter->setPen(alphaCornerColor);
-            const QPoint points[6] = {
-                leftBottomInnerCorner1,
-                leftBottomInnerCorner2,
-                rightBottomInnerCorner1,
-                rightBottomInnerCorner2,
-                leftTopInnerCorner1,
-                leftTopInnerCorner2
-            };
-            painter->drawPoints(points, 6);
-        }
 #endif // QT_NO_TABWIDGET*/
     painter->restore();
     break ;
