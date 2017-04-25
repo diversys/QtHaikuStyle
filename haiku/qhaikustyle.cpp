@@ -934,7 +934,7 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
 			bool hasFocus = option->state & State_HasFocus;
             bool isEnabled = option->state & State_Enabled;
 
-			qt_haiku_draw_button(painter, option->rect.adjusted(1,1,-1,-1),
+			qt_haiku_draw_button(painter, option->rect,
 				isDefault, isFlat, isDown, hasFocus, isEnabled);
 	     	painter->restore();
         }
@@ -2736,7 +2736,7 @@ int QHaikuStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, con
         ret = 2;
         break;
     case PM_ButtonDefaultIndicator:
-        ret = 0;
+        ret = 2;
         break;
     case PM_ButtonShiftHorizontal:
     case PM_ButtonShiftVertical:
