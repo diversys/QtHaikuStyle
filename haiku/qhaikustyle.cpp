@@ -979,13 +979,13 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
         }
         break;
 #ifndef QT_NO_TABBAR
-        case PE_FrameTabWidget:
+        case PE_FrameTabWidget:        
             painter->save();
         {
             painter->fillRect(option->rect, tabFrameColor);
         }
 #ifndef QT_NO_TABWIDGET
-        if (const QStyleOptionTabWidgetFrame *twf = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(option)) {
+        /*if (const QStyleOptionTabWidgetFrame *twf = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(option)) {
             QColor borderColor = darkOutline.lighter(110);
             QColor alphaCornerColor = mergedColors(borderColor, option->palette.background().color());
 
@@ -1092,7 +1092,7 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
                 leftTopInnerCorner2
             };
             painter->drawPoints(points, 6);
-        }
+        }*/
 #endif // QT_NO_TABWIDGET
     painter->restore();
     break ;
@@ -1863,6 +1863,79 @@ void QHaikuStyle::drawControl(ControlElement element, const QStyleOption *option
 #ifndef QT_NO_TABBAR
     case CE_TabBarTabShape:
         painter->save();
+		if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(option)) {
+
+            bool rtlHorTabs = (tab->direction == Qt::RightToLeft
+                               && (tab->shape == QTabBar::RoundedNorth
+                                   || tab->shape == QTabBar::RoundedSouth));
+            bool selected = tab->state & State_Selected;
+            bool lastTab = ((!rtlHorTabs && tab->position == QStyleOptionTab::End)
+                            || (rtlHorTabs
+                                && tab->position == QStyleOptionTab::Beginning));
+            bool onlyTab = tab->position == QStyleOptionTab::OnlyOneTab;
+            bool leftCornerWidget = (tab->cornerWidgets & QStyleOptionTab::LeftCornerWidget);
+
+            bool atBeginning = ((tab->position == (tab->direction == Qt::LeftToRight ?
+                                QStyleOptionTab::Beginning : QStyleOptionTab::End)) || onlyTab);
+
+            bool onlyOne = tab->position == QStyleOptionTab::OnlyOneTab;
+            bool previousSelected =
+                ((!rtlHorTabs
+                  && tab->selectedPosition == QStyleOptionTab::PreviousIsSelected)
+                 || (rtlHorTabs
+                     && tab->selectedPosition == QStyleOptionTab::NextIsSelected));
+            bool nextSelected =
+                ((!rtlHorTabs
+                  && tab->selectedPosition == QStyleOptionTab::NextIsSelected)
+                 || (rtlHorTabs
+                     && tab->selectedPosition
+                     == QStyleOptionTab::PreviousIsSelected));
+            int tabBarAlignment = proxy()->styleHint(SH_TabBar_Alignment, tab, widget);
+            bool leftAligned = (!rtlHorTabs && tabBarAlignment == Qt::AlignLeft)
+                               || (rtlHorTabs
+                                   && tabBarAlignment == Qt::AlignRight);
+
+            bool rightAligned = (!rtlHorTabs && tabBarAlignment == Qt::AlignRight)
+                                || (rtlHorTabs
+                                    && tabBarAlignment == Qt::AlignLeft);
+                                    
+			if (be_control_look != NULL) {
+				QRect r = option->rect.adjusted(-1,0,1,0);
+				rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);;
+				uint32 flags = 0; 
+				uint32 side = BControlLook::B_TOP_BORDER;
+				uint32 borders = BControlLook::B_RIGHT_BORDER|BControlLook::B_TOP_BORDER|BControlLook::B_BOTTOM_BORDER;
+		        BRect bRect(0.0f, 0.0f, r.width() - 1, r.height() - 1);
+				TemporarySurface surface(bRect);
+
+				switch (tab->shape) {
+            		case QTabBar::RoundedNorth:
+            			side = BControlLook::B_TOP_BORDER;
+            			borders = BControlLook::B_RIGHT_BORDER|BControlLook::B_TOP_BORDER|BControlLook::B_BOTTOM_BORDER;
+    	            	break;
+                	case QTabBar::RoundedSouth:
+                		side = BControlLook::B_BOTTOM_BORDER;
+                		borders = BControlLook::B_RIGHT_BORDER|BControlLook::B_TOP_BORDER|BControlLook::B_BOTTOM_BORDER;
+	                	break;
+                	case QTabBar::RoundedWest:
+                		side = BControlLook::B_LEFT_BORDER;
+                		borders = BControlLook::B_LEFT_BORDER|BControlLook::B_RIGHT_BORDER|BControlLook::B_BOTTOM_BORDER;
+	                	break;
+	                case QTabBar::RoundedEast:
+	                	side = BControlLook::B_RIGHT_BORDER;
+	                	borders = BControlLook::B_LEFT_BORDER|BControlLook::B_RIGHT_BORDER|BControlLook::B_BOTTOM_BORDER;
+	                	break;
+				}
+
+				if(selected)
+					be_control_look->DrawActiveTab(surface.view(), bRect, bRect, base, flags, BControlLook::B_ALL_BORDERS, side);
+				else
+					be_control_look->DrawInactiveTab(surface.view(), bRect, bRect, base, flags, borders, side);
+
+				painter->drawImage(r, surface.image());		    
+			}
+		}
+        /*
         if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(option)) {
 
             bool rtlHorTabs = (tab->direction == Qt::RightToLeft
@@ -2034,7 +2107,7 @@ void QHaikuStyle::drawControl(ControlElement element, const QStyleOption *option
                     painter->drawLine(x2 - 1, y1 + 3, x2 - 1, y2 - ((onlyOne || lastTab) && selected && rightAligned ? 0 : borderThinkness));
                 }
             }
-        }
+        } */
         painter->restore();
         break;
 
@@ -2972,6 +3045,18 @@ int QHaikuStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, con
     case PM_TabCloseIndicatorWidth:
     case PM_TabCloseIndicatorHeight:
         return 20;
+    case PM_TabBarTabVSpace:
+        return 8;
+    case PM_TabBarTabHSpace:
+        return 14;
+    case PM_TabBarTabShiftVertical:
+        return 0;       
+    case PM_TabBarTabShiftHorizontal:
+        return 0;
+//    case PM_TabBarTabOverlap:
+//        return 50;
+//    case PM_TabBarBaseOverlap:
+//        return 0;
     default:
         break;
     }
