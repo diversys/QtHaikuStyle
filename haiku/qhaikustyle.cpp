@@ -2898,7 +2898,9 @@ QSize QHaikuStyle::sizeFromContents(ContentsType type, const QStyleOption *optio
         newSize += QSize(0, -2);
         break;
     case CT_ComboBox:
-        newSize += QSize(2, 4);
+        newSize = sizeFromContents(CT_PushButton, option, size, widget);
+        newSize.rwidth() += 24;
+        newSize.rheight() += 8;
         break;
     case CT_LineEdit:
         break;
@@ -3284,7 +3286,7 @@ QRect QHaikuStyle::subControlRect(ComplexControl control, const QStyleOptionComp
                          option->rect.height() - 2 * frameWidth - 2);
             if (const QStyleOptionComboBox *box = qstyleoption_cast<const QStyleOptionComboBox *>(option)) {
                 if (!box->editable) {
-                    rect.adjust(2, 0, 0, 0);
+                    rect.adjust(6, 0, 0, 0);
                     if (box->state & (State_Sunken | State_On))
                         rect.translate(1, 1);
                 }
