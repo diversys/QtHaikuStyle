@@ -2795,8 +2795,10 @@ int QHaikuStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, con
         ret = 16;
         break;
     case PM_DialogButtonsSeparator:
-    case PM_SplitterWidth:
         ret = 6;
+        break;
+    case PM_SplitterWidth:
+        ret = 10;
         break;
     case PM_ScrollBarSliderMin:
         ret = 26;
@@ -2897,7 +2899,7 @@ QSize QHaikuStyle::sizeFromContents(ContentsType type, const QStyleOption *optio
                 newSize.setWidth(80);
             if (!btn->icon.isNull() && btn->iconSize.height() > 16)
                 newSize -= QSize(0, 2);
-            newSize += QSize(0, 4);
+            newSize += QSize(6, 4);
         }
         break;
 #ifndef QT_NO_GROUPBOX
