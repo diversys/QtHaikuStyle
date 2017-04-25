@@ -1900,7 +1900,7 @@ void QHaikuStyle::drawControl(ControlElement element, const QStyleOption *option
                                     && tabBarAlignment == Qt::AlignLeft);
                                     
 			if (be_control_look != NULL) {
-				QRect r = option->rect.adjusted(-1,0,1,0);
+				QRect r = option->rect;
 				rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);;
 				uint32 flags = 0; 
 				uint32 side = BControlLook::B_TOP_BORDER;
@@ -1908,206 +1908,43 @@ void QHaikuStyle::drawControl(ControlElement element, const QStyleOption *option
 		        BRect bRect(0.0f, 0.0f, r.width() - 1, r.height() - 1);
 				TemporarySurface surface(bRect);
 
+				BRect bRect1 = bRect;				
+
 				switch (tab->shape) {
+					case QTabBar::TriangularNorth:
             		case QTabBar::RoundedNorth:
             			side = BControlLook::B_TOP_BORDER;
             			borders = BControlLook::B_RIGHT_BORDER|BControlLook::B_TOP_BORDER|BControlLook::B_BOTTOM_BORDER;
+            			bRect1.InsetBy(-1,0);
     	            	break;
+	                case QTabBar::TriangularSouth:
                 	case QTabBar::RoundedSouth:
                 		side = BControlLook::B_BOTTOM_BORDER;
                 		borders = BControlLook::B_RIGHT_BORDER|BControlLook::B_TOP_BORDER|BControlLook::B_BOTTOM_BORDER;
+                		bRect1.InsetBy(-1,0);
 	                	break;
+ 					case QTabBar::TriangularWest:
                 	case QTabBar::RoundedWest:
                 		side = BControlLook::B_LEFT_BORDER;
                 		borders = BControlLook::B_LEFT_BORDER|BControlLook::B_RIGHT_BORDER|BControlLook::B_BOTTOM_BORDER;
+                		bRect1.InsetBy(0,-1);
 	                	break;
+    	            case QTabBar::TriangularEast:
 	                case QTabBar::RoundedEast:
 	                	side = BControlLook::B_RIGHT_BORDER;
 	                	borders = BControlLook::B_LEFT_BORDER|BControlLook::B_RIGHT_BORDER|BControlLook::B_BOTTOM_BORDER;
-	                	break;
+	                	bRect1.InsetBy(0,-1);
+	                	break;                            	
 				}
 
 				if(selected)
-					be_control_look->DrawActiveTab(surface.view(), bRect, bRect, base, flags, BControlLook::B_ALL_BORDERS, side);
+					be_control_look->DrawActiveTab(surface.view(), bRect1, bRect, base, flags, BControlLook::B_ALL_BORDERS, side);
 				else
-					be_control_look->DrawInactiveTab(surface.view(), bRect, bRect, base, flags, borders, side);
+					be_control_look->DrawInactiveTab(surface.view(), bRect1, bRect, base, flags, BControlLook::B_ALL_BORDERS, side);
 
 				painter->drawImage(r, surface.image());		    
 			}
-		}
-        /*
-        if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(option)) {
-
-            bool rtlHorTabs = (tab->direction == Qt::RightToLeft
-                               && (tab->shape == QTabBar::RoundedNorth
-                                   || tab->shape == QTabBar::RoundedSouth));
-            bool selected = tab->state & State_Selected;
-            bool lastTab = ((!rtlHorTabs && tab->position == QStyleOptionTab::End)
-                            || (rtlHorTabs
-                                && tab->position == QStyleOptionTab::Beginning));
-            bool onlyTab = tab->position == QStyleOptionTab::OnlyOneTab;
-            bool leftCornerWidget = (tab->cornerWidgets & QStyleOptionTab::LeftCornerWidget);
-
-            bool atBeginning = ((tab->position == (tab->direction == Qt::LeftToRight ?
-                                QStyleOptionTab::Beginning : QStyleOptionTab::End)) || onlyTab);
-
-            bool onlyOne = tab->position == QStyleOptionTab::OnlyOneTab;
-            bool previousSelected =
-                ((!rtlHorTabs
-                  && tab->selectedPosition == QStyleOptionTab::PreviousIsSelected)
-                 || (rtlHorTabs
-                     && tab->selectedPosition == QStyleOptionTab::NextIsSelected));
-            bool nextSelected =
-                ((!rtlHorTabs
-                  && tab->selectedPosition == QStyleOptionTab::NextIsSelected)
-                 || (rtlHorTabs
-                     && tab->selectedPosition
-                     == QStyleOptionTab::PreviousIsSelected));
-            int tabBarAlignment = proxy()->styleHint(SH_TabBar_Alignment, tab, widget);
-            bool leftAligned = (!rtlHorTabs && tabBarAlignment == Qt::AlignLeft)
-                               || (rtlHorTabs
-                                   && tabBarAlignment == Qt::AlignRight);
-
-            bool rightAligned = (!rtlHorTabs && tabBarAlignment == Qt::AlignRight)
-                                || (rtlHorTabs
-                                    && tabBarAlignment == Qt::AlignLeft);
-
-            QColor light = tab->palette.light().color();
-
-            QColor background = tab->palette.background().color();
-            int borderThinkness = proxy()->pixelMetric(PM_TabBarBaseOverlap, tab, widget);
-            if (selected)
-                borderThinkness /= 2;
-            QRect r2(option->rect);
-            int x1 = r2.left();
-            int x2 = r2.right();
-            int y1 = r2.top();
-            int y2 = r2.bottom();
-
-            QTransform rotMatrix;
-            bool flip = false;
-            painter->setPen(shadow);
-            QColor activeHighlight = option->palette.color(QPalette::Normal, QPalette::Highlight);
-            switch (tab->shape) {
-            case QTabBar::RoundedNorth:
-                break;
-            case QTabBar::RoundedSouth:
-                rotMatrix.rotate(180);
-                rotMatrix.translate(0, -rect.height() + 1);
-                rotMatrix.scale(-1, 1);
-                painter->setTransform(rotMatrix, true);
-                break;
-            case QTabBar::RoundedWest:
-                rotMatrix.rotate(180 + 90);
-                rotMatrix.scale(-1, 1);
-                flip = true;
-                painter->setTransform(rotMatrix, true);
-                break;
-            case QTabBar::RoundedEast:
-                rotMatrix.rotate(90);
-                rotMatrix.translate(0, - rect.width() + 1);
-                flip = true;
-                painter->setTransform(rotMatrix, true);
-                break;
-            default:
-                painter->restore();
-                QProxyStyle::drawControl(element, tab, painter, widget);
-                return;
-            }
-
-            if (flip) {
-                QRect tmp = rect;
-                rect = QRect(tmp.y(), tmp.x(), tmp.height(), tmp.width());
-                int temp = x1;
-                x1 = y1;
-                y1 = temp;
-                temp = x2;
-                x2 = y2;
-                y2 = temp;
-            }
-
-            QLinearGradient gradient(rect.topLeft(), rect.bottomLeft());
-            if (option->palette.button().gradient()) {
-                if (selected)
-                    gradient.setStops(option->palette.background().gradient()->stops());
-                else
-                    gradient.setStops(option->palette.background().gradient()->stops());
-            }
-            else if (selected) {
-                gradient.setColorAt(0, option->palette.background().color().lighter(104));
-                gradient.setColorAt(1, tabFrameColor);
-                painter->fillRect(rect.adjusted(0, 2, 0, -1), gradient);
-            } else {
-                y1 += 2;
-                gradient.setColorAt(0, option->palette.background().color());
-                gradient.setColorAt(1, dark.lighter(120));
-                painter->fillRect(rect.adjusted(0, 2, 0, -2), gradient);
-            }
-
-            // Delete border
-            if (selected) {
-                painter->setPen(QPen(activeHighlight, 0));
-                painter->drawLine(x1 + 1, y1 + 1, x2 - 1, y1 + 1);
-                painter->drawLine(x1 , y1 + 2, x2 , y1 + 2);
-            } else {
-                painter->setPen(dark);
-                painter->drawLine(x1, y2 - 1, x2 + 2, y2 - 1 );
-                if (tab->shape == QTabBar::RoundedNorth || tab->shape == QTabBar::RoundedWest) {
-                    painter->setPen(light);
-                    painter->drawLine(x1, y2 , x2, y2 );
-                }
-            }
-            // Left
-            if (atBeginning || selected ) {
-                painter->setPen(light);
-                painter->drawLine(x1 + 1, y1 + 2 + 1, x1 + 1, y2 - ((onlyOne || atBeginning) && selected && leftAligned ? 0 : borderThinkness) - (atBeginning && leftCornerWidget ? 1 : 0));
-                painter->drawPoint(x1 + 1, y1 + 1);
-                painter->setPen(dark);
-                painter->drawLine(x1, y1 + 2, x1, y2 - ((onlyOne || atBeginning)  && leftAligned ? 0 : borderThinkness) - (atBeginning && leftCornerWidget ? 1 : 0));
-            }
-            // Top
-            {
-                int beg = x1 + (previousSelected ? 0 : 2);
-                int end = x2 - (nextSelected ? 0 : 2);
-                painter->setPen(light);
-
-                if (!selected)painter->drawLine(beg - 2, y1 + 1, end, y1 + 1);
-
-                if (selected)
-                    painter->setPen(QPen(activeHighlight.darker(150), 0));
-                else
-                    painter->setPen(darkOutline);
-                painter->drawLine(beg, y1 , end, y1);
-
-                if (atBeginning|| selected) {
-                    painter->drawPoint(beg - 1, y1 + 1);
-                } else if (!atBeginning) {
-                    painter->drawPoint(beg - 1, y1);
-                    painter->drawPoint(beg - 2, y1);
-                    if (!lastTab) {
-                        painter->setPen(dark.lighter(130));
-                        painter->drawPoint(end + 1, y1);
-                        painter->drawPoint(end + 2 , y1);
-                        painter->drawPoint(end + 2, y1 + 1);
-                    }
-                }
-            }
-            // Right
-            if (lastTab || selected || onlyOne || !nextSelected) {
-                painter->setPen(darkOutline);
-                painter->drawLine(x2, y1 + 2, x2, y2 - ((onlyOne || lastTab) && selected && rightAligned ? 0 : borderThinkness));
-                if (selected)
-                    painter->setPen(QPen(activeHighlight.darker(150), 0));
-                else
-                    painter->setPen(darkOutline);
-                painter->drawPoint(x2 - 1, y1 + 1);
-
-                if (selected) {
-                    painter->setPen(background.darker(110));
-                    painter->drawLine(x2 - 1, y1 + 3, x2 - 1, y2 - ((onlyOne || lastTab) && selected && rightAligned ? 0 : borderThinkness));
-                }
-            }
-        } */
+		}   
         painter->restore();
         break;
 
@@ -3046,7 +2883,7 @@ int QHaikuStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, con
     case PM_TabCloseIndicatorHeight:
         return 20;
     case PM_TabBarTabVSpace:
-        return 8;
+        return 7;
     case PM_TabBarTabHSpace:
         return 14;
     case PM_TabBarTabShiftVertical:
@@ -3754,6 +3591,14 @@ QRect QHaikuStyle::subElementRect(SubElement sr, const QStyleOption *opt, const 
     case SE_ProgressBarContents:
         r = subElementRect(SE_ProgressBarGroove, opt, w);
         break;
+    case SE_TabBarTabText:
+    	if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(opt)) {
+    		if( tab->shape == QTabBar::TriangularSouth || tab->shape == QTabBar::RoundedSouth)
+    			r.adjust(0, 0, 0, -5);
+    		else
+    			r.adjust(0, 5, 0, 0);
+    	}
+    	break;    	
     default:
         break;
     }
