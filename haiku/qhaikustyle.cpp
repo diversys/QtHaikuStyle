@@ -2802,7 +2802,7 @@ int QHaikuStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, con
         ret = 16;
         break;
     case PM_ButtonIconSize:
-        ret = 24;
+        ret = 16;
         break;
     case PM_MenuVMargin:
     case PM_MenuHMargin:
