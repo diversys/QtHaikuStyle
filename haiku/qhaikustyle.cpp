@@ -3563,10 +3563,15 @@ QRect QHaikuStyle::subElementRect(SubElement sr, const QStyleOption *opt, const 
         break;
     case SE_TabBarTabText:
     	if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(opt)) {
+   			bool selected = tab->state & State_Selected;
     		if( tab->shape == QTabBar::TriangularSouth || tab->shape == QTabBar::RoundedSouth)
     			r.adjust(0, 0, 0, -5);
     		else
     			r.adjust(0, 5, 0, 0);
+   			if (selected) {
+   				if( tab->shape == QTabBar::TriangularNorth || tab->shape == QTabBar::RoundedNorth)
+	   				r.adjust(-1, -1, -1, -1);
+   			}
     	}
     	break;    	
     default:
