@@ -827,7 +827,7 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
         painter->save();
         if (const QStyleOptionButton *checkbox = qstyleoption_cast<const QStyleOptionButton*>(option)) {
             
-            rect = rect.adjusted(-1, -1, 2, 2);
+            //rect = rect.adjusted(-1, -1, 2, 2);
 			BRect bRect(0.0f, 0.0f, rect.width() - 1, rect.height() - 1);
 			TemporarySurface surface(bRect);
 			rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
@@ -1042,7 +1042,7 @@ void QHaikuStyle::drawControl(ControlElement element, const QStyleOption *option
      case CE_CheckBox:
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(option)) {
             QStyleOptionButton copy = *btn;
-            copy.rect.adjust(2, 0, -2, 0);
+           // copy.rect.adjust(2, 0, -2, 0);
             QProxyStyle::drawControl(element, &copy, painter, widget);
         }
         break;
@@ -2832,6 +2832,10 @@ int QHaikuStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, con
         return 0;       
     case PM_TabBarTabShiftHorizontal:
         return 0;
+    case PM_IndicatorWidth:
+    	return 16;
+    case PM_IndicatorHeight:
+    	return 16;
 //    case PM_TabBarTabOverlap:
 //        return 50;
 //    case PM_TabBarBaseOverlap:
@@ -2881,7 +2885,7 @@ QSize QHaikuStyle::sizeFromContents(ContentsType type, const QStyleOption *optio
 #endif //QT_NO_GROUPBOX
     case CT_RadioButton:
     case CT_CheckBox:
-        newSize += QSize(0, 1);
+       // newSize += QSize(0, 1);
         break;
     case CT_ToolButton:
 #ifndef QT_NO_TOOLBAR
@@ -3226,6 +3230,57 @@ QRect QHaikuStyle::subControlRect(ComplexControl control, const QStyleOptionComp
 #endif // Qt_NO_SPINBOX
 #ifndef QT_NO_GROUPBOX
     case CC_GroupBox:
+        if (const QStyleOptionGroupBox * groupBox = qstyleoption_cast<const QStyleOptionGroupBox *>(option)) {
+            rect = option->rect.adjusted(0, 2, 0, -2);
+            int topMargin = 8;
+            int topHeight = 8;
+            QRect frameRect = rect;
+            frameRect.setTop(topMargin);
+
+            if (subControl == SC_GroupBoxFrame)
+                return frameRect;
+            else if (subControl == SC_GroupBoxContents) {
+                int margin = 1;
+                int leftMarginExtension = 8;
+                return frameRect.adjusted(leftMarginExtension + margin, margin + topHeight + 6, -margin, -margin);
+            }
+
+            QFontMetrics fontMetrics = option->fontMetrics;
+            if (qobject_cast<const QGroupBox *>(widget)) {
+                //Prepare metrics for a bold font
+                QFont font = widget->font();
+                font.setBold(true);
+                fontMetrics = QFontMetrics(font);
+            } else if (QStyleHelper::isInstanceOf(groupBox->styleObject, QAccessible::Grouping)) {
+                QVariant var = groupBox->styleObject->property("font");
+                if (var.isValid() && var.canConvert<QFont>()) {
+                    QFont font = var.value<QFont>();
+                    font.setBold(true);
+                    fontMetrics = QFontMetrics(font);
+                }
+            }
+
+            QSize textRect = fontMetrics.boundingRect(groupBox->text).size() + QSize(4, 4);
+            int indicatorWidth = proxy()->pixelMetric(PM_IndicatorWidth, option, widget);
+            int indicatorHeight = proxy()->pixelMetric(PM_IndicatorHeight, option, widget);
+
+            if (subControl == SC_GroupBoxCheckBox) {
+                rect.setWidth(indicatorWidth);
+                rect.setHeight(indicatorHeight);
+                rect.moveTop((textRect.height() - indicatorHeight) / 2);
+				rect.adjust(10, 0, 10, 0);
+            } else if (subControl == SC_GroupBoxLabel) {
+            	rect.adjust(10, 0, 10, 0);
+                if (groupBox->subControls & SC_GroupBoxCheckBox) {
+                    rect.adjust(indicatorWidth + 4, 0, 0, 0);
+                }
+                rect.setSize(textRect);
+            }
+            rect = visualRect(option->direction, option->rect, rect);
+        }
+
+        return rect;    
+/*    
         if (const QStyleOptionGroupBox *groupBox = qstyleoption_cast<const QStyleOptionGroupBox *>(option)) {
             int topMargin = 0;
             int topHeight = 0;
@@ -3271,7 +3326,7 @@ QRect QHaikuStyle::subControlRect(ComplexControl control, const QStyleOptionComp
                 }
             }
         }
-        return rect;
+        return rect;*/
 #ifndef QT_NO_COMBOBOX
     case CC_ComboBox:
         switch (subControl) {
