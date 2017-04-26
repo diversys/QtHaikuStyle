@@ -2636,7 +2636,7 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
 					QFont font = widget->font();
 					font.setBold(true);
 					painter->setFont(font);
-                    painter->drawText(textRect, Qt::AlignLeft, groupBox->text);
+                    painter->drawText(textRect, Qt::TextHideMnemonic | Qt::AlignLeft| groupBox->textAlignment, groupBox->text);
                 }
             }
             if (groupBox->subControls & SC_GroupBoxCheckBox) {
