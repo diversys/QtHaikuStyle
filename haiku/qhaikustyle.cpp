@@ -1041,9 +1041,6 @@ void QHaikuStyle::drawControl(ControlElement element, const QStyleOption *option
      case CE_RadioButton: //fall through
      case CE_CheckBox:
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(option)) {
-            bool hover = (btn->state & State_MouseOver && btn->state & State_Enabled);
-            if (hover)
-                painter->fillRect(rect, btn->palette.background().color().lighter(104));
             QStyleOptionButton copy = *btn;
             copy.rect.adjust(2, 0, -2, 0);
             QProxyStyle::drawControl(element, &copy, painter, widget);
