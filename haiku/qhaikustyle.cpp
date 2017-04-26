@@ -1475,19 +1475,13 @@ void QHaikuStyle::drawControl(ControlElement element, const QStyleOption *option
             }
             bool selected = menuItem->state & State_Selected && menuItem->state & State_Enabled;
             if (selected) {
-                QRect r = option->rect.adjusted(1, 0, -2, -1);
-                qt_haiku_draw_gradient(painter, r, highlight,
-                                            highlightOutline, TopDown,
-                                            highlight);
-                r = r.adjusted(-1, 0, 1, 0);
-                painter->setPen(QPen(highlightOutline, 0));
-                const QLine lines[4] = {
-                    QLine(QPoint(r.left(), r.top() + 1), QPoint(r.left(), r.bottom() - 1)),
-                    QLine(QPoint(r.right(), r.top() + 1), QPoint(r.right(), r.bottom() - 1)),
-                    QLine(QPoint(r.left() + 1, r.bottom()), QPoint(r.right() - 1, r.bottom())),
-                    QLine(QPoint(r.left() + 1, r.top()), QPoint(r.right() - 1, r.top()))
-                };
-                painter->drawLines(lines, 4);
+            	rgb_color base = ui_color(B_MENU_SELECTED_BACKGROUND_COLOR);
+				uint32 flags = BControlLook::B_ACTIVATED;;
+		        BRect bRect(0.0f, 0.0f, option->rect.width() - 1, option->rect.height() - 1);
+				TemporarySurface surface(bRect);
+				surface.view()->SetLowColor(base);
+				be_control_look->DrawMenuItemBackground(surface.view(), bRect, bRect, base, flags);
+				painter->drawImage(option->rect, surface.image());
             } else {
                 painter->fillRect(option->rect, menuBackground);
             }
@@ -2933,6 +2927,10 @@ QSize QHaikuStyle::sizeFromContents(ContentsType type, const QStyleOption *optio
                 }
             }
 #endif // QT_NO_COMBOBOX
+			if (menuItem->menuItemType == QStyleOptionMenuItem::Separator)
+				newSize += QSize(-2, 8);
+			else
+				newSize += QSize(-2, -4);
         }
         break;
     case CT_SizeGrip:
