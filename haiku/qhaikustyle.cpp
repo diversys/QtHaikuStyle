@@ -544,7 +544,7 @@ static void qt_haiku_draw_mdibutton(QPainter *painter, const QStyleOptionTitleBa
 /*!
     Constructs a QHaikuStyle object.
 */
-QHaikuStyle::QHaikuStyle() : QProxyStyle(QStyleFactory::create(QLatin1String("Windows"))), animateStep(0), animateTimer(0)
+QHaikuStyle::QHaikuStyle() : QProxyStyle(QStyleFactory::create(QLatin1String("Fusion"))), animateStep(0), animateTimer(0)
 {
     setObjectName(QLatin1String("Haiku"));
 }
@@ -1410,7 +1410,7 @@ void QHaikuStyle::drawControl(ControlElement element, const QStyleOption *option
         if (const QStyleOptionMenuItem *mbi = qstyleoption_cast<const QStyleOptionMenuItem *>(option))
         {
             QStyleOptionMenuItem item = *mbi;
-            item.rect = mbi->rect.adjusted(-1, -1, 1, 0);
+            item.rect = mbi->rect;
 
             bool act = mbi->state & State_Selected && mbi->state & State_Sunken;
             bool dis = !(mbi->state & State_Enabled);
@@ -1427,8 +1427,15 @@ void QHaikuStyle::drawControl(ControlElement element, const QStyleOption *option
 
 		        BRect bRect(0.0f, 0.0f, option->rect.width() - 1, option->rect.height() - 1);
 				TemporarySurface surface(bRect);
-				be_control_look->DrawMenuBarBackground(surface.view(), bRect, bRect, base, flags, 8);
-				painter->drawImage(option->rect, surface.image());
+
+				if (act) {
+					base = ui_color(B_MENU_SELECTED_BACKGROUND_COLOR);
+					surface.view()->SetLowColor(base);
+					be_control_look->DrawMenuItemBackground(surface.view(), bRect, bRect, base, flags, BControlLook::B_ALL_BORDERS);
+				} else {
+					be_control_look->DrawMenuBarBackground(surface.view(), bRect, bRect, base, flags, 8);
+				}
+				painter->drawImage(option->rect, surface.image());					
 			}
 
             QPalette::ColorRole textRole = QPalette::Text;
@@ -2907,7 +2914,7 @@ QSize QHaikuStyle::sizeFromContents(ContentsType type, const QStyleOption *optio
         newSize += QSize(0, 1);
         break;
     case CT_MenuBarItem:
-        newSize += QSize(4, 0);
+        newSize += QSize(8, -2);
         break;
     case CT_MenuItem:
         if (const QStyleOptionMenuItem *menuItem = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
