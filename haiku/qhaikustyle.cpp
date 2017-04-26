@@ -1688,7 +1688,9 @@ void QHaikuStyle::drawControl(ControlElement element, const QStyleOption *option
                 tf |= Qt::TextShowMnemonic;
             else
                tf |= Qt::TextHideMnemonic;
-
+			
+			bool isDown = (option->state & State_Sunken) || (option->state & State_On);
+			
             if (!button->icon.isNull()) {
                 //Center both icon and text
                 QPoint point;
@@ -1731,6 +1733,8 @@ void QHaikuStyle::drawControl(ControlElement element, const QStyleOption *option
 
             if (button->features & QStyleOptionButton::HasMenu)
                 ir = ir.adjusted(0, 0, -proxy()->pixelMetric(PM_MenuButtonIndicator, button, widget), 0);
+            if (isDown)
+            	ir.adjust(1, 1, 1, 1);
             proxy()->drawItemText(painter, ir, tf, button->palette, (button->state & State_Enabled),
                          button->text, QPalette::ButtonText);
         }
