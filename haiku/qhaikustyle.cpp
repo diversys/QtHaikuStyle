@@ -2828,6 +2828,10 @@ int QHaikuStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, con
         return 0;
     case PM_TabBarTabShiftHorizontal:
         return 0;
+	case PM_TabBarScrollButtonWidth:
+		return 18;
+	case PM_TabBar_ScrollButtonOverlap:
+		return 0;
     case PM_IndicatorWidth:
     	return 18;
     case PM_IndicatorHeight:
