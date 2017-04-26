@@ -2815,13 +2815,13 @@ int QHaikuStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, con
         return -1;
     case PM_TabCloseIndicatorWidth:
     case PM_TabCloseIndicatorHeight:
-        return 20;
+        return 18;
     case PM_TabBarTabVSpace:
         return 7;
     case PM_TabBarTabHSpace:
         return 14;
     case PM_TabBarTabShiftVertical:
-        return 0;       
+        return 0;
     case PM_TabBarTabShiftHorizontal:
         return 0;
     case PM_IndicatorWidth:
@@ -3527,6 +3527,19 @@ QRect QHaikuStyle::subElementRect(SubElement sr, const QStyleOption *opt, const 
 {
     QRect r = QProxyStyle::subElementRect(sr, opt, w);
     switch (sr) {
+    case SE_TabWidgetTabBar:
+//        r.adjust(10, 0, 10, 0);	//Tab shift
+        break;
+    case SE_TabBarTabLeftButton:
+    case SE_TabBarTabRightButton:
+    	{
+    		if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(opt)) {
+    			bool selected = tab->state & State_Selected;
+    			if (!selected)
+    				r.adjust(0, 2, 0, 2);
+    		}
+    	}
+    	break;
     case SE_PushButtonFocusRect:
         r.adjust(0, 1, 0, -1);
         break;
