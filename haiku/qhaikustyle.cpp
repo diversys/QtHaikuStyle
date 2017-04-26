@@ -389,7 +389,7 @@ static QImage get_haiku_alert_icon(uint32 fType, int32 iconSize)
 	return image;
 }
 
-static void qt_haiku_draw_windows_frame(QPainter *painter, const QRect &qrect, color_which bcolor )
+static void qt_haiku_draw_windows_frame(QPainter *painter, const QRect &qrect, color_which bcolor, uint32 borders = BControlLook::B_ALL_BORDERS)
 {
 	QColor frameColorActive(mkQColor(ui_color(bcolor)));
 	QColor bevelShadow1(mkQColor(tint_color(ui_color(bcolor), 1.07)));
@@ -399,38 +399,59 @@ static void qt_haiku_draw_windows_frame(QPainter *painter, const QRect &qrect, c
 	
 	QRect rect= qrect;
 	painter->setPen(bevelShadow2);
-	painter->drawLine(rect.topLeft(), rect.bottomLeft());
-	painter->drawLine(rect.topLeft(), rect.topRight());
+	if ((borders & BControlLook::B_LEFT_BORDER) != 0)
+		painter->drawLine(rect.topLeft(), rect.bottomLeft());
+	if ((borders & BControlLook::B_TOP_BORDER) != 0)
+		painter->drawLine(rect.topLeft(), rect.topRight());
 	painter->setPen(bevelShadow3);
-	painter->drawLine(rect.topRight(), rect.bottomRight());
-	painter->drawLine(rect.bottomRight(), rect.bottomLeft());
+	if ((borders & BControlLook::B_RIGHT_BORDER) != 0)
+		painter->drawLine(rect.topRight(), rect.bottomRight());
+	if ((borders & BControlLook::B_BOTTOM_BORDER) != 0)
+		painter->drawLine(rect.bottomRight(), rect.bottomLeft());
 	rect.adjust(1,1,-1,-1);
 	painter->setPen(bevelLight);
-	painter->drawLine(rect.topLeft(), rect.bottomLeft());
-	painter->drawLine(rect.topLeft(), rect.topRight());
+	if ((borders & BControlLook::B_LEFT_BORDER) != 0)
+		painter->drawLine(rect.topLeft(), rect.bottomLeft());
+	if ((borders & BControlLook::B_TOP_BORDER) != 0)
+		painter->drawLine(rect.topLeft(), rect.topRight());
 	painter->setPen(bevelShadow1);
-	painter->drawLine(rect.topRight(), rect.bottomRight());
-	painter->drawLine(rect.bottomRight(), rect.bottomLeft());
+	if ((borders & BControlLook::B_RIGHT_BORDER) != 0)
+		painter->drawLine(rect.topRight(), rect.bottomRight());
+	if ((borders & BControlLook::B_BOTTOM_BORDER) != 0)
+		painter->drawLine(rect.bottomRight(), rect.bottomLeft());
 	rect.adjust(1,1,-1,-1);
 	painter->setPen(frameColorActive);
-	painter->drawLine(rect.topLeft(), rect.bottomLeft());
-	painter->drawLine(rect.topLeft(), rect.topRight());
-	painter->drawLine(rect.topRight(), rect.bottomRight());
-	painter->drawLine(rect.bottomRight(), rect.bottomLeft());
+	if ((borders & BControlLook::B_LEFT_BORDER) != 0)
+		painter->drawLine(rect.topLeft(), rect.bottomLeft());
+	if ((borders & BControlLook::B_TOP_BORDER) != 0)
+		painter->drawLine(rect.topLeft(), rect.topRight());
+	if ((borders & BControlLook::B_RIGHT_BORDER) != 0)
+		painter->drawLine(rect.topRight(), rect.bottomRight());
+	if ((borders & BControlLook::B_BOTTOM_BORDER) != 0)
+		painter->drawLine(rect.bottomRight(), rect.bottomLeft());
 	rect.adjust(1,1,-1,-1);
 	painter->setPen(bevelShadow1);
-	painter->drawLine(rect.topLeft(), rect.bottomLeft());
-	painter->drawLine(rect.topLeft(), rect.topRight());
+	if ((borders & BControlLook::B_LEFT_BORDER) != 0)
+		painter->drawLine(rect.topLeft(), rect.bottomLeft());
+	if ((borders & BControlLook::B_TOP_BORDER) != 0)
+		painter->drawLine(rect.topLeft(), rect.topRight());
 	painter->setPen(bevelLight);
-	painter->drawLine(rect.topRight(), rect.bottomRight());
-	painter->drawLine(rect.bottomRight(), rect.bottomLeft());
+	if ((borders & BControlLook::B_RIGHT_BORDER) != 0)
+		painter->drawLine(rect.topRight(), rect.bottomRight());
+	if ((borders & BControlLook::B_BOTTOM_BORDER) != 0)
+		painter->drawLine(rect.bottomRight(), rect.bottomLeft());
 	rect.adjust(1,1,-1,-1);
 	painter->setPen(bevelShadow2);
-	painter->drawLine(rect.topLeft(), rect.bottomLeft());
-	painter->drawLine(rect.topLeft(), rect.topRight());
-	painter->drawLine(rect.topRight(), rect.bottomRight());
-	painter->drawLine(rect.bottomRight(), rect.bottomLeft());
+	if ((borders & BControlLook::B_LEFT_BORDER) != 0)
+		painter->drawLine(rect.topLeft(), rect.bottomLeft());
+	if ((borders & BControlLook::B_TOP_BORDER) != 0)
+		painter->drawLine(rect.topLeft(), rect.topRight());
+	if ((borders & BControlLook::B_RIGHT_BORDER) != 0)
+		painter->drawLine(rect.topRight(), rect.bottomRight());
+	if ((borders & BControlLook::B_BOTTOM_BORDER) != 0)
+		painter->drawLine(rect.bottomRight(), rect.bottomLeft());
 }
+
 static void qt_haiku_draw_button(QPainter *painter, const QRect &qrect, bool def, bool flat, bool pushed, bool focus, bool enabled, bool bevel=true, orientation orient = B_HORIZONTAL, arrow_direction arrow = ARROW_NONE)
 {
 	QRect rect = qrect;
@@ -836,7 +857,8 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
             bool active = (option->state & State_Active);
 			int titleBarHeight = proxy()->pixelMetric(PM_TitleBarHeight);
 			int frameWidth = proxy()->pixelMetric(PM_MdiSubWindowFrameWidth);
-		    qt_haiku_draw_windows_frame(painter, option->rect, active ? B_WINDOW_BORDER_COLOR : B_WINDOW_INACTIVE_BORDER_COLOR);
+		    qt_haiku_draw_windows_frame(painter, option->rect, active ? B_WINDOW_BORDER_COLOR : B_WINDOW_INACTIVE_BORDER_COLOR, 
+		    	BControlLook::B_LEFT_BORDER | BControlLook::B_RIGHT_BORDER | BControlLook::B_BOTTOM_BORDER);
         }
         painter->restore();
         break;
@@ -2257,8 +2279,17 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
 
 			int titleBarHeight = proxy()->pixelMetric(PM_TitleBarHeight);
 			int frameWidth = proxy()->pixelMetric(PM_MdiSubWindowFrameWidth);
-
+			
             QRect fullRect = titleBar->rect;
+            QRect tabRect = fullRect;
+
+			int tabWidth = 220;
+            
+            if (tabWidth > fullRect.width())
+            	tabWidth = fullRect.width();
+            
+            tabRect.setWidth(tabWidth);
+
             QPalette palette = option->palette;
             QColor highlight = option->palette.highlight().color();
 
@@ -2273,70 +2304,49 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
             QColor tabColorActive(mkQColor(ui_color(B_WINDOW_TAB_COLOR)));
 		    QColor tabColorInactive(mkQColor(ui_color(B_WINDOW_INACTIVE_TAB_COLOR)));
 
-            QColor tabColorActiveLight(mkQColor(tint_color(ui_color(B_WINDOW_TAB_COLOR), B_LIGHTEN_2_TINT)));
-		    QColor tabColorInactiveLight(mkQColor(tint_color(ui_color(B_WINDOW_INACTIVE_TAB_COLOR), B_LIGHTEN_2_TINT)));
+            QColor tabColorActiveLight(mkQColor(tint_color(ui_color(B_WINDOW_TAB_COLOR), (B_LIGHTEN_MAX_TINT + B_LIGHTEN_2_TINT) / 2)));
+		    QColor tabColorInactiveLight(mkQColor(tint_color(ui_color(B_WINDOW_INACTIVE_TAB_COLOR), (B_LIGHTEN_MAX_TINT + B_LIGHTEN_2_TINT) / 2)));
             
             QColor titlebarColor = QColor(active ? tabColorActive : tabColorInactive);
             QColor titlebarColor2 = QColor(active ? tabColorActiveLight : tabColorInactiveLight);
+            
+            color_which bcolor = active ? B_WINDOW_BORDER_COLOR : B_WINDOW_INACTIVE_BORDER_COLOR;
+            color_which tcolor = active ? B_WINDOW_TAB_COLOR : B_WINDOW_INACTIVE_TAB_COLOR;
+            
+			QColor frameColorActive(mkQColor(ui_color(bcolor)));
+			QColor bevelShadow1(mkQColor(tint_color(ui_color(bcolor), 1.07)));
+			QColor bevelShadow2(mkQColor(tint_color(ui_color(bcolor), B_DARKEN_2_TINT)));
+			QColor bevelShadow3(mkQColor(tint_color(ui_color(bcolor), B_DARKEN_3_TINT)));
+			QColor bevelLight(mkQColor(tint_color(ui_color(bcolor), B_LIGHTEN_2_TINT)));
+			
+			QColor tabBevelLight(mkQColor(tint_color(ui_color(tcolor), B_LIGHTEN_2_TINT)));
+			QColor tabShadow(mkQColor(tint_color(ui_color(tcolor), (B_DARKEN_1_TINT + B_NO_TINT) / 2)));
+			QColor buttonFrame(mkQColor(tint_color(ui_color(tcolor), B_DARKEN_2_TINT)));
 
-            QLinearGradient gradient(option->rect.center().x(), option->rect.top(),
-                                     option->rect.center().x(), option->rect.bottom());
+            QLinearGradient gradient(option->rect.left(), option->rect.top(),
+                                     option->rect.left(), option->rect.bottom());
 
             gradient.setColorAt(0, titlebarColor2);
             gradient.setColorAt(1, titlebarColor);
 
-			qt_haiku_draw_windows_frame(painter, option->rect.adjusted(0, 0, 0, 2 * titleBarHeight),
-				active ? B_WINDOW_TAB_COLOR : B_WINDOW_INACTIVE_TAB_COLOR);
+			qt_haiku_draw_windows_frame(painter, fullRect.adjusted(0, titleBarHeight - frameWidth, 0, titleBarHeight - frameWidth),
+				active ? B_WINDOW_BORDER_COLOR : B_WINDOW_INACTIVE_BORDER_COLOR,
+				BControlLook::B_LEFT_BORDER | BControlLook::B_RIGHT_BORDER | BControlLook::B_TOP_BORDER);
 
-			qt_haiku_draw_windows_frame(painter, option->rect.adjusted(0, titleBarHeight - frameWidth, 0, titleBarHeight - frameWidth),
-				active ? B_WINDOW_BORDER_COLOR : B_WINDOW_INACTIVE_BORDER_COLOR);
+			painter->setPen(bevelShadow2);
+			painter->drawLine(tabRect.topLeft(), tabRect.bottomLeft());
+			painter->drawLine(tabRect.topLeft(), tabRect.topRight());
+			painter->setPen(bevelShadow3);
+			painter->drawLine(tabRect.topRight(), tabRect.bottomRight() - QPoint(0, frameWidth));
+            
+            painter->setPen(tabBevelLight);
+			painter->drawLine(tabRect.topLeft() + QPoint(1, 1), tabRect.bottomLeft() + QPoint(1, -4));
+			painter->drawLine(tabRect.topLeft() + QPoint(1, 1), tabRect.topRight() + QPoint(-1, 1));
+			painter->setPen(tabShadow);
+			painter->drawLine(tabRect.topRight() + QPoint(-1, 2), tabRect.bottomRight() - QPoint(1, frameWidth - 1));
 
-            painter->fillRect(option->rect.adjusted(2, 2, -2, 1 - frameWidth), gradient);
+            painter->fillRect(tabRect.adjusted(2, 2, -2, 1 - frameWidth), gradient);
 
-            /*{
-                // Fill title bar gradient
-                QColor titlebarColor = QColor(active ? highlight: palette.background().color());
-                QLinearGradient gradient(option->rect.center().x(), option->rect.top(),
-                                         option->rect.center().x(), option->rect.bottom());
-
-                gradient.setColorAt(0, titlebarColor.lighter(114));
-                gradient.setColorAt(0.5, titlebarColor.lighter(102));
-                gradient.setColorAt(0.51, titlebarColor.darker(104));
-                gradient.setColorAt(1, titlebarColor);
-                painter->fillRect(option->rect.adjusted(1, 1, -1, 0), gradient);
-
-                // Frame and rounded corners
-                painter->setPen(titleBarFrameBorder);
-
-                // top outline
-                painter->drawLine(fullRect.left() + 5, fullRect.top(), fullRect.right() - 5, fullRect.top());
-                painter->drawLine(fullRect.left(), fullRect.top() + 4, fullRect.left(), fullRect.bottom());
-                const QPoint points[5] = {
-                    QPoint(fullRect.left() + 4, fullRect.top() + 1),
-                    QPoint(fullRect.left() + 3, fullRect.top() + 1),
-                    QPoint(fullRect.left() + 2, fullRect.top() + 2),
-                    QPoint(fullRect.left() + 1, fullRect.top() + 3),
-                    QPoint(fullRect.left() + 1, fullRect.top() + 4)
-                };
-                painter->drawPoints(points, 5);
-
-                painter->drawLine(fullRect.right(), fullRect.top() + 4, fullRect.right(), fullRect.bottom());
-                const QPoint points2[5] = {
-                    QPoint(fullRect.right() - 3, fullRect.top() + 1),
-                    QPoint(fullRect.right() - 4, fullRect.top() + 1),
-                    QPoint(fullRect.right() - 2, fullRect.top() + 2),
-                    QPoint(fullRect.right() - 1, fullRect.top() + 3),
-                    QPoint(fullRect.right() - 1, fullRect.top() + 4)
-                };
-                painter->drawPoints(points2, 5);
-
-                // draw bottomline
-                painter->drawLine(fullRect.right(), fullRect.bottom(), fullRect.left(), fullRect.bottom());
-
-                // top highlight
-                painter->setPen(titleBarHighlight);
-                painter->drawLine(fullRect.left() + 6, fullRect.top() + 1, fullRect.right() - 6, fullRect.top() + 1);
-            }*/
             // draw title
             QRect textRect = proxy()->subControlRect(CC_TitleBar, titleBar, SC_TitleBarLabel, widget);
             QFont font = painter->font();
@@ -2344,8 +2354,8 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
             painter->setFont(font);
             painter->setPen(textColor);
             // Note workspace also does elliding but it does not use the correct font
-            QString title = QFontMetrics(font).elidedText(titleBar->text, Qt::ElideRight, textRect.width() - 14);
-            painter->drawText(textRect, title, QTextOption(Qt::AlignHCenter | Qt::AlignVCenter));
+            QString title = QFontMetrics(font).elidedText(titleBar->text, Qt::ElideMiddle, textRect.width() - 14);
+            painter->drawText(textRect, title, QTextOption(Qt::AlignLeft | Qt::AlignVCenter));
             
             // max button
             if ((titleBar->subControls & SC_TitleBarMaxButton) && (titleBar->titleBarFlags & Qt::WindowMaximizeButtonHint) &&
@@ -2355,21 +2365,6 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
                     bool hover = (titleBar->activeSubControls & SC_TitleBarMaxButton) && (titleBar->state & State_MouseOver);
                     bool sunken = (titleBar->activeSubControls & SC_TitleBarMaxButton) && (titleBar->state & State_Sunken);
                     qt_haiku_draw_mdibutton(painter, titleBar, maxButtonRect, hover, sunken);
-
-                    QRect maxButtonIconRect = maxButtonRect.adjusted(buttonMargin, buttonMargin, -buttonMargin, -buttonMargin);
-
-                    painter->setPen(textColor);
-                    painter->drawRect(maxButtonIconRect.adjusted(0, 0, -1, -1));
-                    painter->drawLine(maxButtonIconRect.left() + 1, maxButtonIconRect.top() + 1,
-                                    maxButtonIconRect.right() - 1, maxButtonIconRect.top() + 1);
-                    painter->setPen(textAlphaColor);
-                    const QPoint points[4] = {
-                        maxButtonIconRect.topLeft(),
-                        maxButtonIconRect.topRight(),
-                        maxButtonIconRect.bottomLeft(),
-                        maxButtonIconRect.bottomRight()
-                    };
-                    painter->drawPoints(points, 4);
                 }
             }
 
@@ -2379,33 +2374,12 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
                 if (closeButtonRect.isValid()) {
                     bool hover = (titleBar->activeSubControls & SC_TitleBarCloseButton) && (titleBar->state & State_MouseOver);
                     bool sunken = (titleBar->activeSubControls & SC_TitleBarCloseButton) && (titleBar->state & State_Sunken);
-                    qt_haiku_draw_mdibutton(painter, titleBar, closeButtonRect, hover, sunken);
-                    QRect closeIconRect = closeButtonRect.adjusted(buttonMargin, buttonMargin, -buttonMargin, -buttonMargin);
-                    painter->setPen(textAlphaColor);
-                    const QLine lines[4] = {
-                        QLine(closeIconRect.left() + 1, closeIconRect.top(),
-                              closeIconRect.right(), closeIconRect.bottom() - 1),
-                        QLine(closeIconRect.left(), closeIconRect.top() + 1,
-                              closeIconRect.right() - 1, closeIconRect.bottom()),
-                        QLine(closeIconRect.right() - 1, closeIconRect.top(),
-                              closeIconRect.left(), closeIconRect.bottom() - 1),
-                        QLine(closeIconRect.right(), closeIconRect.top() + 1,
-                              closeIconRect.left() + 1, closeIconRect.bottom())
-                    };
-                    painter->drawLines(lines, 4);
-                    const QPoint points[4] = {
-                        closeIconRect.topLeft(),
-                        closeIconRect.topRight(),
-                        closeIconRect.bottomLeft(),
-                        closeIconRect.bottomRight()
-                    };
-                    painter->drawPoints(points, 4);
-
-                    painter->setPen(textColor);
-                    painter->drawLine(closeIconRect.left() + 1, closeIconRect.top() + 1,
-                                    closeIconRect.right() - 1, closeIconRect.bottom() - 1);
-                    painter->drawLine(closeIconRect.left() + 1, closeIconRect.bottom() - 1,
-                                    closeIconRect.right() - 1, closeIconRect.top() + 1);
+					QLinearGradient gradient(closeButtonRect.left(), closeButtonRect.top(), closeButtonRect.right(), closeButtonRect.bottom());
+            		gradient.setColorAt(sunken?1:0, Qt::white);
+            		gradient.setColorAt(sunken?0:1, tabShadow);
+            		painter->fillRect(closeButtonRect, gradient);
+                    painter->setPen(buttonFrame);
+                    painter->drawRect(closeButtonRect);
                 }
             }
 
@@ -2733,7 +2707,7 @@ int QHaikuStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, con
         ret = 1;
         break;
     case PM_TitleBarHeight:
-        ret = 26 + 5;
+        ret = 24 + 5;
         break;
     case PM_ScrollBarExtent:
         ret = B_V_SCROLL_BAR_WIDTH;
@@ -3300,72 +3274,51 @@ QRect QHaikuStyle::subControlRect(ComplexControl control, const QStyleOptionComp
             const int controlTopMargin = 3;
             const int controlBottomMargin = 3;
             const int controlWidthMargin = 2;
-            const int controlHeight = tb->rect.height() - controlTopMargin - controlBottomMargin ;
+            const int controlHeight = 15 ;
             const int delta = controlHeight + controlWidthMargin;
             int offset = 0;
 
             bool isMinimized = tb->titleBarState & Qt::WindowMinimized;
             bool isMaximized = tb->titleBarState & Qt::WindowMaximized;
+            
+            int tabWidth = 220;
+            if (tabWidth > tb->rect.width())
+            	tabWidth = tb->rect.width();
+            	
+            int textLeft = tb->rect.left() + 5 + controlHeight + 12;
 
             switch (sc) {
             case SC_TitleBarLabel:
                 if (tb->titleBarFlags & (Qt::WindowTitleHint | Qt::WindowSystemMenuHint)) {
                     ret = tb->rect;
-                    if (tb->titleBarFlags & Qt::WindowSystemMenuHint)
-                        ret.adjust(delta, 0, -delta, 0);
-                    if (tb->titleBarFlags & Qt::WindowMinimizeButtonHint)
-                        ret.adjust(0, 0, -delta, 0);
+                    ret.adjust(0, 2, 0, -2);
+                    ret.setWidth(tabWidth - (textLeft + 12));
+                    ret.adjust(textLeft, 0, textLeft, -1);
                     if (tb->titleBarFlags & Qt::WindowMaximizeButtonHint)
                         ret.adjust(0, 0, -delta, 0);
-                    if (tb->titleBarFlags & Qt::WindowShadeButtonHint)
-                        ret.adjust(0, 0, -delta, 0);
-                    if (tb->titleBarFlags & Qt::WindowContextHelpButtonHint)
-                        ret.adjust(0, 0, -delta, 0);
                 }
                 break;
-            case SC_TitleBarContextHelpButton:
-                if (tb->titleBarFlags & Qt::WindowContextHelpButtonHint)
-                    offset += delta;
-            case SC_TitleBarMinButton:
-                if (!isMinimized && (tb->titleBarFlags & Qt::WindowMinimizeButtonHint))
-                    offset += delta;
-                else if (sc == SC_TitleBarMinButton)
-                    break;
-            case SC_TitleBarNormalButton:
-                if (isMinimized && (tb->titleBarFlags & Qt::WindowMinimizeButtonHint))
-                    offset += delta;
-                else if (isMaximized && (tb->titleBarFlags & Qt::WindowMaximizeButtonHint))
-                    offset += delta;
-                else if (sc == SC_TitleBarNormalButton)
-                    break;
             case SC_TitleBarMaxButton:
-                if (!isMaximized && (tb->titleBarFlags & Qt::WindowMaximizeButtonHint))
-                    offset += delta;
-                else if (sc == SC_TitleBarMaxButton)
-                    break;
-            case SC_TitleBarShadeButton:
-                if (!isMinimized && (tb->titleBarFlags & Qt::WindowShadeButtonHint))
-                    offset += delta;
-                else if (sc == SC_TitleBarShadeButton)
-                    break;
-            case SC_TitleBarUnshadeButton:
-                if (isMinimized && (tb->titleBarFlags & Qt::WindowShadeButtonHint))
-                    offset += delta;
-                else if (sc == SC_TitleBarUnshadeButton)
-                    break;
-            case SC_TitleBarCloseButton:
-                if (tb->titleBarFlags & Qt::WindowSystemMenuHint)
-                    offset += delta;
-                else if (sc == SC_TitleBarCloseButton)
-                    break;
-                ret.setRect(tb->rect.right() - indent - offset, tb->rect.top() + controlTopMargin,
-                            controlHeight, controlHeight);
-                break;
-            case SC_TitleBarSysMenu:
-                if (tb->titleBarFlags & Qt::WindowSystemMenuHint) {
-                    ret.setRect(tb->rect.left() + controlWidthMargin + indent, tb->rect.top() + controlTopMargin,
-                                controlHeight, controlHeight);
+            case SC_TitleBarNormalButton:
+                if (tb->titleBarFlags & (Qt::WindowTitleHint | Qt::WindowSystemMenuHint)) {
+                    ret = tb->rect;
+                    ret.adjust(0, 2, 0, -2);
+                    ret.setWidth(tabWidth - (textLeft + 12));
+                    ret.adjust(textLeft, 0, textLeft, -1);
+                    if (tb->titleBarFlags & Qt::WindowMaximizeButtonHint)
+                        ret.adjust(0, 0, -delta, 0);
+                    ret.setRect(ret.right() + 12,  tb->rect.top() + 5, controlHeight, controlHeight);
                 }
+				break;
+            case SC_TitleBarContextHelpButton:
+            case SC_TitleBarMinButton:
+            case SC_TitleBarShadeButton:
+            case SC_TitleBarUnshadeButton:
+            case SC_TitleBarSysMenu:
+            	ret = QRect();
+                break;
+            case SC_TitleBarCloseButton:
+                ret.setRect(tb->rect.left() + 5, tb->rect.top() + 5, controlHeight, controlHeight);
                 break;
             default:
                 break;
@@ -3468,18 +3421,18 @@ int QHaikuStyle::styleHint(StyleHint hint, const QStyleOption *option, const QWi
     case SH_WindowFrame_Mask:
         ret = 1;
         if (QStyleHintReturnMask *mask = qstyleoption_cast<QStyleHintReturnMask *>(returnData)) {
-            mask->region = option->rect;
-            /*
-            mask->region -= QRect(option->rect.left(), option->rect.top(), 5, 1);
-            mask->region -= QRect(option->rect.left(), option->rect.top() + 1, 3, 1);
-            mask->region -= QRect(option->rect.left(), option->rect.top() + 2, 2, 1);
-            mask->region -= QRect(option->rect.left(), option->rect.top() + 3, 1, 2);
-
-            //right rounded corner
-            mask->region -= QRect(option->rect.right() - 4, option->rect.top(), 5, 1);
-            mask->region -= QRect(option->rect.right() - 2, option->rect.top() + 1, 3, 1);
-            mask->region -= QRect(option->rect.right() - 1, option->rect.top() + 2, 2, 1);
-            mask->region -= QRect(option->rect.right() , option->rect.top() + 3, 1, 2);*/
+        	if (const QStyleOptionTitleBar *titleBar = qstyleoption_cast<const QStyleOptionTitleBar *>(option)) {
+        		QRect textRect = proxy()->subControlRect(CC_TitleBar, titleBar, SC_TitleBarLabel, widget);
+           		int frameWidth = proxy()->pixelMetric(PM_MdiSubWindowFrameWidth);
+            	int tabHeight = pixelMetric(PM_TitleBarHeight, titleBar, widget) - frameWidth;
+           		
+           		int tabWidth = 220;
+            	if (tabWidth > titleBar->rect.width())
+            		tabWidth = titleBar->rect.width();
+            	
+           		mask->region = option->rect;
+           		mask->region -= QRect(tabWidth, option->rect.top(), option->rect.width()-tabWidth, tabHeight);
+        	}
         }
         break;
     case SH_MessageBox_TextInteractionFlags:
