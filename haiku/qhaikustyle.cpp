@@ -150,6 +150,8 @@ static const int windowsItemHMargin      =  3; // menu item hor text margin
 static const int windowsItemVMargin      =  8; // menu item ver text margin
 static const int windowsRightBorder      = 15; // right border on windows
 static const int progressAnimationFps    = 24;
+static const int mdiTabWidthMin			 = 100; //minimal tab size for mid window
+
 
 /* XPM */
 static const char * const dock_widget_close_xpm[] = {
@@ -244,41 +246,6 @@ static const char * const workspace_minimize[] = {
     "+%       #+",
     " +@@@@@@@+ ",
     "           "};
-
-
-static const char * const qt_titlebar_context_help[] = {
-    "10 10 3 1",
-    "  c None",
-    "# c #000000",
-    "+ c #444444",
-    "  +####+  ",
-    " ###  ### ",
-    " ##    ## ",
-    "     +##+ ",
-    "    +##   ",
-    "    ##    ",
-    "    ##    ",
-    "          ",
-    "    ##    ",
-    "    ##    "};
-
-static const char * const qt_scrollbar_button_arrow_up[] = {
-    "7 4 2 1",
-    "   c None",
-    "*  c #BFBFBF",
-    "   *   ",
-    "  ***  ",
-    " ***** ",
-    "*******"};
-
-static const char * const qt_scrollbar_button_arrow_down[] = {
-    "7 4 2 1",
-    "   c None",
-    "*  c #BFBFBF",
-    "*******",
-    " ***** ",
-    "  ***  ",
-    "   *   "};
 
 static const char * const qt_spinbox_button_arrow_down[] = {
     "7 4 2 1",
@@ -525,67 +492,6 @@ static void qt_haiku_draw_gradient(QPainter *painter, const QRect &rect, const Q
         }
         painter->fillRect(rect, *gradient);
         delete gradient;
-}
-
-static void qt_haiku_draw_mdibutton(QPainter *painter, const QStyleOptionTitleBar *option, const QRect &tmp, bool hover, bool sunken)
-{
-    QColor dark;
-    dark.setHsv(option->palette.button().color().hue(),
-                qMin(255, (int)(option->palette.button().color().saturation()*1.9)),
-                qMin(255, (int)(option->palette.button().color().value()*0.7)));
-
-    QColor highlight = option->palette.highlight().color();
-
-    bool active = (option->titleBarState & QStyle::State_Active);
-    QColor titleBarHighlight(255, 255, 255, 60);
-
-    if (sunken)
-        painter->fillRect(tmp.adjusted(1, 1, -1, -1), option->palette.highlight().color().darker(120));
-    else if (hover)
-        painter->fillRect(tmp.adjusted(1, 1, -1, -1), QColor(255, 255, 255, 20));
-
-    QColor mdiButtonGradientStartColor;
-    QColor mdiButtonGradientStopColor;
-
-    mdiButtonGradientStartColor = QColor(0, 0, 0, 40);
-    mdiButtonGradientStopColor = QColor(255, 255, 255, 60);
-
-    if (sunken)
-        titleBarHighlight = highlight.darker(130);
-
-    QLinearGradient gradient(tmp.center().x(), tmp.top(), tmp.center().x(), tmp.bottom());
-    gradient.setColorAt(0, mdiButtonGradientStartColor);
-    gradient.setColorAt(1, mdiButtonGradientStopColor);
-    QColor mdiButtonBorderColor(active ? option->palette.highlight().color().darker(180): dark.darker(110));
-
-    painter->setPen(QPen(mdiButtonBorderColor, 1));
-    const QLine lines[4] = {
-        QLine(tmp.left() + 2, tmp.top(), tmp.right() - 2, tmp.top()),
-        QLine(tmp.left() + 2, tmp.bottom(), tmp.right() - 2, tmp.bottom()),
-        QLine(tmp.left(), tmp.top() + 2, tmp.left(), tmp.bottom() - 2),
-        QLine(tmp.right(), tmp.top() + 2, tmp.right(), tmp.bottom() - 2)
-    };
-    painter->drawLines(lines, 4);
-    const QPoint points[4] = {
-        QPoint(tmp.left() + 1, tmp.top() + 1),
-        QPoint(tmp.right() - 1, tmp.top() + 1),
-        QPoint(tmp.left() + 1, tmp.bottom() - 1),
-        QPoint(tmp.right() - 1, tmp.bottom() - 1)
-    };
-    painter->drawPoints(points, 4);
-
-    painter->setPen(titleBarHighlight);
-    painter->drawLine(tmp.left() + 2, tmp.top() + 1, tmp.right() - 2, tmp.top() + 1);
-    painter->drawLine(tmp.left() + 1, tmp.top() + 2, tmp.left() + 1, tmp.bottom() - 2);
-
-    painter->setPen(QPen(gradient, 1));
-    painter->drawLine(tmp.right() + 1, tmp.top() + 2, tmp.right() + 1, tmp.bottom() - 2);
-    painter->drawPoint(tmp.right() , tmp.top() + 1);
-
-    painter->drawLine(tmp.left() + 2, tmp.bottom() + 1, tmp.right() - 2, tmp.bottom() + 1);
-    painter->drawPoint(tmp.left() + 1, tmp.bottom());
-    painter->drawPoint(tmp.right() - 1, tmp.bottom());
-    painter->drawPoint(tmp.right() , tmp.bottom() - 1);
 }
 
 /*!
