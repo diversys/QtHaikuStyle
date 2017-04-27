@@ -2364,7 +2364,21 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
                 if (maxButtonRect.isValid()) {
                     bool hover = (titleBar->activeSubControls & SC_TitleBarMaxButton) && (titleBar->state & State_MouseOver);
                     bool sunken = (titleBar->activeSubControls & SC_TitleBarMaxButton) && (titleBar->state & State_Sunken);
-                    qt_haiku_draw_mdibutton(painter, titleBar, maxButtonRect, hover, sunken);
+
+					QRect bigBox = maxButtonRect.adjusted(4, 4, 0, 0);
+					QRect smallBox = maxButtonRect.adjusted(0, 0, -7, -7);
+                    
+					QLinearGradient gradient(bigBox.left(), bigBox.top(), bigBox.right(), bigBox.bottom());
+            		gradient.setColorAt(sunken?1:0, Qt::white);
+            		gradient.setColorAt(sunken?0:1, tabShadow);
+
+                    painter->setPen(buttonFrame);
+            		painter->fillRect(bigBox, gradient);
+                    painter->drawRect(bigBox);
+                    gradient.setStart(smallBox.left(), smallBox.top());
+                    gradient.setFinalStop(smallBox.right(), smallBox.bottom());
+            		painter->fillRect(smallBox, gradient);
+                    painter->drawRect(smallBox);
                 }
             }
 
@@ -2391,44 +2405,23 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
                (titleBar->titleBarState & Qt::WindowMaximized)))) {
                 QRect normalButtonRect = proxy()->subControlRect(CC_TitleBar, titleBar, SC_TitleBarNormalButton, widget);
                 if (normalButtonRect.isValid()) {
-
                     bool hover = (titleBar->activeSubControls & SC_TitleBarNormalButton) && (titleBar->state & State_MouseOver);
                     bool sunken = (titleBar->activeSubControls & SC_TitleBarNormalButton) && (titleBar->state & State_Sunken);
-                    QRect normalButtonIconRect = normalButtonRect.adjusted(buttonMargin, buttonMargin, -buttonMargin, -buttonMargin);
-                    qt_haiku_draw_mdibutton(painter, titleBar, normalButtonRect, hover, sunken);
 
-                    QRect frontWindowRect = normalButtonIconRect.adjusted(0, 3, -3, 0);
-                    painter->setPen(textColor);
-                    painter->drawRect(frontWindowRect.adjusted(0, 0, -1, -1));
-                    painter->drawLine(frontWindowRect.left() + 1, frontWindowRect.top() + 1,
-                                    frontWindowRect.right() - 1, frontWindowRect.top() + 1);
-                    painter->setPen(textAlphaColor);
-                    const QPoint points[4] = {
-                        frontWindowRect.topLeft(),
-                        frontWindowRect.topRight(),
-                        frontWindowRect.bottomLeft(),
-                        frontWindowRect.bottomRight()
-                    };
-                    painter->drawPoints(points, 4);
+					QRect bigBox = normalButtonRect.adjusted(4, 4, 0, 0);
+					QRect smallBox = normalButtonRect.adjusted(0, 0, -7, -7);
 
-                    QRect backWindowRect = normalButtonIconRect.adjusted(3, 0, 0, -3);
-                    QRegion clipRegion = backWindowRect;
-                    clipRegion -= frontWindowRect;
-                    painter->save();
-                    painter->setClipRegion(clipRegion);
-                    painter->setPen(textColor);
-                    painter->drawRect(backWindowRect.adjusted(0, 0, -1, -1));
-                    painter->drawLine(backWindowRect.left() + 1, backWindowRect.top() + 1,
-                                    backWindowRect.right() - 1, backWindowRect.top() + 1);
-                    painter->setPen(textAlphaColor);
-                    const QPoint points2[4] = {
-                        backWindowRect.topLeft(),
-                        backWindowRect.topRight(),
-                        backWindowRect.bottomLeft(),
-                        backWindowRect.bottomRight()
-                    };
-                    painter->drawPoints(points2, 4);
-                    painter->restore();
+					QLinearGradient gradient(bigBox.left(), bigBox.top(), bigBox.right(), bigBox.bottom());
+            		gradient.setColorAt(sunken?1:0, Qt::white);
+            		gradient.setColorAt(sunken?0:1, tabShadow);
+
+                    painter->setPen(buttonFrame);
+            		painter->fillRect(bigBox, gradient);
+                    painter->drawRect(bigBox);
+                    gradient.setStart(smallBox.left(), smallBox.top());
+                    gradient.setFinalStop(smallBox.right(), smallBox.bottom());
+            		painter->fillRect(smallBox, gradient);
+                    painter->drawRect(smallBox);                                     
                 }
             }
         }
@@ -2892,7 +2885,7 @@ QSize QHaikuStyle::sizeFromContents(ContentsType type, const QStyleOption *optio
         newSize += QSize(2, 2);
         break;
     case CT_MdiControls:
-        if (const QStyleOptionComplex *styleOpt = qstyleoption_cast<const QStyleOptionComplex *>(option)) {
+       /* if (const QStyleOptionComplex *styleOpt = qstyleoption_cast<const QStyleOptionComplex *>(option)) {
             int width = 0;
             if (styleOpt->subControls & SC_MdiMinButton)
                 width += 19 + 1;
@@ -2903,7 +2896,7 @@ QSize QHaikuStyle::sizeFromContents(ContentsType type, const QStyleOption *optio
             newSize = QSize(width, 19);
         } else {
             newSize = QSize(60, 19);
-        }
+        }*/
         break;
     default:
         break;
@@ -3294,20 +3287,31 @@ QRect QHaikuStyle::subControlRect(ComplexControl control, const QStyleOptionComp
                     ret.adjust(0, 2, 0, -2);
                     ret.setWidth(tabWidth - (textLeft + 12));
                     ret.adjust(textLeft, 0, textLeft, -1);
-                    if (tb->titleBarFlags & Qt::WindowMaximizeButtonHint)
+                    if (tb->titleBarFlags & Qt::WindowMaximizeButtonHint || tb->titleBarFlags & Qt::WindowMinimizeButtonHint)
                         ret.adjust(0, 0, -delta, 0);
-                }
-                break;
-            case SC_TitleBarMaxButton:
+                } else
+                	ret = QRect();
+                break;                
             case SC_TitleBarNormalButton:
-                if (tb->titleBarFlags & (Qt::WindowTitleHint | Qt::WindowSystemMenuHint)) {
+                if ( (isMinimized && (tb->titleBarFlags & Qt::WindowMinimizeButtonHint)) ||
+                	 (isMaximized && (tb->titleBarFlags & Qt::WindowMaximizeButtonHint))) {
                     ret = tb->rect;
                     ret.adjust(0, 2, 0, -2);
                     ret.setWidth(tabWidth - (textLeft + 12));
                     ret.adjust(textLeft, 0, textLeft, -1);
-                    if (tb->titleBarFlags & Qt::WindowMaximizeButtonHint)
+                    if (tb->titleBarFlags & Qt::WindowMaximizeButtonHint || tb->titleBarFlags & Qt::WindowMinimizeButtonHint)
                         ret.adjust(0, 0, -delta, 0);
-                    ret.setRect(ret.right() + 12,  tb->rect.top() + 5, controlHeight, controlHeight);
+                    ret.setRect(ret.right() + 8,  tb->rect.top() + 5, controlHeight, controlHeight);
+                }
+            case SC_TitleBarMaxButton:
+                if (!isMaximized && (tb->titleBarFlags & Qt::WindowMaximizeButtonHint)) {
+                    ret = tb->rect;
+                    ret.adjust(0, 2, 0, -2);
+                    ret.setWidth(tabWidth - (textLeft + 12));
+                    ret.adjust(textLeft, 0, textLeft, -1);
+                    if (tb->titleBarFlags & Qt::WindowMaximizeButtonHint || tb->titleBarFlags & Qt::WindowMinimizeButtonHint)
+                        ret.adjust(0, 0, -delta, 0);
+                    ret.setRect(ret.right() + 8,  tb->rect.top() + 5, controlHeight, controlHeight);
                 }
 				break;
             case SC_TitleBarContextHelpButton:
@@ -3425,11 +3429,11 @@ int QHaikuStyle::styleHint(StyleHint hint, const QStyleOption *option, const QWi
         		QRect textRect = proxy()->subControlRect(CC_TitleBar, titleBar, SC_TitleBarLabel, widget);
            		int frameWidth = proxy()->pixelMetric(PM_MdiSubWindowFrameWidth);
             	int tabHeight = pixelMetric(PM_TitleBarHeight, titleBar, widget) - frameWidth;
-           		
+
            		int tabWidth = 220;
             	if (tabWidth > titleBar->rect.width())
             		tabWidth = titleBar->rect.width();
-            	
+
            		mask->region = option->rect;
            		mask->region -= QRect(tabWidth, option->rect.top(), option->rect.width()-tabWidth, tabHeight);
         	}
