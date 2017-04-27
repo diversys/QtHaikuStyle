@@ -2319,6 +2319,7 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
 			QColor bevelShadow3(mkQColor(tint_color(ui_color(bcolor), B_DARKEN_3_TINT)));
 			QColor bevelLight(mkQColor(tint_color(ui_color(bcolor), B_LIGHTEN_2_TINT)));
 			
+			QColor tabColor(mkQColor(ui_color(tcolor)));
 			QColor tabBevelLight(mkQColor(tint_color(ui_color(tcolor), B_LIGHTEN_2_TINT)));
 			QColor tabShadow(mkQColor(tint_color(ui_color(tcolor), (B_DARKEN_1_TINT + B_NO_TINT) / 2)));
 			QColor buttonFrame(mkQColor(tint_color(ui_color(tcolor), B_DARKEN_2_TINT)));
@@ -2370,7 +2371,7 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
                     
 					QLinearGradient gradient(bigBox.left(), bigBox.top(), bigBox.right(), bigBox.bottom());
             		gradient.setColorAt(sunken?1:0, Qt::white);
-            		gradient.setColorAt(sunken?0:1, tabShadow);
+            		gradient.setColorAt(sunken?0:1, tabColor);
 
                     painter->setPen(buttonFrame);
             		painter->fillRect(bigBox, gradient);
@@ -2390,7 +2391,7 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
                     bool sunken = (titleBar->activeSubControls & SC_TitleBarCloseButton) && (titleBar->state & State_Sunken);
 					QLinearGradient gradient(closeButtonRect.left(), closeButtonRect.top(), closeButtonRect.right(), closeButtonRect.bottom());
             		gradient.setColorAt(sunken?1:0, Qt::white);
-            		gradient.setColorAt(sunken?0:1, tabShadow);
+            		gradient.setColorAt(sunken?0:1, tabColor);
             		painter->fillRect(closeButtonRect, gradient);
                     painter->setPen(buttonFrame);
                     painter->drawRect(closeButtonRect);
@@ -2413,7 +2414,7 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
 
 					QLinearGradient gradient(bigBox.left(), bigBox.top(), bigBox.right(), bigBox.bottom());
             		gradient.setColorAt(sunken?1:0, Qt::white);
-            		gradient.setColorAt(sunken?0:1, tabShadow);
+            		gradient.setColorAt(sunken?0:1, tabColor);
 
                     painter->setPen(buttonFrame);
             		painter->fillRect(bigBox, gradient);
