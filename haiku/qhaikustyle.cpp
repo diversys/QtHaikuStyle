@@ -791,17 +791,48 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
     case PE_FrameWindow:
         painter->save();
         {
-            QRect rect= option->rect;
-            painter->setPen(QPen(dark.darker(150), 0));
-            painter->drawRect(option->rect.adjusted(0, 0, -1, -1));
-            painter->setPen(QPen(option->palette.light(), 0));
-            painter->drawLine(QPoint(rect.left() + 1, rect.top() + 1),
-                              QPoint(rect.left() + 1, rect.bottom() - 1));
-            painter->setPen(QPen(option->palette.background().color().darker(120), 0));
-            painter->drawLine(QPoint(rect.left() + 1, rect.bottom() - 1),
-                              QPoint(rect.right() - 2, rect.bottom() - 1));
-            painter->drawLine(QPoint(rect.right() - 1, rect.top() + 1),
-                              QPoint(rect.right() - 1, rect.bottom() - 1));
+            QColor frameColorActive(mkQColor(ui_color(B_WINDOW_BORDER_COLOR)));
+		    QColor bevelShadow1(mkQColor(tint_color(ui_color(B_WINDOW_BORDER_COLOR), 1.07)));
+		    QColor bevelShadow2(mkQColor(tint_color(ui_color(B_WINDOW_BORDER_COLOR), B_DARKEN_2_TINT)));
+		    QColor bevelShadow3(mkQColor(tint_color(ui_color(B_WINDOW_BORDER_COLOR), B_DARKEN_3_TINT)));
+		    QColor bevelLight(mkQColor(tint_color(ui_color(B_WINDOW_BORDER_COLOR), B_LIGHTEN_2_TINT)));
+
+		    int titleBarHeight = proxy()->pixelMetric(PM_TitleBarHeight);
+		    int frameWidth = proxy()->pixelMetric(PM_MdiSubWindowFrameWidth);
+
+            QRect rect= option->rect.adjusted(0, titleBarHeight, 0, 0);
+			painter->setPen(bevelShadow2);
+            painter->drawLine(rect.topLeft(), rect.bottomLeft());
+            painter->drawLine(rect.topLeft(), rect.topRight());
+			painter->setPen(bevelShadow3);
+            painter->drawLine(rect.topRight(), rect.bottomRight());
+            painter->drawLine(rect.bottomRight(), rect.bottomLeft());
+            rect.adjust(1,1,-1,-1);
+			painter->setPen(bevelLight);
+            painter->drawLine(rect.topLeft(), rect.bottomLeft());
+            painter->drawLine(rect.topLeft(), rect.topRight());
+			painter->setPen(bevelShadow1);
+            painter->drawLine(rect.topRight(), rect.bottomRight());
+            painter->drawLine(rect.bottomRight(), rect.bottomLeft());
+            rect.adjust(1,1,-1,-1);
+            painter->setPen(frameColorActive);
+            painter->drawLine(rect.topLeft(), rect.bottomLeft());
+            painter->drawLine(rect.topLeft(), rect.topRight());
+            painter->drawLine(rect.topRight(), rect.bottomRight());
+            painter->drawLine(rect.bottomRight(), rect.bottomLeft());
+			rect.adjust(1,1,-1,-1);
+			painter->setPen(bevelShadow1);
+            painter->drawLine(rect.topLeft(), rect.bottomLeft());
+            painter->drawLine(rect.topLeft(), rect.topRight());
+			painter->setPen(bevelLight);
+            painter->drawLine(rect.topRight(), rect.bottomRight());
+            painter->drawLine(rect.bottomRight(), rect.bottomLeft());
+			rect.adjust(1,1,-1,-1);
+            painter->setPen(bevelShadow2);
+            painter->drawLine(rect.topLeft(), rect.bottomLeft());
+            painter->drawLine(rect.topLeft(), rect.topRight());
+            painter->drawLine(rect.topRight(), rect.bottomRight());
+            painter->drawLine(rect.bottomRight(), rect.bottomLeft());
         }
         painter->restore();
         break;
@@ -2755,7 +2786,7 @@ int QHaikuStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, con
         ret = 1;
         break;
     case PM_TitleBarHeight:
-        ret = 24;
+        ret = 26;
         break;
     case PM_ScrollBarExtent:
         ret = B_V_SCROLL_BAR_WIDTH;
@@ -2775,6 +2806,9 @@ int QHaikuStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, con
     case PM_DefaultFrameWidth:
         ret = 2;
         break;
+    case PM_MdiSubWindowFrameWidth:
+		ret = 5;
+		break;
     case PM_SpinBoxFrameWidth:
         ret = 3;
         break;
@@ -3487,8 +3521,8 @@ int QHaikuStyle::styleHint(StyleHint hint, const QStyleOption *option, const QWi
     case SH_WindowFrame_Mask:
         ret = 1;
         if (QStyleHintReturnMask *mask = qstyleoption_cast<QStyleHintReturnMask *>(returnData)) {
-            //left rounded corner
             mask->region = option->rect;
+            /*
             mask->region -= QRect(option->rect.left(), option->rect.top(), 5, 1);
             mask->region -= QRect(option->rect.left(), option->rect.top() + 1, 3, 1);
             mask->region -= QRect(option->rect.left(), option->rect.top() + 2, 2, 1);
@@ -3498,7 +3532,7 @@ int QHaikuStyle::styleHint(StyleHint hint, const QStyleOption *option, const QWi
             mask->region -= QRect(option->rect.right() - 4, option->rect.top(), 5, 1);
             mask->region -= QRect(option->rect.right() - 2, option->rect.top() + 1, 3, 1);
             mask->region -= QRect(option->rect.right() - 1, option->rect.top() + 2, 2, 1);
-            mask->region -= QRect(option->rect.right() , option->rect.top() + 3, 1, 2);
+            mask->region -= QRect(option->rect.right() , option->rect.top() + 3, 1, 2);*/
         }
         break;
     case SH_MessageBox_TextInteractionFlags:
