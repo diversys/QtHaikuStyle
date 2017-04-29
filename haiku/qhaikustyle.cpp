@@ -63,6 +63,8 @@
 #include <qwizard.h>
 #include <qlibrary.h>
 #include <qstylefactory.h>
+#include <qmdisubwindow.h>
+#include <qlabel.h>
 
 #include <QDebug>
 
@@ -151,6 +153,8 @@ static const int windowsItemVMargin      =  8; // menu item ver text margin
 static const int windowsRightBorder      = 15; // right border on windows
 static const int progressAnimationFps    = 24;
 static const int mdiTabWidthMin			 = 100; //minimal tab size for mid window
+static const int mdiTabTextMarginLeft	 =  32;
+static const int mdiTabTextMarginRight	 =  24;
 
 
 /* XPM */
@@ -2170,21 +2174,12 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
     case CC_TitleBar:
         painter->save();
         if (const QStyleOptionTitleBar *titleBar = qstyleoption_cast<const QStyleOptionTitleBar *>(option)) {
-            const int buttonMargin = 5;
             bool active = (titleBar->titleBarState & State_Active);
 
 			int titleBarHeight = proxy()->pixelMetric(PM_TitleBarHeight);
 			int frameWidth = proxy()->pixelMetric(PM_MdiSubWindowFrameWidth);
 			
             QRect fullRect = titleBar->rect;
-            QRect tabRect = fullRect;
-
-			int tabWidth = 220;
-            
-            if (tabWidth > fullRect.width())
-            	tabWidth = fullRect.width();
-            
-            tabRect.setWidth(tabWidth);
 
             QPalette palette = option->palette;
             QColor highlight = option->palette.highlight().color();
@@ -2220,15 +2215,21 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
 			QColor tabShadow(mkQColor(tint_color(ui_color(tcolor), (B_DARKEN_1_TINT + B_NO_TINT) / 2)));
 			QColor buttonFrame(mkQColor(tint_color(ui_color(tcolor), B_DARKEN_2_TINT)));
 
-            QLinearGradient gradient(option->rect.left(), option->rect.top(),
-                                     option->rect.left(), option->rect.bottom());
-
-            gradient.setColorAt(0, titlebarColor2);
-            gradient.setColorAt(1, titlebarColor);
-
 			qt_haiku_draw_windows_frame(painter, fullRect.adjusted(0, titleBarHeight - frameWidth, 0, titleBarHeight - frameWidth),
 				active ? B_WINDOW_BORDER_COLOR : B_WINDOW_INACTIVE_BORDER_COLOR,
 				BControlLook::B_LEFT_BORDER | BControlLook::B_RIGHT_BORDER | BControlLook::B_TOP_BORDER, false);
+			
+			// tab
+            QRect tabRect = fullRect;
+            
+            QRect textRect = proxy()->subControlRect(CC_TitleBar, titleBar, SC_TitleBarLabel, widget);
+
+            int tabWidth = textRect.width() + mdiTabTextMarginLeft + mdiTabTextMarginRight;            
+            tabRect.setWidth(tabWidth);
+			
+            QLinearGradient gradient(option->rect.topLeft(), option->rect.bottomLeft());
+            gradient.setColorAt(0, titlebarColor2);
+            gradient.setColorAt(1, titlebarColor);
 
 			painter->setPen(bevelShadow2);
 			painter->drawLine(tabRect.topLeft(), tabRect.bottomLeft());
@@ -2245,8 +2246,7 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
             painter->fillRect(tabRect.adjusted(2, 2, -2, 1 - frameWidth), gradient);
 
             // draw title
-            QRect textRect = proxy()->subControlRect(CC_TitleBar, titleBar, SC_TitleBarLabel, widget);
-            QFont font = painter->font();
+            QFont font = widget->font();
             font.setBold(true);
             painter->setFont(font);
             painter->setPen(textColor);
@@ -2841,7 +2841,8 @@ void QHaikuStyle::polish(QWidget *widget)
     if (qobject_cast<QProgressBar *>(widget))
         widget->installEventFilter(this);
 #endif
-
+    if (widget->inherits("QMdiSubWindow"))
+        widget->installEventFilter(this);
 }
 
 /*!
@@ -2892,6 +2893,8 @@ void QHaikuStyle::unpolish(QWidget *widget)
     if (qobject_cast<QProgressBar *>(widget))
         widget->removeEventFilter(this);
 #endif
+	if (widget->inherits("QMdiSubWindow"))
+        widget->removeEventFilter(this);
 }
 
 /*!
@@ -2933,7 +2936,35 @@ bool QHaikuStyle::event(QEvent *event)
 bool QHaikuStyle::eventFilter(QObject *o, QEvent *e)
 {
     switch (e->type())
-    {
+    {    	
+    case QEvent::WindowTitleChange:
+    	if(QMdiSubWindow* w = qobject_cast<QMdiSubWindow*>(o)) {
+			QStyleHintReturnMask mask;
+
+    		QStyleOptionTitleBar titleBarOptions;
+
+    		titleBarOptions.initFrom(w);
+		    titleBarOptions.subControls = QStyle::SC_All;
+    		titleBarOptions.titleBarFlags = w->windowFlags();
+    		titleBarOptions.titleBarState = w->windowState();
+			titleBarOptions.state = QStyle::State_Active;
+        	titleBarOptions.titleBarState = QStyle::State_Active;
+		    titleBarOptions.rect = QRect(0, 0, w->width(), w->height());
+		    titleBarOptions.version = 2;	//TODO: ugly dirty hack for 10px mask error
+
+    		if (!w->windowTitle().isEmpty()) {
+		        titleBarOptions.text = w->windowTitle();
+		        QFont font = QApplication::font("QMdiSubWindowTitleBar");
+		        font.setBold(true);
+        		titleBarOptions.fontMetrics = QFontMetrics(font);
+		    }
+
+			if (styleHint(SH_WindowFrame_Mask, &titleBarOptions, w, &mask))
+				w->setMask(mask.region);
+
+			w->repaint();
+    	}
+    	break;
 #ifndef QT_NO_PROGRESSBAR
     case QEvent::StyleChange:
     case QEvent::Paint:
@@ -3160,9 +3191,6 @@ QRect QHaikuStyle::subControlRect(ComplexControl control, const QStyleOptionComp
         if (const QStyleOptionTitleBar *tb = qstyleoption_cast<const QStyleOptionTitleBar *>(option)) {
             SubControl sc = subControl;
             QRect &ret = rect;
-            const int indent = 3;
-            const int controlTopMargin = 3;
-            const int controlBottomMargin = 3;
             const int controlWidthMargin = 2;
             const int controlHeight = 15 ;
             const int delta = controlHeight + controlWidthMargin;
@@ -3170,22 +3198,35 @@ QRect QHaikuStyle::subControlRect(ComplexControl control, const QStyleOptionComp
 
             bool isMinimized = tb->titleBarState & Qt::WindowMinimized;
             bool isMaximized = tb->titleBarState & Qt::WindowMaximized;
-            
-            int tabWidth = 220;
+
+			QFontMetrics fontMetrics = option->fontMetrics;
+			if (widget) {
+				QFont font = widget->font();
+				font.setBold(true);
+				fontMetrics = QFontMetrics(font);
+			}
+			
+			int textWidth = mdiTabWidthMin;
+            if (!tb->text.isEmpty()) {
+				textWidth = fontMetrics.width(tb->text) + 20;
+	            if (tb->version == 2)		//TODO: ugly dirty hack for 10px mask error
+    	        	textWidth -= 10;
+				if (textWidth < mdiTabWidthMin)
+					textWidth = mdiTabWidthMin;
+            }
+
+            int tabWidth = textWidth + mdiTabTextMarginLeft +  mdiTabTextMarginRight;
+
             if (tabWidth > tb->rect.width())
             	tabWidth = tb->rect.width();
             	
-            int textLeft = tb->rect.left() + 5 + controlHeight + 12;
-
             switch (sc) {
             case SC_TitleBarLabel:
                 if (tb->titleBarFlags & (Qt::WindowTitleHint | Qt::WindowSystemMenuHint)) {
                     ret = tb->rect;
                     ret.adjust(0, 2, 0, -2);
-                    ret.setWidth(tabWidth - (textLeft + 12));
-                    ret.adjust(textLeft, 0, textLeft, -1);
-                    if (tb->titleBarFlags & Qt::WindowMaximizeButtonHint || tb->titleBarFlags & Qt::WindowMinimizeButtonHint)
-                        ret.adjust(0, 0, -delta, 0);
+                    ret.setWidth(tabWidth - (mdiTabTextMarginLeft + mdiTabTextMarginRight));
+                    ret.adjust(mdiTabTextMarginLeft, 0, mdiTabTextMarginLeft, -1);
                 } else
                 	ret = QRect();
                 break;                
@@ -3194,21 +3235,14 @@ QRect QHaikuStyle::subControlRect(ComplexControl control, const QStyleOptionComp
                 	 (isMaximized && (tb->titleBarFlags & Qt::WindowMaximizeButtonHint))) {
                     ret = tb->rect;
                     ret.adjust(0, 2, 0, -2);
-                    ret.setWidth(tabWidth - (textLeft + 12));
-                    ret.adjust(textLeft, 0, textLeft, -1);
-                    if (tb->titleBarFlags & Qt::WindowMaximizeButtonHint || tb->titleBarFlags & Qt::WindowMinimizeButtonHint)
-                        ret.adjust(0, 0, -delta, 0);
-                    ret.setRect(ret.right() + 8,  tb->rect.top() + 5, controlHeight, controlHeight);
+                    ret.setRect(ret.left() + tabWidth - mdiTabTextMarginRight,  tb->rect.top() + 5, controlHeight, controlHeight);
                 }
+                break;
             case SC_TitleBarMaxButton:
                 if (!isMaximized && (tb->titleBarFlags & Qt::WindowMaximizeButtonHint)) {
                     ret = tb->rect;
                     ret.adjust(0, 2, 0, -2);
-                    ret.setWidth(tabWidth - (textLeft + 12));
-                    ret.adjust(textLeft, 0, textLeft, -1);
-                    if (tb->titleBarFlags & Qt::WindowMaximizeButtonHint || tb->titleBarFlags & Qt::WindowMinimizeButtonHint)
-                        ret.adjust(0, 0, -delta, 0);
-                    ret.setRect(ret.right() + 8,  tb->rect.top() + 5, controlHeight, controlHeight);
+                    ret.setRect(ret.left() + tabWidth - mdiTabTextMarginRight,  tb->rect.top() + 5, controlHeight, controlHeight);
                 }
 				break;
             case SC_TitleBarContextHelpButton:
@@ -3326,11 +3360,7 @@ int QHaikuStyle::styleHint(StyleHint hint, const QStyleOption *option, const QWi
         		QRect textRect = proxy()->subControlRect(CC_TitleBar, titleBar, SC_TitleBarLabel, widget);
            		int frameWidth = proxy()->pixelMetric(PM_MdiSubWindowFrameWidth);
             	int tabHeight = pixelMetric(PM_TitleBarHeight, titleBar, widget) - frameWidth;
-
-           		int tabWidth = 220;
-            	if (tabWidth > titleBar->rect.width())
-            		tabWidth = titleBar->rect.width();
-
+				int tabWidth = textRect.width() + mdiTabTextMarginLeft + mdiTabTextMarginRight;
            		mask->region = option->rect;
            		mask->region -= QRect(tabWidth, option->rect.top(), option->rect.width()-tabWidth, tabHeight);
         	}
