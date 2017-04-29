@@ -356,7 +356,7 @@ static QImage get_haiku_alert_icon(uint32 fType, int32 iconSize)
 	return image;
 }
 
-static void qt_haiku_draw_windows_frame(QPainter *painter, const QRect &qrect, color_which bcolor, uint32 borders = BControlLook::B_ALL_BORDERS)
+static void qt_haiku_draw_windows_frame(QPainter *painter, const QRect &qrect, color_which bcolor, uint32 borders = BControlLook::B_ALL_BORDERS, bool sizer = true)
 {
 	QColor frameColorActive(mkQColor(ui_color(bcolor)));
 	QColor bevelShadow1(mkQColor(tint_color(ui_color(bcolor), 1.07)));
@@ -417,6 +417,12 @@ static void qt_haiku_draw_windows_frame(QPainter *painter, const QRect &qrect, c
 		painter->drawLine(rect.topRight(), rect.bottomRight());
 	if ((borders & BControlLook::B_BOTTOM_BORDER) != 0)
 		painter->drawLine(rect.bottomRight(), rect.bottomLeft());
+	if( borders & BControlLook::B_RIGHT_BORDER != 0 && 
+		borders & BControlLook::B_BOTTOM_BORDER != 0 && sizer) {
+		painter->setPen(bevelShadow2);
+		painter->drawLine(rect.bottomRight() + QPoint(0, -18), rect.bottomRight() + QPoint(5,-18));
+		painter->drawLine(rect.bottomRight() + QPoint(-18, 0), rect.bottomRight() + QPoint(-18, 5));
+	}
 }
 
 static void qt_haiku_draw_button(QPainter *painter, const QRect &qrect, bool def, bool flat, bool pushed, bool focus, bool enabled, bool bevel=true, orientation orient = B_HORIZONTAL, arrow_direction arrow = ARROW_NONE)
@@ -493,22 +499,6 @@ static void qt_haiku_draw_gradient(QPainter *painter, const QRect &rect, const Q
         painter->fillRect(rect, *gradient);
         delete gradient;
 }
-
-/*!
-    \class QHaikuStyle
-    \brief The QHaikuStyle class provides a widget style similar to the
-    Clearlooks style available in GNOME.
-    \since 4.2
-
-    \inmodule QtWidgets
-
-    The Haiku style provides a look and feel for widgets
-    that closely resembles the Clearlooks style, introduced by Richard
-    Stellingwerff and Daniel Borgmann.
-
-    \sa {Haiku Style Widget Gallery}, QWindowsXPStyle, QMacStyle, QWindowsStyle,
-        QPlastiqueStyle
-*/
 
 /*!
     Constructs a QHaikuStyle object.
@@ -2238,7 +2228,7 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
 
 			qt_haiku_draw_windows_frame(painter, fullRect.adjusted(0, titleBarHeight - frameWidth, 0, titleBarHeight - frameWidth),
 				active ? B_WINDOW_BORDER_COLOR : B_WINDOW_INACTIVE_BORDER_COLOR,
-				BControlLook::B_LEFT_BORDER | BControlLook::B_RIGHT_BORDER | BControlLook::B_TOP_BORDER);
+				BControlLook::B_LEFT_BORDER | BControlLook::B_RIGHT_BORDER | BControlLook::B_TOP_BORDER, false);
 
 			painter->setPen(bevelShadow2);
 			painter->drawLine(tabRect.topLeft(), tabRect.bottomLeft());
