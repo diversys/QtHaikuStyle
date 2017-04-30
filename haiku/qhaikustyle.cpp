@@ -3201,10 +3201,7 @@ QRect QHaikuStyle::subControlRect(ComplexControl control, const QStyleOptionComp
         if (const QStyleOptionTitleBar *tb = qstyleoption_cast<const QStyleOptionTitleBar *>(option)) {
             SubControl sc = subControl;
             QRect &ret = rect;
-            const int controlWidthMargin = 2;
             const int controlHeight = 15 ;
-            const int delta = controlHeight + controlWidthMargin;
-            int offset = 0;
 
             bool isMinimized = tb->titleBarState & Qt::WindowMinimized;
             bool isMaximized = tb->titleBarState & Qt::WindowMaximized;
