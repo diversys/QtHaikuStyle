@@ -148,6 +148,18 @@ static QColor mkQColor(rgb_color rgb)
 	return QColor(rgb.red, rgb.green, rgb.blue);
 }
 
+static rgb_color mkHaikuColor(QColor color)
+{
+	rgb_color hcolor;
+
+	hcolor.red = color.red();
+	hcolor.green = color.green();
+	hcolor.blue = color.blue();
+	hcolor.alpha = color.alpha();
+
+	return hcolor;
+}
+
 // from windows style
 static const int windowsItemFrame        =  2; // menu item frame width
 static const int windowsItemHMargin      =  3; // menu item hor text margin
@@ -432,7 +444,7 @@ static void qt_haiku_draw_windows_frame(QPainter *painter, const QRect &qrect, c
 	}
 }
 
-static void qt_haiku_draw_button(QPainter *painter, const QRect &qrect,
+static void qt_haiku_draw_scroll(QPainter *painter, const QRect &qrect,
 	bool def, bool flat, bool pushed, bool focus, bool enabled, bool hover=false, bool bevel=true,
 	orientation orient = B_HORIZONTAL, arrow_direction arrow = ARROW_NONE)
 {
@@ -441,7 +453,7 @@ static void qt_haiku_draw_button(QPainter *painter, const QRect &qrect,
 	if (be_control_look != NULL) {
 		// TODO: If this button is embedded within a different color background, it would be
 		// nice to tell this function so the frame can be smoothly blended into the background.
-		rgb_color background = ui_color(B_PANEL_BACKGROUND_COLOR);
+		rgb_color background = arrow == ARROW_NONE ? ui_color(B_SCROLL_BAR_THUMB_COLOR) : ui_color(B_CONTROL_BACKGROUND_COLOR);
 		rgb_color hover_color = tint_color(background, 0.75);
 		rgb_color base = hover ? hover_color : background;
 		uint32 flags = 0;
@@ -899,8 +911,39 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
 			bool hasFocus = option->state & State_HasFocus;
             bool isEnabled = option->state & State_Enabled;
 
-			qt_haiku_draw_button(painter, option->rect,
-				isDefault, isFlat, isDown, hasFocus, isEnabled, isMouseOver);
+			rgb_color background = mkHaikuColor(option->palette.color( QPalette::Normal, QPalette::Window));
+			rgb_color button = mkHaikuColor(option->palette.color( QPalette::Normal, QPalette::Button));
+			rgb_color hover_color = tint_color(button, 0.75);
+			rgb_color base = isMouseOver ? hover_color : button;
+
+			QRect rect = option->rect;
+
+			uint32 flags = 0;
+			if (isDown)
+				flags |= BControlLook::B_ACTIVATED;
+			if (hasFocus)
+				flags |= BControlLook::B_FOCUSED;
+			if (isFlat)
+				flags |= BControlLook::B_FLAT;
+			if (!isEnabled)
+				flags |= BControlLook::B_DISABLED;
+			if (isDefault) {
+				flags |= BControlLook::B_DEFAULT_BUTTON;
+				rect = rect.adjusted(-3,-3,3,3);
+			}
+
+			BRect bRect(0.0f, 0.0f, rect.width() - 1, rect.height() - 1);		
+
+			TemporarySurface surface(bRect);
+
+			surface.view()->SetHighColor(base);
+			surface.view()->SetLowColor(base);
+			surface.view()->FillRect(bRect);
+
+			be_control_look->DrawButtonFrame(surface.view(), bRect, bRect, base, background, flags);
+			be_control_look->DrawButtonBackground(surface.view(), bRect, bRect, base, flags);
+
+			painter->drawImage(rect, surface.image());
 	     	painter->restore();
         }
         break;
@@ -1863,7 +1906,70 @@ void QHaikuStyle::drawControl(ControlElement element, const QStyleOption *option
 */
 QPalette QHaikuStyle::standardPalette () const
 {
-    QPalette palette = QProxyStyle::standardPalette();
+    QPalette palette;
+    rgb_color panel_background_color = ui_color(B_PANEL_BACKGROUND_COLOR);
+    rgb_color control_text = ui_color(B_CONTROL_TEXT_COLOR);
+	rgb_color control_text_disabled = control_text;
+	control_text_disabled.red = (uint8)(((int32)panel_background_color.red + control_text_disabled.red + 1) / 2);
+	control_text_disabled.green = (uint8)(((int32)panel_background_color.green + control_text_disabled.green + 1) / 2);
+	control_text_disabled.blue = (uint8)(((int32)panel_background_color.blue + control_text_disabled.blue + 1) / 2);
+
+    palette.setBrush(QPalette::Disabled, QPalette::WindowText, mkQColor(ui_color(B_PANEL_TEXT_COLOR)));
+    palette.setBrush(QPalette::Disabled, QPalette::Button, mkQColor(ui_color(B_CONTROL_BACKGROUND_COLOR)));
+    palette.setBrush(QPalette::Disabled, QPalette::Light, QColor(QRgb(0xffffffff)));
+    palette.setBrush(QPalette::Disabled, QPalette::Midlight, QColor(QRgb(0xffffffff)));
+    palette.setBrush(QPalette::Disabled, QPalette::Dark, QColor(QRgb(0xff555555)));
+    palette.setBrush(QPalette::Disabled, QPalette::Mid, QColor(QRgb(0xffc7c7c7)));
+    palette.setBrush(QPalette::Disabled, QPalette::Text, QColor(QRgb(0xffc7c7c7)));
+    palette.setBrush(QPalette::Disabled, QPalette::BrightText, QColor(QRgb(0xffffffff)));
+    palette.setBrush(QPalette::Disabled, QPalette::ButtonText, mkQColor(control_text_disabled));
+    palette.setBrush(QPalette::Disabled, QPalette::Base, QColor(QRgb(0xffefefef)));
+    palette.setBrush(QPalette::Disabled, QPalette::AlternateBase, palette.color(QPalette::Disabled, QPalette::Base).darker(110));
+    palette.setBrush(QPalette::Disabled, QPalette::Window, mkQColor(panel_background_color));
+    palette.setBrush(QPalette::Disabled, QPalette::Shadow, QColor(QRgb(0xff000000)));
+    palette.setBrush(QPalette::Disabled, QPalette::Highlight, QColor(QRgb(0xff567594)));
+    palette.setBrush(QPalette::Disabled, QPalette::HighlightedText, QColor(QRgb(0xffffffff)));
+    palette.setBrush(QPalette::Disabled, QPalette::Link, QColor(QRgb(0xff0000ee)));
+    palette.setBrush(QPalette::Disabled, QPalette::LinkVisited, QColor(QRgb(0xff52188b)));
+
+    palette.setBrush(QPalette::Active, QPalette::WindowText, mkQColor(ui_color(B_PANEL_TEXT_COLOR)));
+    palette.setBrush(QPalette::Active, QPalette::Button, mkQColor(ui_color(B_CONTROL_BACKGROUND_COLOR)));
+    palette.setBrush(QPalette::Active, QPalette::Light, QColor(QRgb(0xffffffff)));
+    palette.setBrush(QPalette::Active, QPalette::Midlight, QColor(QRgb(0xffffffff)));
+    palette.setBrush(QPalette::Active, QPalette::Dark, QColor(QRgb(0xff555555)));
+    palette.setBrush(QPalette::Active, QPalette::Mid, QColor(QRgb(0xffc7c7c7)));
+    palette.setBrush(QPalette::Active, QPalette::Text, QColor(QRgb(0xff000000)));
+    palette.setBrush(QPalette::Active, QPalette::BrightText, QColor(QRgb(0xffffffff)));
+    palette.setBrush(QPalette::Active, QPalette::ButtonText, mkQColor(control_text));
+    palette.setBrush(QPalette::Active, QPalette::Base, QColor(QRgb(0xffffffff)));
+    palette.setBrush(QPalette::Active, QPalette::AlternateBase, palette.color(QPalette::Active, QPalette::Base).darker(110));
+    palette.setBrush(QPalette::Active, QPalette::Window, mkQColor(panel_background_color));
+    palette.setBrush(QPalette::Active, QPalette::Shadow, QColor(QRgb(0xff000000)));
+    palette.setBrush(QPalette::Active, QPalette::Highlight, QColor(QRgb(0xff678db2)));
+    palette.setBrush(QPalette::Active, QPalette::HighlightedText, QColor(QRgb(0xffffffff)));
+    palette.setBrush(QPalette::Active, QPalette::Link, QColor(QRgb(0xff0000ee)));
+    palette.setBrush(QPalette::Active, QPalette::LinkVisited, QColor(QRgb(0xff52188b)));
+
+    palette.setBrush(QPalette::Inactive, QPalette::WindowText, mkQColor(ui_color(B_PANEL_TEXT_COLOR)));
+    palette.setBrush(QPalette::Inactive, QPalette::Button, mkQColor(ui_color(B_CONTROL_BACKGROUND_COLOR)));
+    palette.setBrush(QPalette::Inactive, QPalette::Light, QColor(QRgb(0xffffffff)));
+    palette.setBrush(QPalette::Inactive, QPalette::Midlight, QColor(QRgb(0xffffffff)));
+    palette.setBrush(QPalette::Inactive, QPalette::Dark, QColor(QRgb(0xff555555)));
+    palette.setBrush(QPalette::Inactive, QPalette::Mid, QColor(QRgb(0xffc7c7c7)));
+    palette.setBrush(QPalette::Inactive, QPalette::Text, QColor(QRgb(0xff000000)));
+    palette.setBrush(QPalette::Inactive, QPalette::BrightText, QColor(QRgb(0xffffffff)));
+    palette.setBrush(QPalette::Inactive, QPalette::ButtonText, mkQColor(control_text));
+    palette.setBrush(QPalette::Inactive, QPalette::Base, QColor(QRgb(0xffffffff)));
+    palette.setBrush(QPalette::Inactive, QPalette::AlternateBase, palette.color(QPalette::Inactive, QPalette::Base).darker(110));
+    palette.setBrush(QPalette::Inactive, QPalette::Window, mkQColor(panel_background_color));
+    palette.setBrush(QPalette::Inactive, QPalette::Shadow, QColor(QRgb(0xff000000)));
+    palette.setBrush(QPalette::Inactive, QPalette::Highlight, QColor(QRgb(0xff678db2)));
+    palette.setBrush(QPalette::Inactive, QPalette::HighlightedText, QColor(QRgb(0xffffffff)));
+    palette.setBrush(QPalette::Inactive, QPalette::Link, QColor(QRgb(0xff0000ee)));
+    palette.setBrush(QPalette::Inactive, QPalette::LinkVisited, QColor(QRgb(0xff52188b)));
+    return palette;
+    	
+    /*QPalette palette = QProxyStyle::standardPalette();
     palette.setBrush(QPalette::Active, QPalette::Highlight, QColor(98, 140, 178));
     palette.setBrush(QPalette::Inactive, QPalette::Highlight, QColor(145, 141, 126));
     palette.setBrush(QPalette::Disabled, QPalette::Highlight, QColor(145, 141, 126));
@@ -1900,7 +2006,7 @@ QPalette QHaikuStyle::standardPalette () const
     palette.setBrush(QPalette::Shadow, shadow);
     palette.setBrush(QPalette::Disabled, QPalette::Shadow, shadow.lighter(150));
     palette.setBrush(QPalette::HighlightedText, QColor(QRgb(0xffffffff)));
-    return palette;
+    return palette;*/
 }
 
 /*!
@@ -2350,10 +2456,10 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
             
             if (scrollBar->subControls & SC_ScrollBarSubLine) {
 				QRect pixmapRect = scrollBarSubLine;;
-            
+
             	bool pushed = (scrollBar->activeSubControls & SC_ScrollBarSubLine) && sunken;
-           	            
-				qt_haiku_draw_button(painter, pixmapRect, false, false, pushed, false, isEnabled, false, false,
+
+				qt_haiku_draw_scroll(painter, pixmapRect, false, false, pushed, false, isEnabled, false, false,
 					horizontal?B_HORIZONTAL:B_VERTICAL, horizontal?ARROW_LEFT:ARROW_UP);
             }
             if (scrollBar->subControls & SC_ScrollBarAddLine) {
@@ -2361,7 +2467,7 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
 
             	bool pushed = (scrollBar->activeSubControls & SC_ScrollBarAddLine) && sunken;
 
-				qt_haiku_draw_button(painter, pixmapRect, false, false, pushed, false, isEnabled, false, false,
+				qt_haiku_draw_scroll(painter, pixmapRect, false, false, pushed, false, isEnabled, false, false,
 					horizontal?B_HORIZONTAL:B_VERTICAL, horizontal?ARROW_RIGHT:ARROW_DOWN);
             }
 			// paint groove
@@ -2403,7 +2509,7 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
                 if (horizontal)
                     pixmapRect.adjust(-2, 0, 2, 0);
 
-                qt_haiku_draw_button(painter, pixmapRect, false, false, false, false, isEnabled, false, false,
+                qt_haiku_draw_scroll(painter, pixmapRect, false, false, false, false, isEnabled, false, false,
                 	horizontal?B_HORIZONTAL:B_VERTICAL);
             }
         }
