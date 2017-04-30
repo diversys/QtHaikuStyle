@@ -2603,7 +2603,7 @@ int QHaikuStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, con
         ret = 24 + 5;
         break;
     case PM_ScrollBarExtent:
-        ret = B_V_SCROLL_BAR_WIDTH;
+        ret = B_V_SCROLL_BAR_WIDTH + 2;
         break;
     case PM_SliderThickness:
         ret = 8;
