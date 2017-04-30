@@ -1774,32 +1774,12 @@ void QHaikuStyle::drawControl(ControlElement element, const QStyleOption *option
             bool lastTab = ((!rtlHorTabs && tab->position == QStyleOptionTab::End)
                             || (rtlHorTabs
                                 && tab->position == QStyleOptionTab::Beginning));
-            bool onlyTab = tab->position == QStyleOptionTab::OnlyOneTab;
-            bool leftCornerWidget = (tab->cornerWidgets & QStyleOptionTab::LeftCornerWidget);
-
-            bool atBeginning = ((tab->position == (tab->direction == Qt::LeftToRight ?
-                                QStyleOptionTab::Beginning : QStyleOptionTab::End)) || onlyTab);
-
-            bool onlyOne = tab->position == QStyleOptionTab::OnlyOneTab;
             bool previousSelected =
                 ((!rtlHorTabs
                   && tab->selectedPosition == QStyleOptionTab::PreviousIsSelected)
                  || (rtlHorTabs
                      && tab->selectedPosition == QStyleOptionTab::NextIsSelected));
-            bool nextSelected =
-                ((!rtlHorTabs
-                  && tab->selectedPosition == QStyleOptionTab::NextIsSelected)
-                 || (rtlHorTabs
-                     && tab->selectedPosition
-                     == QStyleOptionTab::PreviousIsSelected));
-            int tabBarAlignment = proxy()->styleHint(SH_TabBar_Alignment, tab, widget);
-            bool leftAligned = (!rtlHorTabs && tabBarAlignment == Qt::AlignLeft)
-                               || (rtlHorTabs
-                                   && tabBarAlignment == Qt::AlignRight);
 
-            bool rightAligned = (!rtlHorTabs && tabBarAlignment == Qt::AlignRight)
-                                || (rtlHorTabs
-                                    && tabBarAlignment == Qt::AlignLeft);
 			rgb_color base = mkHaikuColor(option->palette.color( QPalette::Normal, QPalette::Window));
 			QColor backgroundColor(option->palette.color( QPalette::Normal, QPalette::Window));
 			QColor frameColor(mkQColor(tint_color(base, 1.30)));
