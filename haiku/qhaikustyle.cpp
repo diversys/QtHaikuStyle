@@ -65,6 +65,7 @@
 #include <qstylefactory.h>
 #include <qmdisubwindow.h>
 #include <qlabel.h>
+#include <qdial.h>
 
 #include <QDebug>
 
@@ -2608,8 +2609,13 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
 #endif // QT_NO_SLIDER
 #ifndef QT_NO_DIAL
     case CC_Dial:
-        if (const QStyleOptionSlider *dial = qstyleoption_cast<const QStyleOptionSlider *>(option))
-            QStyleHelper::drawDial(dial, painter);
+        if (const QStyleOptionSlider *dial = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
+			QPalette pal = widget->palette();
+			pal.setColor(QPalette::Active, QPalette::Highlight, mkQColor(ui_color(B_NAVIGATION_BASE_COLOR)));
+			if (!(widget && qobject_cast<const QDial*> (widget)));
+				((QDial*)widget)->setPalette(pal);
+			QStyleHelper::drawDial(dial, painter);
+        }
         break;
 #endif // QT_NO_DIAL
         default:
