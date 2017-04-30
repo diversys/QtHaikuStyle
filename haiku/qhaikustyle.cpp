@@ -82,6 +82,8 @@
 #include "qstylehelper_p.h"
 #include "qstylecache_p.h"
 
+#define _QS_HAIKU_TAB_FIX_WIDTH_
+
 QT_BEGIN_NAMESPACE
 
 using namespace QStyleHelper;
@@ -153,6 +155,7 @@ static const int windowsItemVMargin      =  8; // menu item ver text margin
 static const int windowsRightBorder      = 15; // right border on windows
 static const int progressAnimationFps    = 24;
 static const int mdiTabWidthMin			 = 100; //minimal tab size for mid window
+static const int mdiTabWidthFix			 = 220; //tab size for mid window (fixed size mode _QS_HAIKU_TAB_FIX_WIDTH_)
 static const int mdiTabTextMarginLeft	 =  32;
 static const int mdiTabTextMarginRight	 =  24;
 
@@ -3206,6 +3209,9 @@ QRect QHaikuStyle::subControlRect(ComplexControl control, const QStyleOptionComp
 				fontMetrics = QFontMetrics(font);
 			}
 			
+#ifdef _QS_HAIKU_TAB_FIX_WIDTH_
+			int textWidth = mdiTabWidthFix;
+#else
 			int textWidth = mdiTabWidthMin;
             if (!tb->text.isEmpty()) {
 				textWidth = fontMetrics.width(tb->text) + 20;
@@ -3214,7 +3220,7 @@ QRect QHaikuStyle::subControlRect(ComplexControl control, const QStyleOptionComp
 				if (textWidth < mdiTabWidthMin)
 					textWidth = mdiTabWidthMin;
             }
-
+#endif
             int tabWidth = textWidth + mdiTabTextMarginLeft +  mdiTabTextMarginRight;
 
             if (tabWidth > tb->rect.width())
