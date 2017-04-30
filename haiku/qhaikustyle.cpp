@@ -2939,7 +2939,8 @@ bool QHaikuStyle::event(QEvent *event)
 bool QHaikuStyle::eventFilter(QObject *o, QEvent *e)
 {
     switch (e->type())
-    {    	
+    {
+#ifndef _QS_HAIKU_TAB_FIX_WIDTH_
     case QEvent::WindowTitleChange:
     	if(QMdiSubWindow* w = qobject_cast<QMdiSubWindow*>(o)) {
 			QStyleHintReturnMask mask;
@@ -2968,6 +2969,7 @@ bool QHaikuStyle::eventFilter(QObject *o, QEvent *e)
 			w->repaint();
     	}
     	break;
+#endif    	
 #ifndef QT_NO_PROGRESSBAR
     case QEvent::StyleChange:
     case QEvent::Paint:
