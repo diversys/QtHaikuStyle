@@ -1907,89 +1907,50 @@ QPalette QHaikuStyle::standardPalette () const
     palette.setBrush(QPalette::Disabled, QPalette::Base, QColor(QRgb(0xffefefef)));
     palette.setBrush(QPalette::Disabled, QPalette::AlternateBase, palette.color(QPalette::Disabled, QPalette::Base).darker(110));
     palette.setBrush(QPalette::Disabled, QPalette::Window, mkQColor(panel_background_color));
-    palette.setBrush(QPalette::Disabled, QPalette::Shadow, QColor(QRgb(0xff000000)));
-    palette.setBrush(QPalette::Disabled, QPalette::Highlight, QColor(QRgb(0xff567594)));
-    palette.setBrush(QPalette::Disabled, QPalette::HighlightedText, QColor(QRgb(0xffffffff)));
+    palette.setBrush(QPalette::Disabled, QPalette::Shadow, mkQColor(ui_color(B_SHADOW_COLOR)));
+    palette.setBrush(QPalette::Disabled, QPalette::Highlight, mkQColor(ui_color(B_PANEL_BACKGROUND_COLOR)));
+    palette.setBrush(QPalette::Disabled, QPalette::HighlightedText, mkQColor(ui_color(B_PANEL_TEXT_COLOR)));
     palette.setBrush(QPalette::Disabled, QPalette::Link, QColor(QRgb(0xff0000ee)));
     palette.setBrush(QPalette::Disabled, QPalette::LinkVisited, QColor(QRgb(0xff52188b)));
 
     palette.setBrush(QPalette::Active, QPalette::WindowText, mkQColor(ui_color(B_PANEL_TEXT_COLOR)));
     palette.setBrush(QPalette::Active, QPalette::Button, mkQColor(ui_color(B_CONTROL_BACKGROUND_COLOR)));
-    palette.setBrush(QPalette::Active, QPalette::Light, QColor(QRgb(0xffffffff)));
+    palette.setBrush(QPalette::Active, QPalette::Light, mkQColor(ui_color(B_SHINE_COLOR)));
     palette.setBrush(QPalette::Active, QPalette::Midlight, QColor(QRgb(0xffffffff)));
     palette.setBrush(QPalette::Active, QPalette::Dark, QColor(QRgb(0xff555555)));
     palette.setBrush(QPalette::Active, QPalette::Mid, QColor(QRgb(0xffc7c7c7)));
-    palette.setBrush(QPalette::Active, QPalette::Text, QColor(QRgb(0xff000000)));
-    palette.setBrush(QPalette::Active, QPalette::BrightText, QColor(QRgb(0xffffffff)));
+    palette.setBrush(QPalette::Active, QPalette::Text, mkQColor(ui_color(B_DOCUMENT_TEXT_COLOR)));
+    palette.setBrush(QPalette::Active, QPalette::BrightText, mkQColor(ui_color(B_SHINE_COLOR)));
     palette.setBrush(QPalette::Active, QPalette::ButtonText, mkQColor(control_text));
-    palette.setBrush(QPalette::Active, QPalette::Base, QColor(QRgb(0xffffffff)));
-    palette.setBrush(QPalette::Active, QPalette::AlternateBase, palette.color(QPalette::Active, QPalette::Base).darker(110));
+    palette.setBrush(QPalette::Active, QPalette::Base, mkQColor(ui_color(B_LIST_BACKGROUND_COLOR)));
+    palette.setBrush(QPalette::Active, QPalette::AlternateBase, mkQColor(ui_color(B_LIST_BACKGROUND_COLOR)));
     palette.setBrush(QPalette::Active, QPalette::Window, mkQColor(panel_background_color));
-    palette.setBrush(QPalette::Active, QPalette::Shadow, QColor(QRgb(0xff000000)));
-    palette.setBrush(QPalette::Active, QPalette::Highlight, QColor(QRgb(0xff678db2)));
-    palette.setBrush(QPalette::Active, QPalette::HighlightedText, QColor(QRgb(0xffffffff)));
-    palette.setBrush(QPalette::Active, QPalette::Link, QColor(QRgb(0xff0000ee)));
-    palette.setBrush(QPalette::Active, QPalette::LinkVisited, QColor(QRgb(0xff52188b)));
+    palette.setBrush(QPalette::Active, QPalette::Shadow, mkQColor(ui_color(B_SHADOW_COLOR)));
+    palette.setBrush(QPalette::Active, QPalette::Highlight, mkQColor(ui_color(B_LIST_SELECTED_BACKGROUND_COLOR)));
+    palette.setBrush(QPalette::Active, QPalette::HighlightedText, mkQColor(ui_color(B_LIST_SELECTED_ITEM_TEXT_COLOR)));
+    palette.setBrush(QPalette::Active, QPalette::Link, mkQColor(ui_color(B_LINK_TEXT_COLOR)));
+    palette.setBrush(QPalette::Active, QPalette::LinkVisited, mkQColor(ui_color(B_LINK_VISITED_COLOR)));
     palette.setBrush(QPalette::Active, QPalette::ToolTipBase, mkQColor(ui_color(B_TOOL_TIP_BACKGROUND_COLOR)));
     palette.setBrush(QPalette::Active, QPalette::ToolTipText, mkQColor(ui_color(B_TOOL_TIP_TEXT_COLOR)));
 
     palette.setBrush(QPalette::Inactive, QPalette::WindowText, mkQColor(ui_color(B_PANEL_TEXT_COLOR)));
     palette.setBrush(QPalette::Inactive, QPalette::Button, mkQColor(ui_color(B_CONTROL_BACKGROUND_COLOR)));
-    palette.setBrush(QPalette::Inactive, QPalette::Light, QColor(QRgb(0xffffffff)));
+    palette.setBrush(QPalette::Inactive, QPalette::Light, mkQColor(ui_color(B_SHINE_COLOR)));
     palette.setBrush(QPalette::Inactive, QPalette::Midlight, QColor(QRgb(0xffffffff)));
     palette.setBrush(QPalette::Inactive, QPalette::Dark, QColor(QRgb(0xff555555)));
     palette.setBrush(QPalette::Inactive, QPalette::Mid, QColor(QRgb(0xffc7c7c7)));
-    palette.setBrush(QPalette::Inactive, QPalette::Text, QColor(QRgb(0xff000000)));
-    palette.setBrush(QPalette::Inactive, QPalette::BrightText, QColor(QRgb(0xffffffff)));
+    palette.setBrush(QPalette::Inactive, QPalette::Text, mkQColor(ui_color(B_DOCUMENT_TEXT_COLOR)));
+    palette.setBrush(QPalette::Inactive, QPalette::BrightText, mkQColor(ui_color(B_SHINE_COLOR)));
     palette.setBrush(QPalette::Inactive, QPalette::ButtonText, mkQColor(control_text));
-    palette.setBrush(QPalette::Inactive, QPalette::Base, QColor(QRgb(0xffffffff)));
-    palette.setBrush(QPalette::Inactive, QPalette::AlternateBase, palette.color(QPalette::Inactive, QPalette::Base).darker(110));
+    palette.setBrush(QPalette::Inactive, QPalette::Base, mkQColor(ui_color(B_LIST_BACKGROUND_COLOR)));
+    palette.setBrush(QPalette::Inactive, QPalette::AlternateBase, mkQColor(ui_color(B_LIST_BACKGROUND_COLOR)));
     palette.setBrush(QPalette::Inactive, QPalette::Window, mkQColor(panel_background_color));
-    palette.setBrush(QPalette::Inactive, QPalette::Shadow, QColor(QRgb(0xff000000)));
-    palette.setBrush(QPalette::Inactive, QPalette::Highlight, QColor(QRgb(0xff678db2)));
-    palette.setBrush(QPalette::Inactive, QPalette::HighlightedText, QColor(QRgb(0xffffffff)));
-    palette.setBrush(QPalette::Inactive, QPalette::Link, QColor(QRgb(0xff0000ee)));
-    palette.setBrush(QPalette::Inactive, QPalette::LinkVisited, QColor(QRgb(0xff52188b)));
+    palette.setBrush(QPalette::Inactive, QPalette::Shadow, mkQColor(ui_color(B_SHADOW_COLOR)));
+    palette.setBrush(QPalette::Inactive, QPalette::Highlight, mkQColor(ui_color(B_LIST_SELECTED_BACKGROUND_COLOR)));
+    palette.setBrush(QPalette::Inactive, QPalette::HighlightedText, mkQColor(ui_color(B_LIST_SELECTED_ITEM_TEXT_COLOR)));
+    palette.setBrush(QPalette::Inactive, QPalette::Link, mkQColor(ui_color(B_LINK_TEXT_COLOR)));
+    palette.setBrush(QPalette::Inactive, QPalette::LinkVisited, mkQColor(ui_color(B_LINK_VISITED_COLOR)));
     return palette;
-    	
-    /*QPalette palette = QProxyStyle::standardPalette();
-    palette.setBrush(QPalette::Active, QPalette::Highlight, QColor(98, 140, 178));
-    palette.setBrush(QPalette::Inactive, QPalette::Highlight, QColor(145, 141, 126));
-    palette.setBrush(QPalette::Disabled, QPalette::Highlight, QColor(145, 141, 126));
-
-    QColor backGround(mkQColor(ui_color(B_PANEL_BACKGROUND_COLOR)));
-
-    QColor light = backGround.lighter(150);
-    QColor base = Qt::white;
-    QColor dark = QColor(170, 156, 143).darker(110);
-    dark = backGround.darker(150);
-    QColor darkDisabled = QColor(209, 200, 191).darker(110);
-
-    //### Find the correct disabled text color
-    palette.setBrush(QPalette::Disabled, QPalette::Text, QColor(190, 190, 190));
-
-    palette.setBrush(QPalette::Window, backGround);
-    palette.setBrush(QPalette::Mid, backGround.darker(130));
-    palette.setBrush(QPalette::Light, light);
-
-    palette.setBrush(QPalette::Active, QPalette::Base, base);
-    palette.setBrush(QPalette::Inactive, QPalette::Base, base);
-    palette.setBrush(QPalette::Disabled, QPalette::Base, backGround);
-
-    palette.setBrush(QPalette::Midlight, palette.mid().color().lighter(110));
-
-    palette.setBrush(QPalette::All, QPalette::Dark, dark);
-    palette.setBrush(QPalette::Disabled, QPalette::Dark, darkDisabled);
-
-    QColor button = backGround;
-
-    palette.setBrush(QPalette::Button, button);
-
-    QColor shadow = dark.darker(135);
-    palette.setBrush(QPalette::Shadow, shadow);
-    palette.setBrush(QPalette::Disabled, QPalette::Shadow, shadow.lighter(150));
-    palette.setBrush(QPalette::HighlightedText, QColor(QRgb(0xffffffff)));
-    return palette;*/
 }
 
 /*!
