@@ -2418,8 +2418,7 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
             bool isEnabled = (comboBox->state & State_Enabled);
             bool focus = isEnabled && (comboBox->state & State_HasFocus);
            
-           	QRect rect = comboBox->rect.adjusted(0,1,0,-1);
-			BRect bRect(0.0f, 0.0f, rect.width() - 1, rect.height() - 1);
+			BRect bRect(0.0f, 0.0f, comboBox->rect.width() - 1, comboBox->rect.height() - 1);
 			TemporarySurface surface(bRect);
 			rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
 			rgb_color color = tint_color(base, B_DARKEN_2_TINT);
@@ -2442,7 +2441,7 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
             be_control_look->DrawMenuFieldBackground(surface.view(), bRect2, bRect2, base, true, flags);
             be_control_look->DrawMenuFieldFrame(surface.view(), bRect, bRect, base, base, flags);
             
-			painter->drawImage(rect, surface.image());
+			painter->drawImage(comboBox->rect, surface.image());
         }
         painter->restore();
         break;
@@ -2756,9 +2755,10 @@ QSize QHaikuStyle::sizeFromContents(ContentsType type, const QStyleOption *optio
     case CT_ComboBox:
         newSize = sizeFromContents(CT_PushButton, option, size, widget);
         newSize.rwidth() += 28;
-        newSize.rheight() += 8;
+        newSize.rheight() += 5;
         break;
     case CT_LineEdit:
+		newSize -= QSize(0, 4);
         break;
     case CT_MenuBar:
         newSize += QSize(0, 1);
