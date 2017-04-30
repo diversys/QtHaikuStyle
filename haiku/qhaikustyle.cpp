@@ -2844,7 +2844,7 @@ void QHaikuStyle::polish(QWidget *widget)
     if (qobject_cast<QProgressBar *>(widget))
         widget->installEventFilter(this);
 #endif
-    if (widget->inherits("QMdiSubWindow"))
+	if (qobject_cast<QMdiSubWindow *>(widget))
         widget->installEventFilter(this);
 }
 
@@ -2896,7 +2896,7 @@ void QHaikuStyle::unpolish(QWidget *widget)
     if (qobject_cast<QProgressBar *>(widget))
         widget->removeEventFilter(this);
 #endif
-	if (widget->inherits("QMdiSubWindow"))
+	if (qobject_cast<QMdiSubWindow *>(widget))
         widget->removeEventFilter(this);
 }
 
