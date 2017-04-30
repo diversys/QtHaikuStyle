@@ -1800,16 +1800,14 @@ void QHaikuStyle::drawControl(ControlElement element, const QStyleOption *option
             bool rightAligned = (!rtlHorTabs && tabBarAlignment == Qt::AlignRight)
                                 || (rtlHorTabs
                                     && tabBarAlignment == Qt::AlignLeft);
+			rgb_color base = mkHaikuColor(option->palette.color( QPalette::Normal, QPalette::Window));
+			QColor backgroundColor(option->palette.color( QPalette::Normal, QPalette::Window));
+			QColor frameColor(mkQColor(tint_color(base, 1.30)));
+			QColor bevelLight(mkQColor(tint_color(base, 0.8)));
+			QColor bevelShadow(mkQColor(tint_color(base, 1.03)));
 
-	        QColor backgroundColor(mkQColor(ui_color(B_PANEL_BACKGROUND_COLOR)));
-	        QColor frameColor(mkQColor(tint_color(ui_color(B_PANEL_BACKGROUND_COLOR), 1.30)));
-	        QColor bevelLight(mkQColor(tint_color(ui_color(B_PANEL_BACKGROUND_COLOR), 0.8)));
-    	    QColor bevelShadow(mkQColor(tint_color(ui_color(B_PANEL_BACKGROUND_COLOR), 1.03)));
-
-                                    
 			if (be_control_look != NULL) {
 				QRect r = option->rect;
-				rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);;
 				uint32 flags = 0; 
 				uint32 side = BControlLook::B_TOP_BORDER;
 				uint32 borders = BControlLook::B_RIGHT_BORDER|BControlLook::B_TOP_BORDER|BControlLook::B_BOTTOM_BORDER;
@@ -1872,10 +1870,10 @@ void QHaikuStyle::drawControl(ControlElement element, const QStyleOption *option
 				if(selected)
 					be_control_look->DrawActiveTab(surface.view(), bRect1, bRect, base, flags, BControlLook::B_ALL_BORDERS, side);
 				else
-					be_control_look->DrawInactiveTab(surface.view(), bRect1, bRect, base, flags, borders, side);		    	    
+					be_control_look->DrawInactiveTab(surface.view(), bRect1, bRect, base, flags, borders, side);
 
 				painter->drawImage(r, surface.image());
-				if (!selected) {					
+				if (!selected) {
    	        		painter->setPen(QPen(frameColor));
    	        		switch(side) {
    	        			case BControlLook::B_TOP_BORDER:
