@@ -912,19 +912,21 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
             bool isEnabled = option->state & State_Enabled;
 
 			rgb_color background = mkHaikuColor(option->palette.color( QPalette::Normal, QPalette::Window));
-			rgb_color button = mkHaikuColor(option->palette.color( QPalette::Normal, QPalette::Button));
-			rgb_color hover_color = tint_color(button, 0.75);
-			rgb_color base = isMouseOver ? hover_color : button;
+			rgb_color base = mkHaikuColor(option->palette.color( QPalette::Normal, QPalette::Button));
+			base = tint_color(base, 1.12); //FIX: strange correction
 
 			QRect rect = option->rect;
 
-			uint32 flags = 0;
+			uint32 flags = BControlLook::B_IS_CONTROL;
+
 			if (isDown)
 				flags |= BControlLook::B_ACTIVATED;
 			if (hasFocus)
 				flags |= BControlLook::B_FOCUSED;
 			if (isFlat)
 				flags |= BControlLook::B_FLAT;
+			if (isMouseOver)
+				flags |= BControlLook::B_HOVER;
 			if (!isEnabled)
 				flags |= BControlLook::B_DISABLED;
 			if (isDefault) {
@@ -936,7 +938,8 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
 
 			TemporarySurface surface(bRect);
 
-			surface.view()->SetHighColor(base);
+			surface.view()->SetViewColor(background);
+			surface.view()->SetHighColor(background);
 			surface.view()->SetLowColor(base);
 			surface.view()->FillRect(bRect);
 
@@ -1949,6 +1952,8 @@ QPalette QHaikuStyle::standardPalette () const
     palette.setBrush(QPalette::Active, QPalette::HighlightedText, QColor(QRgb(0xffffffff)));
     palette.setBrush(QPalette::Active, QPalette::Link, QColor(QRgb(0xff0000ee)));
     palette.setBrush(QPalette::Active, QPalette::LinkVisited, QColor(QRgb(0xff52188b)));
+    palette.setBrush(QPalette::Active, QPalette::ToolTipBase, mkQColor(ui_color(B_TOOL_TIP_BACKGROUND_COLOR)));
+    palette.setBrush(QPalette::Active, QPalette::ToolTipText, mkQColor(ui_color(B_TOOL_TIP_TEXT_COLOR)));
 
     palette.setBrush(QPalette::Inactive, QPalette::WindowText, mkQColor(ui_color(B_PANEL_TEXT_COLOR)));
     palette.setBrush(QPalette::Inactive, QPalette::Button, mkQColor(ui_color(B_CONTROL_BACKGROUND_COLOR)));
