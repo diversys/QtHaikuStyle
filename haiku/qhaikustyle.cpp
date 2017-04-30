@@ -432,7 +432,9 @@ static void qt_haiku_draw_windows_frame(QPainter *painter, const QRect &qrect, c
 	}
 }
 
-static void qt_haiku_draw_button(QPainter *painter, const QRect &qrect, bool def, bool flat, bool pushed, bool focus, bool enabled, bool bevel=true, orientation orient = B_HORIZONTAL, arrow_direction arrow = ARROW_NONE)
+static void qt_haiku_draw_button(QPainter *painter, const QRect &qrect,
+	bool def, bool flat, bool pushed, bool focus, bool enabled, bool hover=false, bool bevel=true,
+	orientation orient = B_HORIZONTAL, arrow_direction arrow = ARROW_NONE)
 {
 	QRect rect = qrect;
 	
@@ -440,7 +442,8 @@ static void qt_haiku_draw_button(QPainter *painter, const QRect &qrect, bool def
 		// TODO: If this button is embedded within a different color background, it would be
 		// nice to tell this function so the frame can be smoothly blended into the background.
 		rgb_color background = ui_color(B_PANEL_BACKGROUND_COLOR);
-		rgb_color base = background;
+		rgb_color hover_color = tint_color(background, 0.75);
+		rgb_color base = hover ? hover_color : background;
 		uint32 flags = 0;
 		if (pushed)
 			flags |= BControlLook::B_ACTIVATED;
@@ -882,7 +885,9 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
         	bool isDefault = false;
         	bool isFlat = false;
         	bool isDown = (option->state & State_Sunken) || (option->state & State_On);
-        	bool isTool = (elem == PE_PanelButtonTool);        	
+			bool isTool = (elem == PE_PanelButtonTool);
+			bool isMouseOver = (option->state & State_MouseOver) && (option->state & State_Enabled);
+
         	if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton*>(option)) {
             	isDefault = btn->features & QStyleOptionButton::DefaultButton;
             	isFlat = (btn->features & QStyleOptionButton::Flat);
@@ -895,7 +900,7 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
             bool isEnabled = option->state & State_Enabled;
 
 			qt_haiku_draw_button(painter, option->rect,
-				isDefault, isFlat, isDown, hasFocus, isEnabled);
+				isDefault, isFlat, isDown, hasFocus, isEnabled, isMouseOver);
 	     	painter->restore();
         }
         break;
@@ -2348,15 +2353,15 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
             
             	bool pushed = (scrollBar->activeSubControls & SC_ScrollBarSubLine) && sunken;
            	            
-				qt_haiku_draw_button(painter, pixmapRect, false, false, pushed, false, isEnabled, false,
-					horizontal?B_HORIZONTAL:B_VERTICAL, horizontal?ARROW_LEFT:ARROW_UP);	
+				qt_haiku_draw_button(painter, pixmapRect, false, false, pushed, false, isEnabled, false, false,
+					horizontal?B_HORIZONTAL:B_VERTICAL, horizontal?ARROW_LEFT:ARROW_UP);
             }
             if (scrollBar->subControls & SC_ScrollBarAddLine) {
 				QRect pixmapRect = scrollBarAddLine;;
 
             	bool pushed = (scrollBar->activeSubControls & SC_ScrollBarAddLine) && sunken;
 
-				qt_haiku_draw_button(painter, pixmapRect, false, false, pushed, false, isEnabled, false,
+				qt_haiku_draw_button(painter, pixmapRect, false, false, pushed, false, isEnabled, false, false,
 					horizontal?B_HORIZONTAL:B_VERTICAL, horizontal?ARROW_RIGHT:ARROW_DOWN);
             }
 			// paint groove
@@ -2398,7 +2403,7 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
                 if (horizontal)
                     pixmapRect.adjust(-2, 0, 2, 0);
 
-                qt_haiku_draw_button(painter, pixmapRect, false, false, false, false, isEnabled, false, 
+                qt_haiku_draw_button(painter, pixmapRect, false, false, false, false, isEnabled, false, false,
                 	horizontal?B_HORIZONTAL:B_VERTICAL);
             }
         }
