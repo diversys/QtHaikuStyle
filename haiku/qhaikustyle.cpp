@@ -3386,6 +3386,9 @@ int QHaikuStyle::styleHint(StyleHint hint, const QStyleOption *option, const QWi
     case SH_Menu_SubMenuPopupDelay:
         ret = 225; // default from GtkMenu
         break;
+	case SH_ScrollView_FrameOnlyAroundContents:
+		ret = 1;
+		break;
     default:
         ret = QProxyStyle::styleHint(hint, option, widget, returnData);
         break;
