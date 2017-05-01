@@ -2612,7 +2612,7 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
         if (const QStyleOptionSlider *dial = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
 			QPalette pal = widget->palette();
 			pal.setColor(QPalette::Active, QPalette::Highlight, mkQColor(ui_color(B_NAVIGATION_BASE_COLOR)));
-			if (!(widget && qobject_cast<const QDial*> (widget)));
+			if (!(widget && qobject_cast<const QDial*> (widget)))
 				((QDial*)widget)->setPalette(pal);
 			QStyleHelper::drawDial(dial, painter);
         }
