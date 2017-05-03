@@ -2829,7 +2829,7 @@ QSize QHaikuStyle::sizeFromContents(ContentsType type, const QStyleOption *optio
     	}
     	break;
     case CT_SpinBox:
-        newSize += QSize(newSize.height() * 2, 0);
+        newSize += QSize(16 + newSize.height() * 2, 0);
         break;
     case CT_ComboBox:
         newSize = sizeFromContents(CT_PushButton, option, size, widget);
