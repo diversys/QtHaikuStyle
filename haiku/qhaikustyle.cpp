@@ -1087,6 +1087,40 @@ void QHaikuStyle::drawControl(ControlElement element, const QStyleOption *option
     QColor highlight = option->palette.highlight().color();
 
     switch (element) {
+     case CE_ShapedFrame:
+		painter->save();
+		{
+			if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(option)) {
+				QRect rect = option->rect;
+				border_style border = B_NO_BORDER;
+
+				if (frame->frameShape == QFrame::Box)
+					border = B_PLAIN_BORDER;
+				else if (frame->frameShape == QFrame::Panel ||
+					frame->frameShape == QFrame::StyledPanel ||
+					frame->frameShape == QFrame::WinPanel ||
+					frame->frameShape == QFrame::HLine ||
+					frame->frameShape == QFrame::VLine)
+					border = B_FANCY_BORDER;
+				if (border == B_NO_BORDER)
+					break;
+
+				BRect bRect(0.0f, 0.0f, rect.width() - 1, rect.height() - 1);
+				TemporarySurface surface(bRect);
+
+				uint32 flags = 0;
+				if (option->state & State_HasFocus)
+					flags |= BControlLook::B_FOCUSED;
+
+				rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
+
+				be_control_look->DrawScrollViewFrame(surface.view(), bRect, bRect,
+					BRect(), BRect(), base, border, flags, BControlLook::B_ALL_BORDERS);
+				painter->drawImage(rect, surface.image());
+			}
+		}
+		painter->restore();
+		break;
      case CE_RadioButton: //fall through
      case CE_CheckBox:
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(option)) {
