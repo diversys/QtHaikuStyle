@@ -2064,7 +2064,10 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
 #ifndef QT_NO_SPINBOX
     case CC_SpinBox:
     	painter->save();
-        if (const QStyleOptionSpinBox *spinBox = qstyleoption_cast<const QStyleOptionSpinBox *>(option)) {        	
+        if (const QStyleOptionSpinBox *spinBox = qstyleoption_cast<const QStyleOptionSpinBox *>(option)) {
+			bool isEnabled = (spinBox->state & State_Enabled);
+			bool hover = isEnabled && (spinBox->state & State_MouseOver);
+
 			QRect rect = option->rect.adjusted(0, 0, 0, 0);
 			BRect bRect(0.0f, 0.0f, rect.width() - 1, rect.height() - 1);
             QRect editRect = proxy()->subControlRect(CC_SpinBox, spinBox, SC_SpinBoxEditField, widget);
@@ -2089,12 +2092,44 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
 			surface.view()->SetHighColor(ui_color(B_PANEL_BACKGROUND_COLOR));
 			surface.view()->FillRect(bRect);
 			be_control_look->DrawTextControlBorder(surface.view(), bEditRect, bEditRect, base, flags);
+
+			float frameTint = B_DARKEN_1_TINT;
+			float fgTint;
+			if (!isEnabled)
+				fgTint = B_DARKEN_1_TINT;
+			else if (hover)
+				fgTint = B_DARKEN_MAX_TINT;
+			else
+				fgTint = 1.777f;	// 216 --> 48.2 (48)
+
+			float bgTint;
+			if (isEnabled && hover)
+				bgTint = B_DARKEN_1_TINT;
+			else
+				bgTint = B_NO_TINT;
+
+			rgb_color bgColor = ui_color(B_PANEL_BACKGROUND_COLOR);
+			if (bgColor.red + bgColor.green + bgColor.blue <= 128 * 3) {			
+				frameTint = 2.0f - frameTint;
+				fgTint = 2.0f - fgTint;
+				bgTint = 2.0f - bgTint;
+			}
+
+			uint32 borders = be_control_look->B_TOP_BORDER | be_control_look->B_BOTTOM_BORDER;
+
+			if (true)
+				borders |= be_control_look->B_RIGHT_BORDER;
+			else
+				borders |= be_control_look->B_LEFT_BORDER;
+
+			// draw the button
+			be_control_look->DrawButtonFrame(surface.view(), bUpRect, bUpRect,
+				tint_color(bgColor, frameTint), bgColor, 0, borders);
+			be_control_look->DrawButtonBackground(surface.view(), bUpRect, bUpRect,
+				tint_color(bgColor, bgTint), 0, borders);
+
 			painter->drawImage(rect, surface.image());
 
-			painter->setPen(Qt::red);
-			painter->drawRect(upRect);
-			painter->setPen(Qt::blue);
-			painter->drawRect(downRect);
 /*
             QPixmap cache;
             QString pixmapName = QStyleHelper::uniqueName(QLatin1String("spinbox"), spinBox, spinBox->rect.size());
