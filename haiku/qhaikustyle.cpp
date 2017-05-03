@@ -1083,8 +1083,10 @@ void QHaikuStyle::drawControl(ControlElement element, const QStyleOption *option
 					frame->frameShape == QFrame::HLine ||
 					frame->frameShape == QFrame::VLine)
 					border = B_FANCY_BORDER;
-				if (border == B_NO_BORDER)
+				if (border == B_NO_BORDER) {
+					painter->restore();
 					break;
+				}
 
 				BRect bRect(0.0f, 0.0f, rect.width() - 1, rect.height() - 1);
 				TemporarySurface surface(bRect);
@@ -1094,7 +1096,10 @@ void QHaikuStyle::drawControl(ControlElement element, const QStyleOption *option
 					flags |= BControlLook::B_FOCUSED;
 
 				rgb_color base = mkHaikuColor(option->palette.color( QPalette::Normal, QPalette::Window));
-
+				surface.view()->SetViewColor(base);
+				surface.view()->SetHighColor(base);
+				surface.view()->SetLowColor(base);
+				surface.view()->FillRect(bRect);
 				be_control_look->DrawScrollViewFrame(surface.view(), bRect, bRect,
 					BRect(), BRect(), base, border, flags, BControlLook::B_ALL_BORDERS);
 				painter->drawImage(rect, surface.image());
