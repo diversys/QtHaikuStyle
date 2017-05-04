@@ -803,7 +803,7 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
         painter->save();
         {
 			QRect r = option->rect;
-			rgb_color base = ui_color(B_CONTROL_BACKGROUND_COLOR);;
+			rgb_color base = mkHaikuColor(option->palette.color( QPalette::Normal, QPalette::Button));
 			uint32 flags = 0;
 			if (!option->state & State_Enabled)
 				flags |= BControlLook::B_DISABLED;
@@ -824,7 +824,7 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
             rect = rect.adjusted(1, 1, -1, -1);
 			BRect bRect(0.0f, 0.0f, rect.width() - 1, rect.height() - 1);
 			TemporarySurface surface(bRect);
-			rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
+			rgb_color base = mkHaikuColor(option->palette.color( QPalette::Normal, QPalette::Window));
 			surface.view()->SetHighColor(base);
 			surface.view()->SetLowColor(base);
 			surface.view()->FillRect(bRect);
@@ -854,7 +854,7 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
             rect = rect.adjusted(1, -1, 3, 1);
 			BRect bRect(0.0f, 0.0f, rect.width() - 1, rect.height() - 1);
 			TemporarySurface surface(bRect);
-			rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
+			rgb_color base = mkHaikuColor(option->palette.color( QPalette::Normal, QPalette::Window));
 			surface.view()->SetHighColor(base);
 			surface.view()->SetLowColor(base);
 			surface.view()->FillRect(bRect);
@@ -972,11 +972,11 @@ void QHaikuStyle::drawPrimitive(PrimitiveElement elem,
         case PE_FrameTabWidget:        
             painter->save();
             if (const QStyleOptionTabWidgetFrame *twf = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(option)) {
-            	            	
-		        QColor backgroundColor(mkQColor(ui_color(B_PANEL_BACKGROUND_COLOR)));
-		        QColor frameColor(mkQColor(tint_color(ui_color(B_PANEL_BACKGROUND_COLOR), 1.30)));
-		        QColor bevelLight(mkQColor(tint_color(ui_color(B_PANEL_BACKGROUND_COLOR), 0.8)));
-		        QColor bevelShadow(mkQColor(tint_color(ui_color(B_PANEL_BACKGROUND_COLOR), 1.03)));
+				rgb_color bgColor = mkHaikuColor(option->palette.color( QPalette::Normal, QPalette::Window));
+		        QColor backgroundColor(mkQColor(bgColor));
+		        QColor frameColor(mkQColor(tint_color(bgColor, 1.30)));
+		        QColor bevelLight(mkQColor(tint_color(bgColor, 0.8)));
+		        QColor bevelShadow(mkQColor(tint_color(bgColor, 1.03)));
 		        
 		        QRect frame = option->rect;
 		        
@@ -1093,7 +1093,7 @@ void QHaikuStyle::drawControl(ControlElement element, const QStyleOption *option
 				if (option->state & State_HasFocus)
 					flags |= BControlLook::B_FOCUSED;
 
-				rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
+				rgb_color base = mkHaikuColor(option->palette.color( QPalette::Normal, QPalette::Window));
 
 				be_control_look->DrawScrollViewFrame(surface.view(), bRect, bRect,
 					BRect(), BRect(), base, border, flags, BControlLook::B_ALL_BORDERS);
@@ -1117,7 +1117,7 @@ void QHaikuStyle::drawControl(ControlElement element, const QStyleOption *option
         	
 			if (be_control_look != NULL) {
 				QRect r = option->rect;
-				rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);;
+				rgb_color base = mkHaikuColor(option->palette.color( QPalette::Normal, QPalette::Window));
 				uint32 flags = 0;            
 		        BRect bRect(0.0f, 0.0f, r.width() - 1, r.height() - 1);
 				TemporarySurface surface(bRect);
@@ -2061,7 +2061,8 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
 		    BRect bUpRect(upRect.left(), upRect.top(), upRect.right(), upRect.bottom());
 		    BRect bDownRect(downRect.left(), downRect.top(), downRect.right(), downRect.bottom());
 
-			rgb_color base = ui_color(B_CONTROL_BACKGROUND_COLOR);
+			rgb_color base = mkHaikuColor(option->palette.color( QPalette::Normal, QPalette::Button));
+			rgb_color bgColor = mkHaikuColor(option->palette.color( QPalette::Normal, QPalette::Window));
 
 			uint32 flags = 0;
 			if (!option->state & State_Enabled)
@@ -2071,9 +2072,9 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
 
 			TemporarySurface surface(bRect);
 			bEditRect.InsetBy(-2, -2);
-			surface.view()->SetViewColor(ui_color(B_PANEL_BACKGROUND_COLOR));
-			surface.view()->SetLowColor(ui_color(B_PANEL_BACKGROUND_COLOR));
-			surface.view()->SetHighColor(ui_color(B_PANEL_BACKGROUND_COLOR));
+			surface.view()->SetViewColor(bgColor);
+			surface.view()->SetLowColor(bgColor);
+			surface.view()->SetHighColor(bgColor);
 			surface.view()->FillRect(bRect);
 
 			if (spinBox->frame)
@@ -2107,7 +2108,6 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
 			else
 				bgTintDown = B_NO_TINT;				
 
-			rgb_color bgColor = ui_color(B_PANEL_BACKGROUND_COLOR);
 			if (bgColor.red + bgColor.green + bgColor.blue <= 128 * 3) {			
 				frameTint = 2.0f - frameTint;
 				fgTintUp = 2.0f - fgTintUp;
@@ -2347,7 +2347,7 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
             BRect grooveRectBRect = BRect(grooveRect.left(), grooveRect.top(), 
             									grooveRect.right(), grooveRect.bottom());
 
-			rgb_color normal = ui_color(B_PANEL_BACKGROUND_COLOR);
+			rgb_color normal = mkHaikuColor(option->palette.color( QPalette::Normal, QPalette::Window));
 
 			TemporarySurface surface(bRect);
 			surface.view()->SetHighColor(tint_color(normal, B_DARKEN_2_TINT));			
@@ -2516,7 +2516,7 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
            
 			BRect bRect(0.0f, 0.0f, comboBox->rect.width() - 1, comboBox->rect.height() - 1);
 			TemporarySurface surface(bRect);
-			rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
+			rgb_color base = mkHaikuColor(option->palette.color( QPalette::Normal, QPalette::Window));
 			rgb_color color = tint_color(base, B_DARKEN_2_TINT);
 
 			uint32 flags = 0;
@@ -2607,8 +2607,8 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
 
 			if (be_control_look != NULL) {
 				QRect r = groove;
-				rgb_color base = ui_color(B_PANEL_BACKGROUND_COLOR);
-				rgb_color fill_color = tint_color(ui_color(B_PANEL_BACKGROUND_COLOR), B_DARKEN_1_TINT);
+				rgb_color base = mkHaikuColor(option->palette.color( QPalette::Normal, QPalette::Window));
+				rgb_color fill_color = tint_color(base, B_DARKEN_1_TINT);
 				uint32 flags = 0;            
 
 		        BRect bRect(0.0f, 0.0f, option->rect.width() - 1,  option->rect.height() - 1);
@@ -2657,7 +2657,7 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
         if (const QStyleOptionSlider *dial = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
 			QPalette pal = widget->palette();
 			pal.setColor(QPalette::Active, QPalette::Highlight, mkQColor(ui_color(B_NAVIGATION_BASE_COLOR)));
-			if (!(widget && qobject_cast<const QDial*> (widget)))
+			if (widget!=NULL)
 				((QDial*)widget)->setPalette(pal);
 			QStyleHelper::drawDial(dial, painter);
         }
