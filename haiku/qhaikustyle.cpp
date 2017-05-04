@@ -2128,8 +2128,36 @@ void QHaikuStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
 			be_control_look->DrawButtonBackground(surface.view(), bDownRect, bDownRect,
 				tint_color(bgColor, bgTintDown), 0, borders | be_control_look->B_LEFT_BORDER);
 
+			bUpRect.InsetBy(1, bUpRect.Width() / 2);
+			bDownRect.InsetBy(1, bDownRect.Width() / 2);
+
+			if (bUpRect.IntegerWidth() % 2 != 0)
+				bUpRect.right += 1;
+
+			if (bUpRect.IntegerHeight() % 2 != 0)
+				bUpRect.bottom += 1;
+
+			if (bDownRect.IntegerWidth() % 2 != 0)
+				bDownRect.right += 1;
+
+			if (bDownRect.IntegerHeight() % 2 != 0)
+				bDownRect.bottom += 1;
+
+			surface.view()->SetHighColor(tint_color(bgColor, fgTintUp));
+
+			float halfHeight = floorf(bUpRect.Height() / 2);
+			surface.view()->StrokeLine(BPoint(bUpRect.left, bUpRect.top + halfHeight),
+				BPoint(bUpRect.right, bUpRect.top + halfHeight));
+
+			float halfWidth = floorf(bUpRect.Width() / 2);
+			surface.view()->StrokeLine(BPoint(bUpRect.left + halfWidth, bUpRect.top),
+				BPoint(bUpRect.left + halfWidth, bUpRect.bottom));
+
+			surface.view()->StrokeLine(BPoint(bDownRect.left, bDownRect.top + halfHeight),
+				BPoint(bDownRect.right, bDownRect.top + halfHeight));
+
 			painter->drawImage(rect, surface.image());
-        }
+	    }
         painter->restore();
         break;
 #endif // QT_NO_SPINBOX
@@ -2707,7 +2735,7 @@ int QHaikuStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, con
 		ret = 5;
 		break;
     case PM_SpinBoxFrameWidth:
-        ret = 1;
+        ret = 6;
         break;
     case PM_MenuBarItemSpacing:
         ret = 0;
@@ -2829,7 +2857,6 @@ QSize QHaikuStyle::sizeFromContents(ContentsType type, const QStyleOption *optio
     	}
     	break;
     case CT_SpinBox:
-        newSize += QSize(16 + newSize.height() * 2, 0);
         break;
     case CT_ComboBox:
         newSize = sizeFromContents(CT_PushButton, option, size, widget);
@@ -3164,26 +3191,28 @@ QRect QHaikuStyle::subControlRect(ComplexControl control, const QStyleOptionComp
     case CC_SpinBox:
         if (const QStyleOptionSpinBox *spinbox = qstyleoption_cast<const QStyleOptionSpinBox *>(option)) {
             int frameWidth = spinbox->frame ? proxy()->pixelMetric(PM_SpinBoxFrameWidth, spinbox, widget) : 0;
+            if(option->rect.height()-(frameWidth*2) < 16)
+				frameWidth = -(16 - option->rect.height()) / 2;
             int space = 3;
-			QRect frame = spinbox->rect.adjusted(frameWidth, frameWidth, -frameWidth, -frameWidth);
-			QSize buttonSize = QSize(frame.height() - 1, frame.height());
+			QRect frame = spinbox->rect.adjusted(1, frameWidth, -1, -frameWidth);
+			QSize buttonSize = QSize(frame.height() * 0.7, frame.height() + 4);
 
             switch (subControl) {
             case SC_SpinBoxUp:
                 if (spinbox->buttonSymbols == QAbstractSpinBox::NoButtons)
                     return QRect();
-                rect = QRect(frame.right() - buttonSize.width() + frameWidth, frame.top(), buttonSize.width(), buttonSize.height());
+                rect = QRect(spinbox->rect.right() - buttonSize.width(), frame.top() - 2, buttonSize.width(), buttonSize.height());
                 break;
             case SC_SpinBoxDown:
                 if (spinbox->buttonSymbols == QAbstractSpinBox::NoButtons)
                     return QRect();
-                rect = QRect(frame.right() - buttonSize.width() * 2 + frameWidth, frame.top(), buttonSize.width(), buttonSize.height());
+                rect = QRect(spinbox->rect.right() - buttonSize.width() * 2, frame.top() - 2, buttonSize.width(), buttonSize.height());
                 break;
             case SC_SpinBoxEditField:
                 if (spinbox->buttonSymbols == QAbstractSpinBox::NoButtons) {
                     rect = frame;
                 } else {
-                    rect = QRect(frame.left(), frame.top(), frame.width() - buttonSize.width() * 2 - frameWidth - space, frame.height());
+                    rect = QRect(frame.left(), frame.top(), spinbox->rect.width() - buttonSize.width() * 2 - space, frame.height());
                 }
                 break;
             case SC_SpinBoxFrame:
@@ -3492,6 +3521,8 @@ QRect QHaikuStyle::subElementRect(SubElement sr, const QStyleOption *opt, const 
 {
     QRect r = QProxyStyle::subElementRect(sr, opt, w);
     switch (sr) {
+    case SE_SpinBoxLayoutItem:
+		break;
     case SE_TabWidgetTabBar:
 //        r.adjust(10, 0, 10, 0);	//Tab shift
         break;
